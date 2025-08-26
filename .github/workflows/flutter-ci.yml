@@ -52,7 +52,7 @@ jobs:
           name: android-aab
           path: build/app/outputs/bundle/release/app-release.aab
 
-  # ✅ iOS para SIMULADOR (estable en CI)
+  # ✅ iOS para SIMULADOR (en modo debug)
   build_ios_simulator:
     runs-on: macos-latest
     needs: analyze_test
@@ -61,12 +61,16 @@ jobs:
       - uses: subosito/flutter-action@v2
         with: { channel: stable }
       - run: flutter pub get
-      - name: Build iOS (simulator, release)
-        run: flutter build ios --simulator --release
+
+      # 👇 ahora con --debug
+      - name: Build iOS (simulator, debug)
+        run: flutter build ios --simulator --debug
+
       - name: Zip simulator app
         run: |
           cd build/ios/iphonesimulator
           zip -r Runner.app.zip Runner.app
+
       - name: Upload iOS simulator app
         uses: actions/upload-artifact@v4
         with:
