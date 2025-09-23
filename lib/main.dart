@@ -1,10 +1,31 @@
 import 'package:flutter/material.dart';
-import 'package:url_launcher/url_launcher.dart';//-
+import 'package:supabase_flutter/supabase_flutter.dart';
 
-void main() {
+/// Leemos variables por --dart-define para no quemar secretos en código.
+/// Ejemplo de ejecución:
+/// flutter run \
+///   --dart-define=APP_ENV=dev \
+///   --dart-define=SUPABASE_URL=https://TU-PROYECTO.supabase.co \
+///   --dart-define=SUPABASE_ANON_KEY=TU_ANON_KEY
+const String appEnv = String.fromEnvironment('APP_ENV', defaultValue: 'dev');
+const String supabaseUrl = String.fromEnvironment('SUPABASE_URL', defaultValue: '');
+const String supabaseAnonKey = String.fromEnvironment('SUPABASE_ANON_KEY', defaultValue: '');
+
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // Inicializa Supabase si pasaste las llaves; si no, ejecuta en modo "mock".
+  if (supabaseUrl.isNotEmpty && supabaseAnonKey.isNotEmpty) {
+    await Supabase.initialize(url: supabaseUrl, anonKey: supabaseAnonKey);
+    debugPrint('✅ Supabase inicializado (${appEnv.toUpperCase()})');
+  } else {
+    debugPrint('⚠️  SUPABASE_URL/ANON_KEY no definidos. Ejecutando sin backend (${appEnv.toUpperCase()}).');
+  }
+
   runApp(const PawCampusApp());
 }
 
+/// App mínima para arrancar. Luego moveremos esto a lib/app/app.dart y usaremos router.
 class PawCampusApp extends StatelessWidget {
   const PawCampusApp({super.key});
 
@@ -14,69 +35,40 @@ class PawCampusApp extends StatelessWidget {
       title: 'PawCampus',
       theme: ThemeData(
         colorSchemeSeed: const Color(0xFF0E7C7B),
+        brightness: Brightness.light,
         useMaterial3: true,
       ),
-      home: const MyHomePage(title: 'PawCampus'),
+      darkTheme: ThemeData(
+        colorSchemeSeed: const Color(0xFF0E7C7B),
+        brightness: Brightness.dark,
+        useMaterial3: true,
+      ),
+      home: const _BootstrapPage(),
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
-  final String title;
-
-  @override
-  State<MyHomePage> createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
-
-  // 👉 Función para abrir una URL en el navegador (iOS/Android/Web)
-  Future<void> _openFlutterSite() async {
-    final uri = Uri.parse('https://flutter.dev');
-    if (await canLaunchUrl(uri)) {
-      await launchUrl(uri, mode: LaunchMode.externalApplication);
-    } else {
-      // Si por alguna razón falla, muestra un mensaje
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('No se pudo abrir la URL')),
-        );
-      }
-    }
-  }
-
-  void _incrementCounter() {
-    setState(() => _counter++);
-  }
+/// Pantalla inicial temporal para verificar que todo corre.
+/// La reemplazaremos cuando creemos router y páginas reales.
+class _BootstrapPage extends StatelessWidget {
+  const _BootstrapPage();
 
   @override
   Widget build(BuildContext context) {
+    final hasSupabase = supabaseUrl.isNotEmpty && supabaseAnonKey.isNotEmpty;
     return Scaffold(
-      appBar: AppBar(title: Text(widget.title)),
+      appBar: AppBar(title: const Text('PawCampus')),
       body: Center(
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text('Has presionado el botón esta cantidad:'),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headlineMedium,
-            ),
-            const SizedBox(height: 24),
-            // 👇 Este es el botón que te dije:
-            ElevatedButton(
-              onPressed: _openFlutterSite,
-              child: const Text('Abrir Flutter.dev'),
-            ),
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text('PawCampus arrancó 🚀', style: TextStyle(fontSize: 18)),
+            const SizedBox(height: 12),
+            Text('Entorno: $appEnv'),
+            const SizedBox(height: 8),
+            Text(hasSupabase ? 'Backend: Supabase ✅' : 'Backend: (mock) ⚠️ sin llaves'),
           ],
         ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Incrementar',
-        child: const Icon(Icons.add),
       ),
     );
   }
