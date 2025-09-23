@@ -49,8 +49,8 @@ jobs:
           name: android-aab
           path: build/app/outputs/bundle/release/app-release.aab
 
-  build_ios_ipa:
-    runs-on: macos-13   # más estable para Flutter iOS
+  build_ios_archive:
+    runs-on: macos-13   # macOS runner más estable para Flutter iOS
     needs: analyze_test
     steps:
       - uses: actions/checkout@v4
@@ -69,13 +69,16 @@ jobs:
           pod install --repo-update
         shell: bash
 
-      - name: Build IPA (no codesign)
+      # ⚠️ Importante:
+      # Aquí usamos --no-codesign porque no tenemos Apple Developer Account.
+      # Esto genera un archivo .xcarchive (no un .ipa instalable en iPhone).
+      # Cuando tengas cuenta de Apple Developer y configures certificados,
+      # elimina el flag --no-codesign para obtener un .ipa válido.
+      - name: Build iOS Archive (no codesign)
         run: flutter build ipa --release --no-codesign
 
-      - name: Upload IPA
+      - name: Upload iOS Archive
         uses: actions/upload-artifact@v4
         with:
-          name: ios-ipa
-          path: |
-            build/ios/ipa/*.ipa
-            build/ios/archive/**/*.ipa
+          name: ios-xcarchive
+          path: build/ios/archive/Runner.xcarchive
