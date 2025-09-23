@@ -1,4 +1,4 @@
-# Miscellaneous
+# === Miscellaneous ===
 *.class
 *.log
 *.pyc
@@ -37,7 +37,7 @@ app.*.symbols
 # Obfuscation related
 app.*.map.json
 
-# Android
+# === Android ===
 .gradle/
 **/gradle-wrapper.jar
 local.properties
@@ -45,10 +45,36 @@ local.properties
 /android/app/profile
 /android/app/release
 
-# iOS
+# === iOS / Xcode ===
 ios/Pods/
 ios/.symlinks/
 ios/Flutter/Flutter.framework
 ios/Flutter/Flutter.podspec
 ios/Runner.xcworkspace/
 ios/Runner.xcodeproj/project.xcworkspace/
+
+# Derived data and user-specific
+**/DerivedData/
+**/*.xcworkspace/
+**/*.xcuserstate
+**/*.xcresult
+**/*.xccheckout
+**/*.xcscmblueprint
+**/*.xcodeproj/xcuserdata/
+**/*.xcodeproj/project.xcworkspace/
+**/*.xcodeproj/xcshareddata/WorkspaceSettings.xcsettings
+
+# Archivos hash generados por Xcode 14/15 (PROJECT@v11, TARGET@v11, etc.)
+**/PROJECT@*
+**/TARGET@*
+
+# Archivos de simulador/dispositivo
+*.dSYM
+ios/build/
+
+# === Importante ===
+# Sí se versiona:
+# - Podfile
+# - Podfile.lock
+# - pubspec.yaml
+# - pubspec.lock
