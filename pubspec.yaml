@@ -10,6 +10,11 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+    # --- Estado y dependencias reactivas ---
+  hooks_riverpod: ^2.5.1
+
+  # --- Navegación moderna ---
+  go_router: ^14.2.0  
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
