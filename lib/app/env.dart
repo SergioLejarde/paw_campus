@@ -1,55 +1,46 @@
 // lib/app/env.dart
 import 'package:flutter/foundation.dart';
 
-/// AppConfig centraliza toda la configuración de la aplicación.
-/// Usa variables pasadas por --dart-define al ejecutar `flutter run`.
-/// Ejemplo de ejecución:
-/// flutter run \
-///   --dart-define=APP_ENV=dev \
-///   --dart-define=SUPABASE_URL=https://tuproyecto.supabase.co \
-///   --dart-define=SUPABASE_ANON_KEY=clave_anonima
-
+/// AppConfig centraliza la configuración de la aplicación.
+/// Lee las variables definidas por `--dart-define`, o usa valores por defecto.
+/// Permite ejecutar `flutter run` sin necesidad de definir claves manualmente.
 class AppConfig {
-  /// URL base del proyecto Supabase
+  final String environment;
   final String supabaseUrl;
-
-  /// Llave anónima pública de Supabase (para acceso desde cliente)
   final String supabaseAnonKey;
 
-  /// Nombre del entorno actual (dev, stg, prod)
-  final String environment;
-
-  /// Constructor inmutable
   const AppConfig({
+    required this.environment,
     required this.supabaseUrl,
     required this.supabaseAnonKey,
-    required this.environment,
   });
 
-  /// Crea la configuración leyendo variables de entorno con valores por defecto.
-  static AppConfig fromEnvironment() {
+  /// Lee variables de entorno o aplica valores por defecto (modo dev)
+  factory AppConfig.fromEnvironment() {
     const env = String.fromEnvironment('APP_ENV', defaultValue: 'dev');
-    const url = String.fromEnvironment('SUPABASE_URL', defaultValue: '');
-    const key = String.fromEnvironment('SUPABASE_ANON_KEY', defaultValue: '');
-
-    if (url.isEmpty || key.isEmpty) {
-      debugPrint('⚠️ Advertencia: variables de Supabase no definidas.');
-    }
+    const url = String.fromEnvironment(
+      'SUPABASE_URL',
+      defaultValue: 'https://hvnerazfhkjqzqmueyso.supabase.co',
+    );
+    const key = String.fromEnvironment(
+      'SUPABASE_ANON_KEY',
+      defaultValue:
+          'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh2bmVyYXpmaGtqcXpxbXVleXNvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk3OTA3MzgsImV4cCI6MjA3NTM2NjczOH0.Cdz--By3NtuUgsQnBr6ovbyLpO8N_kjs0BvRbRc5g5c',
+    );
 
     return AppConfig(
+      environment: env,
       supabaseUrl: url,
       supabaseAnonKey: key,
-      environment: env,
     );
   }
 
-  /// Método auxiliar para mostrar el estado actual del entorno (útil para depuración)
+  /// Muestra la configuración actual (solo en modo debug)
   void printConfig() {
-    debugPrint('''
-🌍 Configuración App:
-  Entorno: $environment
-  Supabase URL: $supabaseUrl
-  Supabase Key: ${supabaseAnonKey.isNotEmpty ? "••••••••" : "(vacía)"}
-''');
+    debugPrint('🌍 Configuración App:');
+    debugPrint('  Entorno: $environment');
+    debugPrint('  Supabase URL: $supabaseUrl');
+    debugPrint(
+        '  Supabase Key: ${supabaseAnonKey.isNotEmpty ? "••••••••" : "⚠️ Vacía"}');
   }
 }

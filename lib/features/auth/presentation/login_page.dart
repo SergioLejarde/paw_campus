@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import '../data/auth_repository.dart';
-import 'register_page.dart';
 import 'package:go_router/go_router.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import '../../adoptions/data/pets_repository.dart';
+
+final supabase = Supabase.instance.client;
 
 class LoginPage extends ConsumerStatefulWidget {
   const LoginPage({super.key});
@@ -12,14 +14,45 @@ class LoginPage extends ConsumerStatefulWidget {
 }
 
 class _LoginPageState extends ConsumerState<LoginPage> {
-  final _emailController = TextEditingController();
-  final _passwordController = TextEditingController();
+  final _emailController = TextEditingController(text: 'usuario@prueba.com');
+  final _passwordController = TextEditingController(text: '12345678');
   bool _loading = false;
+  String _message = '';
+
+  Future<void> _login() async {
+    setState(() => _loading = true);
+    try {
+      final response = await supabase.auth.signInWithPassword(
+        email: _emailController.text.trim(),
+        password: _passwordController.text.trim(),
+      );
+
+      if (response.user == null) throw Exception('Error al iniciar sesión');
+      setState(() => _message = '✅ Sesión iniciada correctamente');
+    } catch (e) {
+      setState(() => _message = '❌ Error: $e');
+    } finally {
+      setState(() => _loading = false);
+    }
+  }
+
+  Future<void> _insertPet() async {
+    try {
+      await PetsRepository().addPet(
+        name: 'Luna',
+        species: 'Perro',
+        age: 2,
+        description: 'Juguetona y noble',
+        photoUrl: 'https://placekitten.com/400/400',
+      );
+      setState(() => _message = '🐾 Mascota subida correctamente');
+    } catch (e) {
+      setState(() => _message = '⚠️ Error insertando mascota: $e');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    final authRepo = ref.watch(authRepositoryProvider);
-
     return Scaffold(
       appBar: AppBar(title: const Text('Iniciar sesión')),
       body: Padding(
@@ -27,65 +60,37 @@ class _LoginPageState extends ConsumerState<LoginPage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // Campo de correo
             TextField(
               controller: _emailController,
               decoration: const InputDecoration(labelText: 'Correo'),
               keyboardType: TextInputType.emailAddress,
             ),
-
-            // Campo de contraseña
             TextField(
               controller: _passwordController,
               decoration: const InputDecoration(labelText: 'Contraseña'),
               obscureText: true,
             ),
-
             const SizedBox(height: 20),
-
-            // Botón principal de login
             ElevatedButton(
-              onPressed: _loading
-                  ? null
-                  : () async {
-                      // Guardamos el contexto antes del await 👇
-                      final ctx = context;
-                      setState(() => _loading = true);
-
-                      try {
-                        await authRepo.signIn(
-                          _emailController.text.trim(),
-                          _passwordController.text.trim(),
-                        );
-
-                        // Verificamos que el widget sigue montado
-                        if (!mounted) return;
-
-                        // Si todo sale bien, navegamos al módulo de adopciones
-                        // ignore: use_build_context_synchronously
-                        ctx.go('/adoptions');
-                      } catch (e) {
-                        if (!mounted) return;
-                        ScaffoldMessenger.of(
-                          // ignore: use_build_context_synchronously
-                          ctx,
-                        ).showSnackBar(SnackBar(content: Text('Error: $e')));
-                      } finally {
-                        if (mounted) setState(() => _loading = false);
-                      }
-                    },
+              onPressed: _loading ? null : _login,
               child: _loading
                   ? const CircularProgressIndicator(color: Colors.white)
-                  : const Text('Entrar'),
+                  : const Text('Entrar con Supabase'),
             ),
-
-            // Enlace a registro
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: _insertPet,
+              child: const Text('Insertar mascota de prueba 🐶'),
+            ),
+            const SizedBox(height: 20),
+            Text(
+              _message,
+              style: const TextStyle(color: Colors.white70),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 20),
             TextButton(
-              onPressed: () {
-                Navigator.of(
-                  context,
-                ).push(MaterialPageRoute(builder: (_) => const RegisterPage()));
-              },
+              onPressed: () => context.push('/register'),
               child: const Text('¿No tienes cuenta? Regístrate'),
             ),
           ],
