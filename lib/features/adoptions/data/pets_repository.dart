@@ -4,7 +4,7 @@ final supabase = Supabase.instance.client;
 
 /// Modelo de datos simple para una mascota
 class Pet {
-  final String id;
+  final int id;
   final String name;
   final String species;
   final int age;
@@ -25,7 +25,7 @@ class Pet {
   });
 
   factory Pet.fromJson(Map<String, dynamic> json) => Pet(
-        id: json['id'] as String,
+        id: json['id'] ?? 0,
         name: json['name'] ?? '',
         species: json['species'] ?? '',
         age: json['age'] ?? 0,
@@ -49,7 +49,7 @@ class PetsRepository {
     final user = supabase.auth.currentUser;
     if (user == null) throw Exception('Usuario no autenticado');
 
-    final response = await supabase.from('pets').insert({
+    await supabase.from('pets').insert({
       'name': name,
       'species': species,
       'age': age,
@@ -57,31 +57,29 @@ class PetsRepository {
       'photo_url': photoUrl,
       'created_by': user.id,
     });
-
-    if (response.error != null) {
-      throw Exception('Error al insertar mascota: ${response.error!.message}');
-    }
   }
 
   /// Obtiene las mascotas aprobadas
   Future<List<Pet>> fetchApprovedPets() async {
-    final response = await supabase
+    final List<dynamic> response = await supabase
         .from('pets')
         .select()
         .eq('status', 'approved')
         .order('created_at', ascending: false);
 
-    // Si no hay filas, devolvemos lista vacía
-    if (response.isEmpty) return [];
+    return response.map((item) => Pet.fromJson(item)).toList();
+  }
 
-    // Convertir resultado a lista de objetos Pet
-    return (response as List<dynamic>)
-        .map((item) => Pet.fromJson(item))
-        .toList();
+  /// (Opcional) Obtiene todas las mascotas (sin filtro de estado)
+  Future<List<Pet>> getAllPets() async {
+    final List<dynamic> response =
+        await supabase.from('pets').select().order('created_at', ascending: false);
+
+    return response.map((item) => Pet.fromJson(item)).toList();
   }
 
   /// (Opcional) Cambia el estado de una mascota (solo admin)
-  Future<void> approvePet(String id) async {
+  Future<void> approvePet(int id) async {
     await supabase.from('pets').update({'status': 'approved'}).eq('id', id);
   }
 }

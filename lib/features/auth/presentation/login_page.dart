@@ -1,23 +1,20 @@
 import 'package:flutter/material.dart';
-import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import '../../adoptions/data/pets_repository.dart';
 
 final supabase = Supabase.instance.client;
 
-class LoginPage extends ConsumerStatefulWidget {
+class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
 
   @override
-  ConsumerState<LoginPage> createState() => _LoginPageState();
+  State<LoginPage> createState() => _LoginPageState();
 }
 
-class _LoginPageState extends ConsumerState<LoginPage> {
+class _LoginPageState extends State<LoginPage> {
   final _emailController = TextEditingController(text: 'usuario@prueba.com');
   final _passwordController = TextEditingController(text: '12345678');
   bool _loading = false;
-  String _message = '';
 
   Future<void> _login() async {
     setState(() => _loading = true);
@@ -27,27 +24,45 @@ class _LoginPageState extends ConsumerState<LoginPage> {
         password: _passwordController.text.trim(),
       );
 
-      if (response.user == null) throw Exception('Error al iniciar sesión');
-      setState(() => _message = '✅ Sesión iniciada correctamente');
+      if (response.user != null) {
+        // ✅ Mostrar mensaje y redirigir al home (/adoptions)
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('✅ Sesión iniciada correctamente'),
+              backgroundColor: Colors.green,
+            ),
+          );
+          // Navegar a la vista principal
+          context.go('/adoptions');
+        }
+      } else {
+        // ignore: use_build_context_synchronously
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('⚠️ Error: usuario o contraseña incorrectos'),
+            backgroundColor: Colors.redAccent,
+          ),
+        );
+      }
+    } on AuthException catch (e) {
+      // ignore: use_build_context_synchronously
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('❌ Error de autenticación: ${e.message}'),
+          backgroundColor: Colors.redAccent,
+        ),
+      );
     } catch (e) {
-      setState(() => _message = '❌ Error: $e');
+      // ignore: use_build_context_synchronously
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('⚠️ Error inesperado: $e'),
+          backgroundColor: Colors.orangeAccent,
+        ),
+      );
     } finally {
       setState(() => _loading = false);
-    }
-  }
-
-  Future<void> _insertPet() async {
-    try {
-      await PetsRepository().addPet(
-        name: 'Luna',
-        species: 'Perro',
-        age: 2,
-        description: 'Juguetona y noble',
-        photoUrl: 'https://placekitten.com/400/400',
-      );
-      setState(() => _message = '🐾 Mascota subida correctamente');
-    } catch (e) {
-      setState(() => _message = '⚠️ Error insertando mascota: $e');
     }
   }
 
@@ -65,28 +80,18 @@ class _LoginPageState extends ConsumerState<LoginPage> {
               decoration: const InputDecoration(labelText: 'Correo'),
               keyboardType: TextInputType.emailAddress,
             ),
+            const SizedBox(height: 12),
             TextField(
               controller: _passwordController,
               decoration: const InputDecoration(labelText: 'Contraseña'),
               obscureText: true,
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 24),
             ElevatedButton(
               onPressed: _loading ? null : _login,
               child: _loading
                   ? const CircularProgressIndicator(color: Colors.white)
                   : const Text('Entrar con Supabase'),
-            ),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: _insertPet,
-              child: const Text('Insertar mascota de prueba 🐶'),
-            ),
-            const SizedBox(height: 20),
-            Text(
-              _message,
-              style: const TextStyle(color: Colors.white70),
-              textAlign: TextAlign.center,
             ),
             const SizedBox(height: 20),
             TextButton(
