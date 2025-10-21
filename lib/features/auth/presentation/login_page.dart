@@ -24,29 +24,36 @@ class _LoginPageState extends State<LoginPage> {
         password: _passwordController.text.trim(),
       );
 
-      if (response.user != null) {
-        // ✅ Mostrar mensaje y redirigir al home (/adoptions)
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('✅ Sesión iniciada correctamente'),
-              backgroundColor: Colors.green,
-            ),
-          );
-          // Navegar a la vista principal
-          context.go('/adoptions');
-        }
+      final user = response.user;
+      if (user == null) throw AuthException('Usuario o contraseña incorrectos');
+
+      // 🔍 Consultar si el usuario es administrador
+      final profile = await supabase
+          .from('profiles')
+          .select('is_admin')
+          .eq('id', user.id)
+          .maybeSingle();
+
+      final bool isAdmin = (profile?['is_admin'] ?? false) as bool;
+
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(isAdmin
+              ? '👑 Bienvenido Administrador'
+              : '✅ Sesión iniciada correctamente'),
+          backgroundColor: Colors.green,
+        ),
+      );
+
+      // 🚀 Redirigir según rol
+      if (isAdmin) {
+        context.go('/admin');
       } else {
-        // ignore: use_build_context_synchronously
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('⚠️ Error: usuario o contraseña incorrectos'),
-            backgroundColor: Colors.redAccent,
-          ),
-        );
+        context.go('/adoptions');
       }
     } on AuthException catch (e) {
-      // ignore: use_build_context_synchronously
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('❌ Error de autenticación: ${e.message}'),
@@ -54,7 +61,6 @@ class _LoginPageState extends State<LoginPage> {
         ),
       );
     } catch (e) {
-      // ignore: use_build_context_synchronously
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('⚠️ Error inesperado: $e'),
