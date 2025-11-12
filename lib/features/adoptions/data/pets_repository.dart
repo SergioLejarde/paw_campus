@@ -1,5 +1,6 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+/// Instancia global de Supabase
 final supabase = Supabase.instance.client;
 
 /// Modelo de datos para una mascota (id = uuid en Supabase)
@@ -38,7 +39,7 @@ class Pet {
       );
 }
 
-/// Repositorio de mascotas con operaciones CRUD básicas
+/// Repositorio central de mascotas (CRUD + filtros)
 class PetsRepository {
   /// Inserta una nueva mascota (solo usuarios autenticados)
   Future<void> addPet({
@@ -58,6 +59,7 @@ class PetsRepository {
       'description': description,
       'photo_url': photoUrl,
       'created_by': user.id,
+      'status': 'pending',
     });
   }
 
@@ -115,19 +117,23 @@ class PetsRepository {
         .toList();
   }
 
-  /// Actualiza el estado de una mascota (approved o rejected)
+  /// ✅ Actualiza el estado de una mascota (approved o rejected)
   Future<void> updatePetStatus(String id, String newStatus) async {
     final user = supabase.auth.currentUser;
     if (user == null) throw Exception('Usuario no autenticado');
 
-    final response = await supabase
+    final List<dynamic> response = await supabase
         .from('pets')
         .update({'status': newStatus})
-        .eq('id', id);
+        .eq('id', id)
+        .select(); // ✅ devuelve las filas actualizadas
 
-    if (response == null) {
-      throw Exception('No se pudo actualizar el estado de la mascota');
+    if (response.isEmpty) {
+      // Si no se afectó ninguna fila (id inexistente o sin permisos)
+      throw Exception('No se encontró la mascota o no se pudo actualizar.');
     }
+
+    // Si llega aquí, el update fue exitoso ✅
   }
 
   /// Cambia el estado de una mascota a 'approved' (versión simplificada)
