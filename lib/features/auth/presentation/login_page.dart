@@ -27,12 +27,15 @@ class _LoginPageState extends State<LoginPage> {
       final user = response.user;
       if (user == null) throw AuthException('Usuario o contraseña incorrectos');
 
-      // 🔍 Consultar si el usuario es administrador
+      // 🔍 Consultar perfil COMPLETO para debug
       final profile = await supabase
           .from('profiles')
-          .select('is_admin')
+          .select('id, email, full_name, phone, photo_url, is_admin')
           .eq('id', user.id)
           .maybeSingle();
+
+      // ignore: avoid_print
+      print('DEBUG PERFIL → $profile'); // 👈 AQUI SABREMOS SI ESTA LLEGANDO is_admin
 
       final bool isAdmin = (profile?['is_admin'] ?? false) as bool;
 
