@@ -78,11 +78,15 @@ class AdoptionsPage extends ConsumerWidget {
                       final pet = pets[index];
                       return Card(
                         margin: const EdgeInsets.symmetric(
-                            horizontal: 12, vertical: 8),
+                          horizontal: 12,
+                          vertical: 8,
+                        ),
                         elevation: 3,
                         shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12)),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
                         child: ListTile(
+                          onTap: () => context.push('/pet/${pet.id}'),
                           leading: CircleAvatar(
                             backgroundImage: NetworkImage(pet.photoUrl),
                             radius: 26,
@@ -97,11 +101,6 @@ class AdoptionsPage extends ConsumerWidget {
                             overflow: TextOverflow.ellipsis,
                           ),
                           isThreeLine: true,
-
-                          /// 🚀 NAVEGACIÓN A LA PANTALLA DE DETALLE
-                          onTap: () {
-                            context.push('/pet/${pet.id}');
-                          },
                         ),
                       );
                     },
@@ -141,11 +140,15 @@ class AdoptionsPage extends ConsumerWidget {
                       final pet = myPets[index];
                       return Card(
                         margin: const EdgeInsets.symmetric(
-                            horizontal: 12, vertical: 8),
+                          horizontal: 12,
+                          vertical: 8,
+                        ),
                         elevation: 2,
                         shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12)),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
                         child: ListTile(
+                          onTap: () => context.push('/pet/${pet.id}'),
                           leading: CircleAvatar(
                             backgroundImage: NetworkImage(pet.photoUrl),
                             radius: 24,
@@ -155,11 +158,6 @@ class AdoptionsPage extends ConsumerWidget {
                             'Estado: ${pet.status.toUpperCase()}\n${pet.species} • ${pet.age} años',
                           ),
                           isThreeLine: true,
-
-                          /// 🚀 NAVEGACIÓN A LA PANTALLA DE DETALLE
-                          onTap: () {
-                            context.push('/pet/${pet.id}');
-                          },
                         ),
                       );
                     },
