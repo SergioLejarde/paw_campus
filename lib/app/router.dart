@@ -5,15 +5,18 @@ import 'package:paw_campus/features/adoptions/presentation/adoptions_page.dart';
 import 'package:paw_campus/features/adoptions/presentation/my_pets_page.dart';
 import 'package:paw_campus/features/adoptions/presentation/admin_page.dart';
 import 'package:paw_campus/features/donations/presentation/donations_page.dart';
-
-// 📌 Importar la página de detalle
 import 'package:paw_campus/features/adoptions/presentation/pet_detail_page.dart';
 
-/// Router global de PawCampus.
-/// Define todas las rutas principales de la aplicación.
 final GoRouter router = GoRouter(
   initialLocation: '/login',
   routes: [
+
+    /// 🔥 ESTA ES LA NUEVA RUTA QUE FALTABA
+    GoRoute(
+      path: '/',
+      redirect: (_, __) => '/login',
+    ),
+
     GoRoute(
       path: '/login',
       name: 'login',
@@ -39,20 +42,16 @@ final GoRouter router = GoRouter(
       name: 'donations',
       builder: (context, state) => const DonationsPage(),
     ),
-
-    // 🧩 Panel Admin
     GoRoute(
       path: '/admin',
       name: 'admin',
       builder: (context, state) => const AdminPage(),
     ),
-
-    // 🆕 Vista de detalle de mascota
     GoRoute(
       path: '/pet/:id',
       name: 'pet_detail',
       builder: (context, state) {
-        final id = state.pathParameters['id']!;   // <-- corregido
+        final id = state.pathParameters['id']!;
         return PetDetailPage(petId: id);
       },
     ),
