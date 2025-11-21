@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../adoptions/data/pets_repository.dart';
@@ -50,26 +51,35 @@ class AdminPage extends ConsumerWidget {
               itemCount: pets.length,
               itemBuilder: (context, index) {
                 final pet = pets[index];
+
                 return Card(
                   margin:
                       const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                   shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12)),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                   child: ListTile(
+                    /// 👉 **Navegación al detalle**
+                    onTap: () => context.push('/pet/${pet.id}'),
+
                     leading: CircleAvatar(
                       backgroundImage: NetworkImage(pet.photoUrl),
                       radius: 26,
                     ),
+
                     title: Text(
                       pet.name,
                       style: const TextStyle(fontWeight: FontWeight.bold),
                     ),
+
                     subtitle: Text(
                       '${pet.species} • ${pet.age} años\n${pet.description}',
                       maxLines: 3,
                       overflow: TextOverflow.ellipsis,
                     ),
                     isThreeLine: true,
+
+                    /// Acciones rápidas para aprobar/rechazar
                     trailing: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
@@ -96,7 +106,9 @@ class AdminPage extends ConsumerWidget {
             ),
           );
         },
+
         loading: () => const Center(child: CircularProgressIndicator()),
+
         error: (e, _) => Center(
           child: Padding(
             padding: const EdgeInsets.all(20),
@@ -111,12 +123,13 @@ class AdminPage extends ConsumerWidget {
     );
   }
 
-  /// Función auxiliar para actualizar estado
+  /// Función auxiliar para aprobar/rechazar
   Future<void> _updatePetStatus(
       BuildContext context, String petId, String newStatus) async {
     final repo = PetsRepository();
     try {
       await repo.updatePetStatus(petId, newStatus);
+
       // ignore: use_build_context_synchronously
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
