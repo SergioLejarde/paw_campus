@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../data/pets_repository.dart';
@@ -88,8 +89,7 @@ class AdoptionsPage extends ConsumerWidget {
                           ),
                           title: Text(
                             pet.name,
-                            style:
-                                const TextStyle(fontWeight: FontWeight.bold),
+                            style: const TextStyle(fontWeight: FontWeight.bold),
                           ),
                           subtitle: Text(
                             '${pet.species} • ${pet.age} años\n${pet.description}',
@@ -97,6 +97,11 @@ class AdoptionsPage extends ConsumerWidget {
                             overflow: TextOverflow.ellipsis,
                           ),
                           isThreeLine: true,
+
+                          /// 🚀 NAVEGACIÓN A LA PANTALLA DE DETALLE
+                          onTap: () {
+                            context.push('/pet/${pet.id}');
+                          },
                         ),
                       );
                     },
@@ -150,6 +155,11 @@ class AdoptionsPage extends ConsumerWidget {
                             'Estado: ${pet.status.toUpperCase()}\n${pet.species} • ${pet.age} años',
                           ),
                           isThreeLine: true,
+
+                          /// 🚀 NAVEGACIÓN A LA PANTALLA DE DETALLE
+                          onTap: () {
+                            context.push('/pet/${pet.id}');
+                          },
                         ),
                       );
                     },

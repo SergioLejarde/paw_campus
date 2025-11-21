@@ -117,7 +117,20 @@ class PetsRepository {
         .toList();
   }
 
-  /// ✅ Actualiza el estado de una mascota (approved o rejected)
+  /// 🔍 Obtiene mascota por ID (para la pantalla de detalle)
+  Future<Pet?> getPetById(String id) async {
+    final List<dynamic> response = await supabase
+        .from('pets')
+        .select()
+        .eq('id', id)
+        .limit(1);
+
+    if (response.isEmpty) return null;
+
+    return Pet.fromJson(response.first);
+  }
+
+  /// 🟢 Actualiza el estado de una mascota (approved o rejected)
   Future<void> updatePetStatus(String id, String newStatus) async {
     final user = supabase.auth.currentUser;
     if (user == null) throw Exception('Usuario no autenticado');
@@ -126,14 +139,13 @@ class PetsRepository {
         .from('pets')
         .update({'status': newStatus})
         .eq('id', id)
-        .select(); // ✅ devuelve las filas actualizadas
+        .select(); // devuelve filas afectadas
 
     if (response.isEmpty) {
-      // Si no se afectó ninguna fila (id inexistente o sin permisos)
       throw Exception('No se encontró la mascota o no se pudo actualizar.');
     }
 
-    // Si llega aquí, el update fue exitoso ✅
+    // Éxito
   }
 
   /// Cambia el estado de una mascota a 'approved' (versión simplificada)
