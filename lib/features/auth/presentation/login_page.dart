@@ -12,12 +12,13 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  final _emailController = TextEditingController(text: 'usuario@prueba.com');
-  final _passwordController = TextEditingController(text: '12345678');
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
   bool _loading = false;
 
   Future<void> _login() async {
     setState(() => _loading = true);
+
     try {
       final response = await supabase.auth.signInWithPassword(
         email: _emailController.text.trim(),
@@ -25,50 +26,29 @@ class _LoginPageState extends State<LoginPage> {
       );
 
       final user = response.user;
-      if (user == null) throw AuthException('Usuario o contraseña incorrectos');
+      if (user == null) throw AuthException("Usuario o contraseña inválidos");
 
-      // 🔍 Consultar perfil COMPLETO para debug
+      // ✔️ Consultar SOLO is_admin (sin phone, sin photo_url)
       final profile = await supabase
           .from('profiles')
-          .select('id, email, full_name, phone, photo_url, is_admin')
+          .select('is_admin')
           .eq('id', user.id)
           .maybeSingle();
 
-      // ignore: avoid_print
-      print('DEBUG PERFIL → $profile'); // 👈 AQUI SABREMOS SI ESTA LLEGANDO is_admin
-
-      final bool isAdmin = (profile?['is_admin'] ?? false) as bool;
+      final bool isAdmin = profile?['is_admin'] == true;
 
       if (!mounted) return;
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(isAdmin
-              ? '👑 Bienvenido Administrador'
-              : '✅ Sesión iniciada correctamente'),
-          backgroundColor: Colors.green,
-        ),
-      );
-
-      // 🚀 Redirigir según rol
+      // ✔️ Redirección correcta
       if (isAdmin) {
         context.go('/admin');
       } else {
         context.go('/adoptions');
       }
-    } on AuthException catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('❌ Error de autenticación: ${e.message}'),
-          backgroundColor: Colors.redAccent,
-        ),
-      );
     } catch (e) {
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('⚠️ Error inesperado: $e'),
-          backgroundColor: Colors.orangeAccent,
-        ),
+        SnackBar(content: Text("Error: $e"), backgroundColor: Colors.orange),
       );
     } finally {
       setState(() => _loading = false);
@@ -86,13 +66,12 @@ class _LoginPageState extends State<LoginPage> {
           children: [
             TextField(
               controller: _emailController,
-              decoration: const InputDecoration(labelText: 'Correo'),
-              keyboardType: TextInputType.emailAddress,
+              decoration: const InputDecoration(labelText: "Correo"),
             ),
             const SizedBox(height: 12),
             TextField(
               controller: _passwordController,
-              decoration: const InputDecoration(labelText: 'Contraseña'),
+              decoration: const InputDecoration(labelText: "Contraseña"),
               obscureText: true,
             ),
             const SizedBox(height: 24),
@@ -100,12 +79,7 @@ class _LoginPageState extends State<LoginPage> {
               onPressed: _loading ? null : _login,
               child: _loading
                   ? const CircularProgressIndicator(color: Colors.white)
-                  : const Text('Entrar con Supabase'),
-            ),
-            const SizedBox(height: 20),
-            TextButton(
-              onPressed: () => context.push('/register'),
-              child: const Text('¿No tienes cuenta? Regístrate'),
+                  : const Text("Entrar"),
             ),
           ],
         ),
