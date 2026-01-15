@@ -50,7 +50,7 @@ jobs:
           path: build/app/outputs/bundle/release/app-release.aab
 
   build_ios_archive:
-    runs-on: macos-13   # macOS runner más estable para Flutter iOS
+    runs-on: macos-latest # macos-13 macOS runner más estable para Flutter iOS
     needs: analyze_test
     steps:
       - uses: actions/checkout@v4
