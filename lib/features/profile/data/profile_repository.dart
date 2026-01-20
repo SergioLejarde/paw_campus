@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../domain/profile.dart';
 
@@ -67,5 +68,28 @@ class ProfileRepository {
     }
 
     return UserProfile.fromJson(response);
+  }
+
+  // ============================================================
+  // 🔥 NUEVO: Subir foto de perfil a Supabase Storage
+  // ============================================================
+  Future<String> uploadProfilePhoto(File file) async {
+    final user = supabase.auth.currentUser;
+    if (user == null) {
+      throw Exception('No hay usuario autenticado');
+    }
+
+    final filePath = 'avatars/${user.id}.png';
+
+    await supabase.storage.from('avatars').upload(
+          filePath,
+          file,
+          fileOptions: const FileOptions(upsert: true),
+        );
+
+    final publicUrl =
+        supabase.storage.from('avatars').getPublicUrl(filePath);
+
+    return publicUrl;
   }
 }

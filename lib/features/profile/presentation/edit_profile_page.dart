@@ -1,6 +1,10 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import '../data/profile_repository.dart';
+import 'package:go_router/go_router.dart';
+
+import 'package:paw_campus/features/profile/data/profile_repository.dart';
 import 'profile_page.dart';
 
 class EditProfilePage extends ConsumerStatefulWidget {
@@ -95,60 +99,62 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
-                      onPressed: _isSaving ? null : () async {
-                        if (!_formKey.currentState!.validate()) return;
+                      onPressed: _isSaving
+                          ? null
+                          : () async {
+                              if (!_formKey.currentState!.validate()) return;
 
-                        setState(() {
-                          _isSaving = true;
-                        });
+                              setState(() {
+                                _isSaving = true;
+                              });
 
-                        try {
-                          final repo = ProfileRepository();
-                          await repo.updateCurrentProfile(
-                            name: _nameCtrl.text.trim(),
-                            phone: _phoneCtrl.text.trim().isEmpty
-                                ? null
-                                : _phoneCtrl.text.trim(),
-                            photoUrl: _photoCtrl.text.trim().isEmpty
-                                ? null
-                                : _photoCtrl.text.trim(),
-                          );
+                              try {
+                                final repo = ProfileRepository();
+                                await repo.updateCurrentProfile(
+                                  name: _nameCtrl.text.trim(),
+                                  phone: _phoneCtrl.text.trim().isEmpty
+                                      ? null
+                                      : _phoneCtrl.text.trim(),
+                                  photoUrl: _photoCtrl.text.trim().isEmpty
+                                      ? null
+                                      : _photoCtrl.text.trim(),
+                                );
 
-                          if (!mounted) return;
+                                if (!mounted) return;
 
-                          // ignore: use_build_context_synchronously
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Perfil actualizado ✅'),
-                            ),
-                          );
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content:
+                                        Text('Perfil actualizado ✅'),
+                                  ),
+                                );
 
-                          // refrescar el provider del perfil
-                          ref.invalidate(currentProfileProvider);
+                                // refrescar el provider del perfil
+                                ref.invalidate(currentProfileProvider);
 
-                          // ignore: use_build_context_synchronously
-                          Navigator.pop(context);
-                        } catch (e) {
-                          if (!mounted) return;
-                          // ignore: use_build_context_synchronously
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text('Error al guardar: $e'),
-                            ),
-                          );
-                        } finally {
-                          if (mounted) {
-                            setState(() {
-                              _isSaving = false;
-                            });
-                          }
-                        }
-                      },
+                                context.pop();
+                              } catch (e) {
+                                if (!mounted) return;
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text('Error al guardar: $e'),
+                                  ),
+                                );
+                              } finally {
+                                if (mounted) {
+                                  setState(() {
+                                    _isSaving = false;
+                                  });
+                                }
+                              }
+                            },
                       child: _isSaving
                           ? const SizedBox(
                               height: 20,
                               width: 20,
-                              child: CircularProgressIndicator(strokeWidth: 2),
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                              ),
                             )
                           : const Text('Guardar cambios'),
                     ),

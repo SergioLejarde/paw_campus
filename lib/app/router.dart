@@ -7,6 +7,10 @@ import 'package:paw_campus/features/adoptions/presentation/admin_page.dart';
 import 'package:paw_campus/features/donations/presentation/donations_page.dart';
 import 'package:paw_campus/features/adoptions/presentation/pet_detail_page.dart';
 
+// 🔹 NUEVOS IMPORTS (Profile)
+import 'package:paw_campus/features/profile/presentation/profile_page.dart';
+import 'package:paw_campus/features/profile/presentation/edit_profile_page.dart';
+
 final GoRouter router = GoRouter(
   initialLocation: '/login',
   routes: [
@@ -54,6 +58,20 @@ final GoRouter router = GoRouter(
         final id = state.pathParameters['id']!;
         return PetDetailPage(petId: id);
       },
+    ),
+
+    // =========================
+    // 🔥 PROFILE ROUTES
+    // =========================
+    GoRoute(
+      path: '/profile',
+      name: 'profile',
+      builder: (context, state) => const ProfilePage(),
+    ),
+    GoRoute(
+      path: '/profile/edit',
+      name: 'profile_edit',
+      builder: (context, state) => const EditProfilePage(),
     ),
   ],
 );

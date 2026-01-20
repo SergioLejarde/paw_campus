@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:go_router/go_router.dart';
 
-import '../../profile/data/profile_repository.dart';
-import '../../profile/domain/profile.dart';
+import 'package:paw_campus/features/profile/data/profile_repository.dart';
+import 'package:paw_campus/features/profile/domain/profile.dart';
 
 /// Provider que carga el perfil del usuario actual
 final currentProfileProvider =
@@ -84,7 +85,7 @@ class ProfilePage extends ConsumerWidget {
                 // Botón editar perfil
                 ElevatedButton.icon(
                   onPressed: () {
-                    Navigator.pushNamed(context, '/profile/edit');
+                    context.push('/profile/edit');
                   },
                   icon: const Icon(Icons.edit),
                   label: const Text('Editar perfil'),
@@ -95,12 +96,10 @@ class ProfilePage extends ConsumerWidget {
                 // Botón cerrar sesión
                 ElevatedButton.icon(
                   onPressed: () async {
-                    // 🔧 Cierre sin AuthRepository (por ahora)
                     await Supabase.instance.client.auth.signOut();
 
                     if (!context.mounted) return;
-                    Navigator.of(context)
-                        .pushNamedAndRemoveUntil('/login', (route) => false);
+                    context.go('/login');
                   },
                   icon: const Icon(Icons.logout),
                   label: const Text('Cerrar sesión'),

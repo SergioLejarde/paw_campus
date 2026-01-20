@@ -44,16 +44,27 @@ class AdoptionsPage extends ConsumerWidget {
             ],
           ),
           actions: [
-            if (user != null)
+            if (user != null) ...[
+              IconButton(
+                tooltip: 'Mi perfil',
+                icon: const Icon(Icons.person),
+                onPressed: () {
+                  context.push('/profile');
+                },
+              ),
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 12),
+                padding: const EdgeInsets.only(right: 12),
                 child: Center(
                   child: Text(
                     user.email ?? '',
-                    style: const TextStyle(fontSize: 13, color: Colors.white70),
+                    style: const TextStyle(
+                      fontSize: 13,
+                      color: Colors.white70,
+                    ),
                   ),
                 ),
               ),
+            ],
           ],
         ),
         body: TabBarView(
@@ -93,7 +104,9 @@ class AdoptionsPage extends ConsumerWidget {
                           ),
                           title: Text(
                             pet.name,
-                            style: const TextStyle(fontWeight: FontWeight.bold),
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                           subtitle: Text(
                             '${pet.species} • ${pet.age} años\n${pet.description}',
@@ -107,7 +120,8 @@ class AdoptionsPage extends ConsumerWidget {
                   ),
                 );
               },
-              loading: () => const Center(child: CircularProgressIndicator()),
+              loading: () =>
+                  const Center(child: CircularProgressIndicator()),
               error: (e, _) => Center(
                 child: Padding(
                   padding: const EdgeInsets.all(20),
@@ -132,7 +146,8 @@ class AdoptionsPage extends ConsumerWidget {
                   );
                 }
                 return RefreshIndicator(
-                  onRefresh: () async => ref.refresh(myPetsProvider.future),
+                  onRefresh: () async =>
+                      ref.refresh(myPetsProvider.future),
                   child: ListView.builder(
                     physics: const AlwaysScrollableScrollPhysics(),
                     itemCount: myPets.length,
@@ -148,14 +163,16 @@ class AdoptionsPage extends ConsumerWidget {
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: ListTile(
-                          onTap: () => context.push('/pet/${pet.id}'),
+                          onTap: () =>
+                              context.push('/pet/${pet.id}'),
                           leading: CircleAvatar(
                             backgroundImage: NetworkImage(pet.photoUrl),
                             radius: 24,
                           ),
                           title: Text(pet.name),
                           subtitle: Text(
-                            'Estado: ${pet.status.toUpperCase()}\n${pet.species} • ${pet.age} años',
+                            'Estado: ${pet.status.toUpperCase()}\n'
+                            '${pet.species} • ${pet.age} años',
                           ),
                           isThreeLine: true,
                         ),
@@ -164,7 +181,8 @@ class AdoptionsPage extends ConsumerWidget {
                   ),
                 );
               },
-              loading: () => const Center(child: CircularProgressIndicator()),
+              loading: () =>
+                  const Center(child: CircularProgressIndicator()),
               error: (e, _) => Center(
                 child: Padding(
                   padding: const EdgeInsets.all(20),
@@ -184,7 +202,9 @@ class AdoptionsPage extends ConsumerWidget {
           onPressed: () {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => const AddPetPage()),
+              MaterialPageRoute(
+                builder: (context) => const AddPetPage(),
+              ),
             );
           },
           child: const Icon(Icons.add),
