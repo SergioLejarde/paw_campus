@@ -1,5 +1,9 @@
 import 'dart:io';
+
+import 'package:flutter/foundation.dart'; // ✅ kIsWeb
+import 'package:image_picker/image_picker.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+
 import '../domain/profile.dart';
 
 final supabase = Supabase.instance.client;
@@ -71,25 +75,37 @@ class ProfileRepository {
   }
 
   // ============================================================
-  // 🔥 NUEVO: Subir foto de perfil a Supabase Storage
+  // 🔥 NUEVO: Subir foto de perfil a Supabase Storage (WEB + MOBILE)
   // ============================================================
-  Future<String> uploadProfilePhoto(File file) async {
+  Future<String> uploadProfilePhoto(XFile file) async {
     final user = supabase.auth.currentUser;
     if (user == null) {
       throw Exception('No hay usuario autenticado');
     }
 
-    final filePath = 'avatars/${user.id}.png';
+    final ext = file.path.split('.').last;
+    final fileName = '${DateTime.now().millisecondsSinceEpoch}.$ext';
+    final filePath = 'avatars/${user.id}/$fileName';
 
-    await supabase.storage.from('avatars').upload(
-          filePath,
-          file,
-          fileOptions: const FileOptions(upsert: true),
-        );
+    final storage = supabase.storage.from('avatars');
 
-    final publicUrl =
-        supabase.storage.from('avatars').getPublicUrl(filePath);
+    if (kIsWeb) {
+      // 🌍 Web → subir bytes
+      final bytes = await file.readAsBytes();
+      await storage.uploadBinary(
+        filePath,
+        bytes,
+        fileOptions: const FileOptions(upsert: true),
+      );
+    } else {
+      // 📱 Mobile / Desktop → subir File
+      await storage.upload(
+        filePath,
+        File(file.path),
+        fileOptions: const FileOptions(upsert: true),
+      );
+    }
 
-    return publicUrl;
+    return storage.getPublicUrl(filePath);
   }
 }
