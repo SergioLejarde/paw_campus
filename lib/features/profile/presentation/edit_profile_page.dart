@@ -1,9 +1,7 @@
 // ignore_for_file: use_build_context_synchronously
 
-import 'dart:io';
-
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart'; // ✅ NECESARIO PARA kIsWeb
+import 'package:flutter/foundation.dart'; // kIsWeb
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
@@ -22,10 +20,11 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
   final _formKey = GlobalKey<FormState>();
   final _nameCtrl = TextEditingController();
   final _phoneCtrl = TextEditingController();
-  final _photoCtrl = TextEditingController(); // NO se borra (compatibilidad)
+  final _photoCtrl = TextEditingController(); // compatibilidad
 
   final _picker = ImagePicker();
   XFile? _pickedImage;
+  Uint8List? _pickedImageBytes;
 
   bool _initialized = false;
   bool _isSaving = false;
@@ -45,8 +44,10 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
     );
 
     if (picked != null) {
+      final bytes = await picked.readAsBytes();
       setState(() {
         _pickedImage = picked;
+        _pickedImageBytes = bytes;
       });
     }
   }
@@ -80,17 +81,12 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
             }
           }
 
-          // ✅ PREVIEW MULTIPLATAFORMA (WEB / MOBILE / DESKTOP)
-          final imagePreview = _pickedImage != null
-              ? (kIsWeb
-                  ? Image.network(
-                      _pickedImage!.path,
-                      fit: BoxFit.cover,
-                    )
-                  : Image.file(
-                      File(_pickedImage!.path),
-                      fit: BoxFit.cover,
-                    ))
+          // ✅ PREVIEW SEGURO (WEB + MOBILE)
+          final imagePreview = _pickedImageBytes != null
+              ? Image.memory(
+                  _pickedImageBytes!,
+                  fit: BoxFit.cover,
+                )
               : (profile?.photoUrl != null &&
                       profile!.photoUrl!.isNotEmpty)
                   ? Image.network(
@@ -105,9 +101,6 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
               key: _formKey,
               child: Column(
                 children: [
-                  // ==========================
-                  // AVATAR EDITABLE
-                  // ==========================
                   GestureDetector(
                     onTap: () {
                       showModalBottomSheet(
@@ -116,16 +109,20 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
                           child: Wrap(
                             children: [
                               ListTile(
-                                leading: const Icon(Icons.photo_library),
-                                title: const Text('Elegir de galería'),
+                                leading:
+                                    const Icon(Icons.photo_library),
+                                title:
+                                    const Text('Elegir de galería'),
                                 onTap: () {
                                   Navigator.pop(context);
                                   _pickImage(ImageSource.gallery);
                                 },
                               ),
                               ListTile(
-                                leading: const Icon(Icons.camera_alt),
-                                title: const Text('Tomar foto'),
+                                leading:
+                                    const Icon(Icons.camera_alt),
+                                title:
+                                    const Text('Tomar foto'),
                                 onTap: () {
                                   Navigator.pop(context);
                                   _pickImage(ImageSource.camera);
@@ -138,7 +135,8 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
                     },
                     child: CircleAvatar(
                       radius: 55,
-                      backgroundColor: Colors.grey.shade300,
+                      backgroundColor:
+                          Colors.grey.shade300,
                       child: ClipOval(
                         child: SizedBox(
                           width: 110,
@@ -162,13 +160,16 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
                       prefixIcon: Icon(Icons.person),
                     ),
                     validator: (value) {
-                      if (value == null || value.trim().isEmpty) {
+                      if (value == null ||
+                          value.trim().isEmpty) {
                         return 'Ingresa tu nombre';
                       }
                       return null;
                     },
                   ),
+
                   const SizedBox(height: 16),
+
                   TextFormField(
                     controller: _phoneCtrl,
                     decoration: const InputDecoration(
@@ -176,14 +177,18 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
                       prefixIcon: Icon(Icons.phone),
                     ),
                   ),
+
                   const SizedBox(height: 24),
+
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
                       onPressed: _isSaving
                           ? null
                           : () async {
-                              if (!_formKey.currentState!.validate()) {
+                              if (!_formKey
+                                  .currentState!
+                                  .validate()) {
                                 return;
                               }
 
@@ -192,11 +197,11 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
                               });
 
                               try {
-                                final repo = ProfileRepository();
+                                final repo =
+                                    ProfileRepository();
 
                                 String? photoUrl;
 
-                                // ✅ CAMBIO CLAVE: se pasa XFile, NO File
                                 if (_pickedImage != null) {
                                   photoUrl =
                                       await repo.uploadProfilePhoto(
@@ -205,27 +210,40 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
                                 }
 
                                 await repo.updateCurrentProfile(
-                                  name: _nameCtrl.text.trim(),
-                                  phone: _phoneCtrl.text.trim().isEmpty
+                                  name: _nameCtrl
+                                      .text
+                                      .trim(),
+                                  phone: _phoneCtrl
+                                          .text
+                                          .trim()
+                                          .isEmpty
                                       ? null
-                                      : _phoneCtrl.text.trim(),
+                                      : _phoneCtrl
+                                          .text
+                                          .trim(),
                                   photoUrl: photoUrl,
                                 );
 
-                                ScaffoldMessenger.of(context).showSnackBar(
+                                ScaffoldMessenger.of(
+                                        context)
+                                    .showSnackBar(
                                   const SnackBar(
-                                    content: Text('Perfil actualizado ✅'),
+                                    content: Text(
+                                        'Perfil actualizado ✅'),
                                   ),
                                 );
 
-                                ref.invalidate(currentProfileProvider);
+                                ref.invalidate(
+                                    currentProfileProvider);
 
                                 context.pop();
                               } catch (e) {
-                                ScaffoldMessenger.of(context).showSnackBar(
+                                ScaffoldMessenger.of(
+                                        context)
+                                    .showSnackBar(
                                   SnackBar(
-                                    content:
-                                        Text('Error al guardar: $e'),
+                                    content: Text(
+                                        'Error al guardar: $e'),
                                   ),
                                 );
                               } finally {
@@ -240,11 +258,13 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
                           ? const SizedBox(
                               height: 20,
                               width: 20,
-                              child: CircularProgressIndicator(
+                              child:
+                                  CircularProgressIndicator(
                                 strokeWidth: 2,
                               ),
                             )
-                          : const Text('Guardar cambios'),
+                          : const Text(
+                              'Guardar cambios'),
                     ),
                   ),
                 ],

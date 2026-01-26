@@ -1,6 +1,4 @@
-import 'dart:io';
-
-import 'package:flutter/foundation.dart'; // ✅ kIsWeb
+import 'package:flutter/foundation.dart'; // kIsWeb
 import 'package:image_picker/image_picker.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -24,24 +22,24 @@ class ProfileRepository {
     return UserProfile.fromJson(response);
   }
 
-  /// Obtiene el perfil por id (por ejemplo, dueño de una mascota)
+  /// Obtiene el perfil por id
   Future<UserProfile?> getProfileById(String id) async {
-    final response =
-        await supabase.from('profiles').select().eq('id', id).maybeSingle();
+    final response = await supabase
+        .from('profiles')
+        .select()
+        .eq('id', id)
+        .maybeSingle();
 
     if (response == null) return null;
     return UserProfile.fromJson(response);
   }
 
-  /// Crea el perfil inicial luego de un registro
+  /// Crea el perfil inicial luego del registro
   Future<void> createProfileForUser({
     required String userId,
     required String email,
   }) async {
-    await supabase.from('profiles').insert({
-      'id': userId,
-      'email': email,
-    });
+    await supabase.from('profiles').insert({'id': userId, 'email': email});
   }
 
   /// Actualiza campos del perfil del usuario actual
@@ -75,7 +73,7 @@ class ProfileRepository {
   }
 
   // ============================================================
-  // 🔥 NUEVO: Subir foto de perfil a Supabase Storage (WEB + MOBILE)
+  // 📸 Subir foto de perfil (WEB + MOBILE correcto)
   // ============================================================
   Future<String> uploadProfilePhoto(XFile file) async {
     final user = supabase.auth.currentUser;
@@ -83,14 +81,14 @@ class ProfileRepository {
       throw Exception('No hay usuario autenticado');
     }
 
-    final ext = file.path.split('.').last;
+    final ext = file.name.split('.').last;
     final fileName = '${DateTime.now().millisecondsSinceEpoch}.$ext';
     final filePath = 'avatars/${user.id}/$fileName';
 
     final storage = supabase.storage.from('avatars');
 
     if (kIsWeb) {
-      // 🌍 Web → subir bytes
+      // 🌍 WEB → subir bytes
       final bytes = await file.readAsBytes();
       await storage.uploadBinary(
         filePath,
@@ -98,10 +96,11 @@ class ProfileRepository {
         fileOptions: const FileOptions(upsert: true),
       );
     } else {
-      // 📱 Mobile / Desktop → subir File
-      await storage.upload(
+      // 📱 MOBILE → usar File sin romper Web
+      final fileBytes = await file.readAsBytes();
+      await storage.uploadBinary(
         filePath,
-        File(file.path),
+        fileBytes,
         fileOptions: const FileOptions(upsert: true),
       );
     }
