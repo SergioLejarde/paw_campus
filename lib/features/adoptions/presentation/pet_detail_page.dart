@@ -1,6 +1,10 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:url_launcher/url_launcher.dart';
+
 import '../../adoptions/data/pets_repository.dart';
 
 class PetDetailPage extends ConsumerWidget {
@@ -37,7 +41,9 @@ class PetDetailPage extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Foto grande
+                // ======================
+                // FOTO PRINCIPAL
+                // ======================
                 SizedBox(
                   height: 300,
                   width: double.infinity,
@@ -47,7 +53,9 @@ class PetDetailPage extends ConsumerWidget {
                   ),
                 ),
 
-                // Información
+                // ======================
+                // INFORMACIÓN
+                // ======================
                 Padding(
                   padding: const EdgeInsets.all(16),
                   child: Column(
@@ -85,15 +93,16 @@ class PetDetailPage extends ConsumerWidget {
                           ),
                         ),
 
-                      const SizedBox(height: 20),
+                      const SizedBox(height: 24),
 
-                      // Botón de contacto (WhatsApp)
+                      // ======================
+                      // CONTACTO WHATSAPP REAL
+                      // ======================
                       ElevatedButton.icon(
                         icon: const Icon(Icons.chat),
                         label: const Text('Contactar para adoptar'),
                         onPressed: () async {
-                          final supabase =
-                              Supabase.instance.client;
+                          final supabase = Supabase.instance.client;
 
                           final response = await supabase
                               .from('profiles')
@@ -104,10 +113,8 @@ class PetDetailPage extends ConsumerWidget {
                           final phone = response?['phone'];
 
                           if (phone == null ||
-                              phone.toString().isEmpty) {
-                            // ignore: use_build_context_synchronously
-                            ScaffoldMessenger.of(context)
-                                .showSnackBar(
+                              phone.toString().trim().isEmpty) {
+                            ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
                                 content: Text(
                                   'El dueño no tiene teléfono registrado',
@@ -117,23 +124,31 @@ class PetDetailPage extends ConsumerWidget {
                             return;
                           }
 
-                          final whatsappUrl =
-                              'https://wa.me/$phone?text=Hola, quiero adoptar a ${pet.name}';
-
-                          // ignore: use_build_context_synchronously
-                          ScaffoldMessenger.of(context)
-                              .showSnackBar(
-                            SnackBar(
-                              content:
-                                  Text('Abrir WhatsApp: $whatsappUrl'),
-                            ),
+                          final uri = Uri.parse(
+                            'https://wa.me/$phone?text=Hola, quiero adoptar a ${pet.name}',
                           );
+
+                          final launched = await launchUrl(
+                            uri,
+                            mode: LaunchMode.externalApplication,
+                          );
+
+                          if (!launched) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content:
+                                    Text('No se pudo abrir WhatsApp'),
+                              ),
+                            );
+                          }
                         },
                       ),
 
-                      const SizedBox(height: 20),
+                      const SizedBox(height: 24),
 
-                      // Botones del Administrador
+                      // ======================
+                      // ACCIONES ADMIN
+                      // ======================
                       if (isAdmin)
                         Row(
                           children: [
@@ -144,12 +159,13 @@ class PetDetailPage extends ConsumerWidget {
                               onPressed: () async {
                                 await PetsRepository()
                                     .updatePetStatus(
-                                        pet.id, 'approved');
+                                  pet.id,
+                                  'approved',
+                                );
 
                                 if (!context.mounted) return;
 
-                                ScaffoldMessenger.of(context)
-                                    .showSnackBar(
+                                ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(
                                     content:
                                         Text('Mascota aprobada ✔️'),
@@ -168,12 +184,13 @@ class PetDetailPage extends ConsumerWidget {
                               onPressed: () async {
                                 await PetsRepository()
                                     .updatePetStatus(
-                                        pet.id, 'rejected');
+                                  pet.id,
+                                  'rejected',
+                                );
 
                                 if (!context.mounted) return;
 
-                                ScaffoldMessenger.of(context)
-                                    .showSnackBar(
+                                ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(
                                     content:
                                         Text('Mascota rechazada ❌'),
@@ -198,6 +215,9 @@ class PetDetailPage extends ConsumerWidget {
   }
 }
 
+// ======================
+// PROVIDER
+// ======================
 final _petByIdProvider =
     FutureProvider.family.autoDispose<Pet?, String>((ref, id) async {
   return PetsRepository().getPetById(id);
