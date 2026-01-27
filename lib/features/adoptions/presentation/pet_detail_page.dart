@@ -30,7 +30,6 @@ class PetDetailPage extends ConsumerWidget {
           }
 
           final user = Supabase.instance.client.auth.currentUser;
-
           final isOwner = user?.id == pet.createdBy;
           final isAdmin = user?.email?.endsWith('@admin.com') ?? false;
 
@@ -92,14 +91,41 @@ class PetDetailPage extends ConsumerWidget {
                       ElevatedButton.icon(
                         icon: const Icon(Icons.chat),
                         label: const Text('Contactar para adoptar'),
-                        onPressed: () {
-                          final whatsappUrl =
-                              "https://wa.me/573001234567?text=Hola, quiero adoptar a ${pet.name}";
+                        onPressed: () async {
+                          final supabase =
+                              Supabase.instance.client;
 
-                          ScaffoldMessenger.of(context).showSnackBar(
+                          final response = await supabase
+                              .from('profiles')
+                              .select('phone')
+                              .eq('id', pet.createdBy)
+                              .maybeSingle();
+
+                          final phone = response?['phone'];
+
+                          if (phone == null ||
+                              phone.toString().isEmpty) {
+                            // ignore: use_build_context_synchronously
+                            ScaffoldMessenger.of(context)
+                                .showSnackBar(
+                              const SnackBar(
+                                content: Text(
+                                  'El dueño no tiene teléfono registrado',
+                                ),
+                              ),
+                            );
+                            return;
+                          }
+
+                          final whatsappUrl =
+                              'https://wa.me/$phone?text=Hola, quiero adoptar a ${pet.name}';
+
+                          // ignore: use_build_context_synchronously
+                          ScaffoldMessenger.of(context)
+                              .showSnackBar(
                             SnackBar(
                               content:
-                                  Text("Abrir WhatsApp: $whatsappUrl"),
+                                  Text('Abrir WhatsApp: $whatsappUrl'),
                             ),
                           );
                         },
@@ -117,13 +143,17 @@ class PetDetailPage extends ConsumerWidget {
                               ),
                               onPressed: () async {
                                 await PetsRepository()
-                                    .updatePetStatus(pet.id, 'approved');
+                                    .updatePetStatus(
+                                        pet.id, 'approved');
 
                                 if (!context.mounted) return;
 
-                                ScaffoldMessenger.of(context).showSnackBar(
+                                ScaffoldMessenger.of(context)
+                                    .showSnackBar(
                                   const SnackBar(
-                                      content: Text('Mascota aprobada ✔️')),
+                                    content:
+                                        Text('Mascota aprobada ✔️'),
+                                  ),
                                 );
 
                                 Navigator.pop(context);
@@ -137,13 +167,17 @@ class PetDetailPage extends ConsumerWidget {
                               ),
                               onPressed: () async {
                                 await PetsRepository()
-                                    .updatePetStatus(pet.id, 'rejected');
+                                    .updatePetStatus(
+                                        pet.id, 'rejected');
 
                                 if (!context.mounted) return;
 
-                                ScaffoldMessenger.of(context).showSnackBar(
+                                ScaffoldMessenger.of(context)
+                                    .showSnackBar(
                                   const SnackBar(
-                                      content: Text('Mascota rechazada ❌')),
+                                    content:
+                                        Text('Mascota rechazada ❌'),
+                                  ),
                                 );
 
                                 Navigator.pop(context);

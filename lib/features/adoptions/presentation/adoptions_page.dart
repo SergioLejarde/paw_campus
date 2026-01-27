@@ -40,7 +40,7 @@ class AdoptionsPage extends ConsumerWidget {
           bottom: const TabBar(
             tabs: [
               Tab(icon: Icon(Icons.pets), text: 'Mascotas disponibles'),
-              Tab(icon: Icon(Icons.account_circle), text: 'Mis mascotas'),
+              Tab(icon: Icon(Icons.account_circle), text: 'Mis publicaciones'),
             ],
           ),
           actions: [
