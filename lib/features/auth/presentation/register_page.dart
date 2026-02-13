@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import '../data/auth_repository.dart';
 
@@ -15,9 +16,54 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
   bool _loading = false;
 
   @override
-  Widget build(BuildContext context) {
-    final authRepo = ref.watch(authRepositoryProvider);
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
 
+  Future<void> _register() async {
+    if (_loading) return;
+
+    final email = _emailController.text.trim();
+    final password = _passwordController.text.trim();
+
+    if (email.isEmpty || password.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Ingresa correo y contraseña')),
+      );
+      return;
+    }
+
+    setState(() => _loading = true);
+
+    try {
+      final authRepo = ref.read(authRepositoryProvider);
+
+      await authRepo.signUp(email, password);
+
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Cuenta creada. Ahora inicia sesión.'),
+        ),
+      );
+
+      // ✅ En web y con go_router: redirige explícito
+      context.go('/login');
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: $e')),
+      );
+    } finally {
+      if (mounted) setState(() => _loading = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Registro')),
       body: Padding(
@@ -28,37 +74,38 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
             TextField(
               controller: _emailController,
               decoration: const InputDecoration(labelText: 'Correo'),
+              keyboardType: TextInputType.emailAddress,
+              textInputAction: TextInputAction.next,
             ),
+            const SizedBox(height: 12),
             TextField(
               controller: _passwordController,
               decoration: const InputDecoration(labelText: 'Contraseña'),
               obscureText: true,
+              textInputAction: TextInputAction.done,
+              onSubmitted: (_) => _loading ? null : _register(),
             ),
             const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: _loading
-                  ? null
-                  : () async {
-                      setState(() => _loading = true);
-                      try {
-                        await authRepo.signUp(
-                          _emailController.text.trim(),
-                          _passwordController.text.trim(),
-                        );
-                        // ignore: use_build_context_synchronously
-                        if (mounted) Navigator.pop(context);
-                      } catch (e) {
-                        // ignore: use_build_context_synchronously
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text('Error: $e')),
-                        );
-                      } finally {
-                        if (mounted) setState(() => _loading = false);
-                      }
-                    },
-              child: _loading
-                  ? const CircularProgressIndicator(color: Colors.white)
-                  : const Text('Crear cuenta'),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: _loading ? null : _register,
+                child: _loading
+                    ? const SizedBox(
+                        height: 22,
+                        width: 22,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: Colors.white,
+                        ),
+                      )
+                    : const Text('Crear cuenta'),
+              ),
+            ),
+            const SizedBox(height: 8),
+            TextButton(
+              onPressed: _loading ? null : () => context.go('/login'),
+              child: const Text('Volver a iniciar sesión'),
             ),
           ],
         ),
