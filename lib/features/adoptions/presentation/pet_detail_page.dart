@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:paw_campus/core/presentation/app_feedback.dart';
 
 import '../../adoptions/data/pets_repository.dart';
 
@@ -17,9 +18,7 @@ class PetDetailPage extends ConsumerWidget {
     final petFuture = ref.watch(_petByIdProvider(petId));
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Detalle de Mascota'),
-      ),
+      appBar: AppBar(title: const Text('Detalle de Mascota')),
       body: petFuture.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (e, _) => Center(
@@ -47,10 +46,7 @@ class PetDetailPage extends ConsumerWidget {
                 SizedBox(
                   height: 300,
                   width: double.infinity,
-                  child: Image.network(
-                    pet.photoUrl,
-                    fit: BoxFit.cover,
-                  ),
+                  child: Image.network(pet.photoUrl, fit: BoxFit.cover),
                 ),
 
                 // ======================
@@ -136,8 +132,7 @@ class PetDetailPage extends ConsumerWidget {
                           if (!launched) {
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
-                                content:
-                                    Text('No se pudo abrir WhatsApp'),
+                                content: Text('No se pudo abrir WhatsApp'),
                               ),
                             );
                           }
@@ -157,22 +152,30 @@ class PetDetailPage extends ConsumerWidget {
                                 backgroundColor: Colors.green,
                               ),
                               onPressed: () async {
-                                await PetsRepository()
-                                    .updatePetStatus(
-                                  pet.id,
-                                  'approved',
-                                );
+                                try {
+                                  AppFeedback.showLoadingDialog(
+                                    context,
+                                    message: 'Aprobando mascota...',
+                                  );
+                                  await PetsRepository().updatePetStatus(
+                                    pet.id,
+                                    'approved',
+                                  );
 
-                                if (!context.mounted) return;
+                                  if (!context.mounted) return;
 
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content:
-                                        Text('Mascota aprobada ✔️'),
-                                  ),
-                                );
+                                  AppFeedback.hideLoadingDialog(context);
+                                  AppFeedback.showSuccess(
+                                    context,
+                                    'Mascota aprobada correctamente',
+                                  );
 
-                                Navigator.pop(context);
+                                  Navigator.pop(context);
+                                } catch (e) {
+                                  if (!context.mounted) return;
+                                  AppFeedback.hideLoadingDialog(context);
+                                  AppFeedback.showError(context, e);
+                                }
                               },
                               child: const Text('Aprobar'),
                             ),
@@ -182,22 +185,30 @@ class PetDetailPage extends ConsumerWidget {
                                 backgroundColor: Colors.red,
                               ),
                               onPressed: () async {
-                                await PetsRepository()
-                                    .updatePetStatus(
-                                  pet.id,
-                                  'rejected',
-                                );
+                                try {
+                                  AppFeedback.showLoadingDialog(
+                                    context,
+                                    message: 'Rechazando mascota...',
+                                  );
+                                  await PetsRepository().updatePetStatus(
+                                    pet.id,
+                                    'rejected',
+                                  );
 
-                                if (!context.mounted) return;
+                                  if (!context.mounted) return;
 
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content:
-                                        Text('Mascota rechazada ❌'),
-                                  ),
-                                );
+                                  AppFeedback.hideLoadingDialog(context);
+                                  AppFeedback.showSuccess(
+                                    context,
+                                    'Mascota rechazada correctamente',
+                                  );
 
-                                Navigator.pop(context);
+                                  Navigator.pop(context);
+                                } catch (e) {
+                                  if (!context.mounted) return;
+                                  AppFeedback.hideLoadingDialog(context);
+                                  AppFeedback.showError(context, e);
+                                }
                               },
                               child: const Text('Rechazar'),
                             ),
@@ -218,7 +229,9 @@ class PetDetailPage extends ConsumerWidget {
 // ======================
 // PROVIDER
 // ======================
-final _petByIdProvider =
-    FutureProvider.family.autoDispose<Pet?, String>((ref, id) async {
+final _petByIdProvider = FutureProvider.family.autoDispose<Pet?, String>((
+  ref,
+  id,
+) async {
   return PetsRepository().getPetById(id);
 });

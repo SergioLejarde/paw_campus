@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:paw_campus/core/presentation/app_feedback.dart';
 
 final supabase = Supabase.instance.client;
 
@@ -30,12 +31,7 @@ class _LoginPageState extends State<LoginPage> {
     final password = _passwordController.text.trim();
 
     if (email.isEmpty || password.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Ingresa correo y contraseña'),
-          backgroundColor: Colors.orange,
-        ),
-      );
+      AppFeedback.showError(context, Exception('Ingresa correo y contrasena'));
       return;
     }
 
@@ -48,7 +44,9 @@ class _LoginPageState extends State<LoginPage> {
       );
 
       final user = response.user;
-      if (user == null) throw const AuthException("Usuario o contraseña inválidos");
+      if (user == null) {
+        throw const AuthException("Usuario o contraseña inválidos");
+      }
 
       // Consultar SOLO is_admin
       final profile = await supabase
@@ -61,24 +59,11 @@ class _LoginPageState extends State<LoginPage> {
 
       if (!mounted) return;
 
-      // Redirección correcta
+      AppFeedback.showSuccess(context, 'Inicio de sesion exitoso');
       context.go(isAdmin ? '/admin' : '/adoptions');
-    } on AuthException catch (e) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text("Error de autenticación: ${e.message}"),
-          backgroundColor: Colors.orange,
-        ),
-      );
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text("Error: $e"),
-          backgroundColor: Colors.orange,
-        ),
-      );
+      AppFeedback.showError(context, e);
     } finally {
       if (mounted) setState(() => _loading = false);
     }

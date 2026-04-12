@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:paw_campus/core/presentation/app_feedback.dart';
 import '../data/auth_repository.dart';
 
 class RegisterPage extends ConsumerStatefulWidget {
@@ -29,9 +30,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
     final password = _passwordController.text.trim();
 
     if (email.isEmpty || password.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Ingresa correo y contraseña')),
-      );
+      AppFeedback.showError(context, Exception('Ingresa correo y contrasena'));
       return;
     }
 
@@ -44,19 +43,12 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
 
       if (!mounted) return;
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Cuenta creada. Ahora inicia sesión.'),
-        ),
-      );
+      AppFeedback.showSuccess(context, 'Cuenta creada. Ahora inicia sesion.');
 
-      // ✅ En web y con go_router: redirige explícito
       context.go('/login');
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: $e')),
-      );
+      AppFeedback.showError(context, e);
     } finally {
       if (mounted) setState(() => _loading = false);
     }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:paw_campus/core/presentation/app_feedback.dart';
 import '../../adoptions/data/pets_repository.dart';
 
 /// Provider que obtiene todas las mascotas pendientes
@@ -53,8 +54,10 @@ class AdminPage extends ConsumerWidget {
                 final pet = pets[index];
 
                 return Card(
-                  margin:
-                      const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  margin: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 8,
+                  ),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
@@ -84,8 +87,10 @@ class AdminPage extends ConsumerWidget {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         IconButton(
-                          icon: const Icon(Icons.check_circle,
-                              color: Colors.green),
+                          icon: const Icon(
+                            Icons.check_circle,
+                            color: Colors.green,
+                          ),
                           onPressed: () async {
                             await _updatePetStatus(context, pet.id, 'approved');
                             ref.invalidate(pendingPetsProvider);
@@ -125,28 +130,30 @@ class AdminPage extends ConsumerWidget {
 
   /// Función auxiliar para aprobar/rechazar
   Future<void> _updatePetStatus(
-      BuildContext context, String petId, String newStatus) async {
+    BuildContext context,
+    String petId,
+    String newStatus,
+  ) async {
     final repo = PetsRepository();
     try {
+      AppFeedback.showLoadingDialog(
+        context,
+        message: 'Actualizando estado de la mascota...',
+      );
       await repo.updatePetStatus(petId, newStatus);
-
-      // ignore: use_build_context_synchronously
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            newStatus == 'approved'
-                ? '✅ Mascota aprobada correctamente'
-                : '❌ Mascota rechazada',
-          ),
-          backgroundColor:
-              newStatus == 'approved' ? Colors.green : Colors.redAccent,
-        ),
+      if (!context.mounted) return;
+      AppFeedback.hideLoadingDialog(context);
+      AppFeedback.showSuccess(
+        context,
+        newStatus == 'approved'
+            ? 'Mascota aprobada correctamente'
+            : 'Mascota rechazada correctamente',
       );
     } catch (e) {
-      // ignore: use_build_context_synchronously
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('⚠️ Error al actualizar: $e')),
-      );
+      if (context.mounted) {
+        AppFeedback.hideLoadingDialog(context);
+        AppFeedback.showError(context, e);
+      }
     }
   }
 }

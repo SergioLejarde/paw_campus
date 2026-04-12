@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:paw_campus/core/presentation/app_feedback.dart';
 import '../data/pets_repository.dart';
 
 class AddPetPage extends ConsumerStatefulWidget {
@@ -56,8 +57,9 @@ class _AddPetPageState extends ConsumerState<AddPetPage> {
   Future<void> _savePet() async {
     if (!_formKey.currentState!.validate()) return;
     if (_pickedImage == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Por favor selecciona una foto 📷')),
+      AppFeedback.showError(
+        context,
+        Exception('Por favor selecciona una foto'),
       );
       return;
     }
@@ -76,25 +78,19 @@ class _AddPetPageState extends ConsumerState<AddPetPage> {
       );
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text(
-                '🐾 Mascota registrada correctamente (pendiente de aprobación)'),
-            backgroundColor: Colors.green,
-          ),
+        AppFeedback.showSuccess(
+          context,
+          'Mascota registrada correctamente. Quedo pendiente de aprobacion.',
         );
         Navigator.pop(context);
       }
     } catch (e) {
-      // ignore: use_build_context_synchronously
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('⚠️ Error al registrar: $e'),
-          backgroundColor: Colors.redAccent,
-        ),
-      );
+      if (!mounted) return;
+      AppFeedback.showError(context, e);
     } finally {
-      setState(() => _loading = false);
+      if (mounted) {
+        setState(() => _loading = false);
+      }
     }
   }
 
@@ -103,8 +99,8 @@ class _AddPetPageState extends ConsumerState<AddPetPage> {
     final imagePreview = _pickedImage == null
         ? const Icon(Icons.add_a_photo, size: 50, color: Colors.grey)
         : (kIsWeb
-            ? Image.network(_pickedImage!.path, fit: BoxFit.cover)
-            : Image.file(File(_pickedImage!.path), fit: BoxFit.cover));
+              ? Image.network(_pickedImage!.path, fit: BoxFit.cover)
+              : Image.file(File(_pickedImage!.path), fit: BoxFit.cover));
 
     return Scaffold(
       appBar: AppBar(title: const Text('Agregar Mascota')),
