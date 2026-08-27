@@ -1,4 +1,5 @@
 // lib/app/app.dart
+// ✅ Commit de prueba desde Antigravity — 2026-08-26
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'env.dart';
