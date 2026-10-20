@@ -25,6 +25,7 @@ dependencies:
   cupertino_icons: ^1.0.8
   url_launcher: ^6.3.2
   qr_flutter: ^4.1.0
+  google_fonts: ^6.2.1
   
   supabase_flutter: ^2.10.3
   flutter_map: ^8.3.2

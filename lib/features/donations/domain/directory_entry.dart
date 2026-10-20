@@ -43,6 +43,8 @@ class DirectoryEntry {
   final String description;
   final String? neighborhood;
   final String? openHours;
+  final double? latitude;
+  final double? longitude;
 
   const DirectoryEntry({
     required this.id,
@@ -56,7 +58,11 @@ class DirectoryEntry {
     required this.description,
     this.neighborhood,
     this.openHours,
+    this.latitude,
+    this.longitude,
   });
+
+  bool get hasCoordinates => latitude != null && longitude != null;
 
   /// Extrae solo los dígitos para llamadas directas
   String get cleanPhone => phone.replaceAll(RegExp(r'[^0-9]'), '');
@@ -92,6 +98,8 @@ class DirectoryEntry {
       description: (json['description'] ?? '').toString(),
       neighborhood: json['neighborhood'] as String?,
       openHours: json['open_hours'] as String? ?? json['openHours'] as String?,
+      latitude: json['latitude'] != null ? (json['latitude'] as num).toDouble() : null,
+      longitude: json['longitude'] != null ? (json['longitude'] as num).toDouble() : null,
     );
   }
 
@@ -108,6 +116,8 @@ class DirectoryEntry {
       'description': description,
       'neighborhood': neighborhood,
       'open_hours': openHours,
+      'latitude': latitude,
+      'longitude': longitude,
     };
   }
 
@@ -123,6 +133,8 @@ class DirectoryEntry {
     String? description,
     String? neighborhood,
     String? openHours,
+    double? latitude,
+    double? longitude,
   }) {
     return DirectoryEntry(
       id: id ?? this.id,
@@ -136,6 +148,8 @@ class DirectoryEntry {
       description: description ?? this.description,
       neighborhood: neighborhood ?? this.neighborhood,
       openHours: openHours ?? this.openHours,
+      latitude: latitude ?? this.latitude,
+      longitude: longitude ?? this.longitude,
     );
   }
 
@@ -153,6 +167,8 @@ class DirectoryEntry {
       whatsapp: '3164733499',
       is24Hours: false,
       openHours: 'Lunes a Viernes 7:30 AM - 4:00 PM',
+      latitude: 7.1350,
+      longitude: -73.1550,
       description:
           'Entidad oficial de la Alcaldía de Bucaramanga para rescate, esterilización y atención médico-veterinaria de caninos y felinos vulnerables.',
     ),
@@ -169,6 +185,8 @@ class DirectoryEntry {
       whatsapp: '3143617860',
       is24Hours: true,
       openHours: '24 Horas / Todos los días',
+      latitude: 7.1105,
+      longitude: -73.1310,
       description:
           'Atención inmediata a casos de maltrato animal en flagrancia, rescate de fauna silvestre y operativos de protección animal en Bucaramanga y AMB.',
     ),
@@ -185,6 +203,8 @@ class DirectoryEntry {
       whatsapp: '3183502818',
       is24Hours: true,
       openHours: '24 Horas / 365 días',
+      latitude: 7.1165,
+      longitude: -73.1090,
       description:
           'Servicio ininterrumpido de urgencias veterinarias, cirugía de trauma, laboratorio clínico y cuidados intensivos en el sector Cabecera.',
     ),
@@ -201,6 +221,8 @@ class DirectoryEntry {
       whatsapp: '3168765432',
       is24Hours: true,
       openHours: '24 Horas / 365 días',
+      latitude: 7.0645,
+      longitude: -73.0872,
       description:
           'Urgencias 24 horas en Floridablanca, rayos X digital, ecografía, quirófano especializado y hospitalización canina y felina.',
     ),
@@ -217,6 +239,8 @@ class DirectoryEntry {
       whatsapp: '3002345678',
       is24Hours: true,
       openHours: '24 Horas',
+      latitude: 7.1140,
+      longitude: -73.1180,
       description:
           'Atención veterinaria médica y quirúrgica nocturna y diurna, ambulancia de traslados y farmacia veterinaria permanente.',
     ),
@@ -233,6 +257,8 @@ class DirectoryEntry {
       whatsapp: '3123456789',
       is24Hours: true,
       openHours: '24 Horas',
+      latitude: 7.1080,
+      longitude: -73.1250,
       description:
           'Atención de urgencias, cesáreas y politraumatismos con disponibilidad de cirujanos y auxiliares durante toda la noche.',
     ),
@@ -249,6 +275,8 @@ class DirectoryEntry {
       whatsapp: '3176543210',
       is24Hours: false,
       openHours: 'Lunes a Sábado 9:00 AM - 5:00 PM',
+      latitude: 7.0980,
+      longitude: -73.1150,
       description:
           'Rescate y rehabilitación de peluditos maltratados o abandonados. Organización de jornadas de adopción responsable y donaciones de alimento.',
     ),
@@ -265,6 +293,8 @@ class DirectoryEntry {
       whatsapp: '3158901234',
       is24Hours: false,
       openHours: 'Lunes a Sábado 8:00 AM - 6:00 PM',
+      latitude: 7.0700,
+      longitude: -73.1000,
       description:
           'Red de hogares de paso en Floridablanca y Ruitoque. Apoyo en cirugías de rescate y jornadas de esterilización a bajo costo.',
     ),
@@ -281,6 +311,8 @@ class DirectoryEntry {
       whatsapp: '3114567890',
       is24Hours: false,
       openHours: 'Martes a Domingo 10:00 AM - 4:00 PM',
+      latitude: 7.0732,
+      longitude: -73.1698,
       description:
           'Albergue comunitario sin ánimo de lucro que acoge más de 60 perros y gatos rescatados en las riberas del Río de Oro y sectores rurales de Girón.',
     ),
@@ -297,6 +329,8 @@ class DirectoryEntry {
       whatsapp: '3209876543',
       is24Hours: false,
       openHours: 'Lunes a Sábado 9:00 AM - 5:00 PM',
+      latitude: 6.9875,
+      longitude: -73.0498,
       description:
           'Rescate de animales abandonados, campañas pedagógicas contra el abandono y gestión de jornadas de vacunación en veredas de Piedecuesta.',
     ),
@@ -312,6 +346,8 @@ class DirectoryEntry {
       phone: '6076550000',
       is24Hours: false,
       openHours: 'Lunes a Viernes 8:00 AM - 3:00 PM',
+      latitude: 6.9950,
+      longitude: -73.0600,
       description:
           'Jornadas oficiales de vacunación antirrábica gratuita y esterilizaciones de fauna urbana para estratos 1 y 2 en Piedecuesta.',
     ),
@@ -327,6 +363,8 @@ class DirectoryEntry {
       phone: '122',
       is24Hours: true,
       openHours: '24 Horas / Todos los días',
+      latitude: 7.1200,
+      longitude: -73.1200,
       description:
           'Grupo Especial para la Lucha Contra el Maltrato Animal. Recepción de denuncias penales por delitos contra la vida e integridad animal (Ley 1774).',
     ),

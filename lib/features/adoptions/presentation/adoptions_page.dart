@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../../../app/theme.dart';
+import '../../../core/presentation/pawco_design_system.dart';
 import '../data/pets_repository.dart';
 import 'my_pets_page.dart';
 
@@ -22,22 +25,22 @@ class AdoptionsPage extends ConsumerStatefulWidget {
 class _AdoptionsPageState extends ConsumerState<AdoptionsPage> {
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
-  String _selectedMunicipality = '📍 Todo AMB';
-  String _selectedSpecies = '🐾 Todas';
 
-  static const List<String> _municipalities = [
-    '📍 Todo AMB',
-    'Bucaramanga',
+  // Filtro activo por píldora (Mockup 2)
+  String _selectedPill = '🐾 Todos';
+
+  // Conjunto de mascotas favoritas en estado local interactivo
+  final Set<String> _favoritePetIds = {'seed-luna-bga'};
+
+  static const List<String> _filterPills = [
+    '🐾 Todos',
+    '🐕 Perros',
+    '🐈 Gatos',
+    '🐾 Cachorros (<1 año)',
+    '📍 Bucaramanga',
     'Floridablanca',
     'Girón',
     'Piedecuesta',
-  ];
-
-  static const List<String> _speciesOptions = [
-    '🐾 Todas',
-    'Perro',
-    'Gato',
-    'Otro',
   ];
 
   @override
@@ -58,34 +61,34 @@ class _AdoptionsPageState extends ConsumerState<AdoptionsPage> {
 
   List<Pet> _filterPets(List<Pet> pets) {
     return pets.where((pet) {
-      // 1. Filtro por Municipio
-      if (_selectedMunicipality != '📍 Todo AMB') {
-        if (pet.city.toLowerCase() != _selectedMunicipality.toLowerCase()) {
+      // 1. Filtro por píldora seleccionada
+      if (_selectedPill == '🐕 Perros') {
+        if (!pet.species.toLowerCase().contains('perro')) return false;
+      } else if (_selectedPill == '🐈 Gatos') {
+        if (!pet.species.toLowerCase().contains('gato')) return false;
+      } else if (_selectedPill == '🐾 Cachorros (<1 año)') {
+        if (pet.age > 1) return false;
+      } else if (_selectedPill == '📍 Bucaramanga') {
+        if (pet.city.toLowerCase() != 'bucaramanga') return false;
+      } else if (_selectedPill == 'Floridablanca') {
+        if (pet.city.toLowerCase() != 'floridablanca') return false;
+      } else if (_selectedPill == 'Girón') {
+        if (pet.city.toLowerCase() != 'girón' && pet.city.toLowerCase() != 'giron') {
           return false;
         }
+      } else if (_selectedPill == 'Piedecuesta') {
+        if (pet.city.toLowerCase() != 'piedecuesta') return false;
       }
 
-      // 2. Filtro por Especie
-      if (_selectedSpecies != '🐾 Todas') {
-        if (_selectedSpecies == 'Otro') {
-          final s = pet.species.toLowerCase();
-          if (s == 'perro' || s == 'gato') {
-            return false;
-          }
-        } else {
-          if (pet.species.toLowerCase() != _selectedSpecies.toLowerCase()) {
-            return false;
-          }
-        }
-      }
-
-      // 3. Filtro por texto (Nombre, descripción, barrio o ciudad)
+      // 2. Filtro por búsqueda de texto
       if (_searchQuery.isNotEmpty) {
         final matchName = pet.name.toLowerCase().contains(_searchQuery);
         final matchDesc = pet.description.toLowerCase().contains(_searchQuery);
         final matchCity = pet.city.toLowerCase().contains(_searchQuery);
         final matchNeigh = (pet.neighborhood ?? '').toLowerCase().contains(_searchQuery);
-        if (!matchName && !matchDesc && !matchCity && !matchNeigh) {
+        final matchSpecies = pet.species.toLowerCase().contains(_searchQuery);
+        final matchSize = pet.size.toLowerCase().contains(_searchQuery);
+        if (!matchName && !matchDesc && !matchCity && !matchNeigh && !matchSpecies && !matchSize) {
           return false;
         }
       }
@@ -94,35 +97,67 @@ class _AdoptionsPageState extends ConsumerState<AdoptionsPage> {
     }).toList();
   }
 
-  void _resetFilters() {
+  void _toggleFavorite(String petId, String petName) {
     setState(() {
-      _selectedMunicipality = '📍 Todo AMB';
-      _selectedSpecies = '🐾 Todas';
-      _searchController.clear();
-      _searchQuery = '';
+      if (_favoritePetIds.contains(petId)) {
+        _favoritePetIds.remove(petId);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('$petName eliminado de tus favoritos'),
+            duration: const Duration(seconds: 1),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      } else {
+        _favoritePetIds.add(petId);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('¡$petName guardado en tus favoritos! ❤️'),
+            duration: const Duration(seconds: 1),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
     });
+  }
+
+  User? _getCurrentUser() {
+    try {
+      return Supabase.instance.client.auth.currentUser;
+    } catch (_) {
+      return null;
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     final petsAsync = ref.watch(petsProvider);
-    final user = Supabase.instance.client.auth.currentUser;
+    final user = _getCurrentUser();
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isDesktop = screenWidth >= 900;
 
     return Scaffold(
+      backgroundColor: Colors.transparent,
       appBar: AppBar(
-        title: const Row(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        title: Row(
           children: [
-            Text(
-              '🐾 PawCo',
-              style: TextStyle(fontWeight: FontWeight.bold),
+            Container(
+              padding: const EdgeInsets.all(7),
+              decoration: BoxDecoration(
+                color: PawCoColors.forest.withValues(alpha: 0.1),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(Icons.pets, color: PawCoColors.forest, size: 20),
             ),
-            SizedBox(width: 8),
+            const SizedBox(width: 10),
             Text(
-              'Adopciones',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.normal,
-                color: Color(0xFF64748B),
+              'PawCo Adopciones',
+              style: GoogleFonts.fraunces(
+                fontWeight: FontWeight.w700,
+                fontSize: 20,
+                color: PawCoColors.ink,
               ),
             ),
           ],
@@ -141,33 +176,44 @@ class _AdoptionsPageState extends ConsumerState<AdoptionsPage> {
                 context.push('/my-pets');
               }
             },
-            icon: const Icon(Icons.inventory_2_outlined, size: 18),
-            label: const Text(
+            icon: const Icon(Icons.inventory_2_outlined, size: 18, color: PawCoColors.forest),
+            label: Text(
               'Mis publicaciones',
-              style: TextStyle(fontWeight: FontWeight.w600),
+              style: GoogleFonts.plusJakartaSans(
+                fontWeight: FontWeight.w700,
+                color: PawCoColors.forest,
+                fontSize: 13,
+              ),
             ),
           ),
+          const SizedBox(width: 8),
         ],
       ),
       body: RefreshIndicator(
         onRefresh: () async => ref.refresh(petsProvider.future),
         child: petsAsync.when(
-          loading: () => const Center(child: CircularProgressIndicator()),
+          loading: () => const Center(
+            child: CircularProgressIndicator(color: PawCoColors.forest),
+          ),
           error: (e, _) => Center(
             child: Padding(
               padding: const EdgeInsets.all(24),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Icon(Icons.error_outline, size: 48, color: Color(0xFFE11D48)),
+                  const Icon(Icons.error_outline, size: 48, color: PawCoColors.terracotta),
                   const SizedBox(height: 12),
                   Text(
                     'Error cargando mascotas:\n$e',
                     textAlign: TextAlign.center,
-                    style: const TextStyle(color: Color(0xFF1E293B)),
+                    style: GoogleFonts.plusJakartaSans(color: PawCoColors.ink),
                   ),
                   const SizedBox(height: 16),
                   ElevatedButton.icon(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: PawCoColors.forest,
+                      foregroundColor: Colors.white,
+                    ),
                     onPressed: () => ref.refresh(petsProvider.future),
                     icon: const Icon(Icons.refresh),
                     label: const Text('Reintentar'),
@@ -179,178 +225,55 @@ class _AdoptionsPageState extends ConsumerState<AdoptionsPage> {
           data: (allPets) {
             final filteredPets = _filterPets(allPets);
 
-            return ListView(
+            return SingleChildScrollView(
               physics: const AlwaysScrollableScrollPhysics(),
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-              children: [
-                // Barra de búsqueda por texto
-                TextField(
-                  controller: _searchController,
-                  decoration: InputDecoration(
-                    hintText: 'Buscar peludito por nombre o barrio...',
-                    prefixIcon: const Icon(Icons.search, color: Color(0xFF0D9488)),
-                    suffixIcon: _searchQuery.isNotEmpty
-                        ? IconButton(
-                            icon: const Icon(Icons.clear, size: 18),
-                            onPressed: () => _searchController.clear(),
-                          )
-                        : null,
-                    filled: true,
-                    fillColor: Colors.white,
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(14),
-                      borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(14),
-                      borderSide: const BorderSide(color: Color(0xFFCBD5E1)),
-                    ),
+              padding: EdgeInsets.symmetric(
+                horizontal: isDesktop ? 32 : 16,
+                vertical: 12,
+              ),
+              child: Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 1200),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Encabezado Editorial (Mockup 2: "Find a companion")
+                      _buildEditorialHeader(),
+                      const SizedBox(height: 18),
+
+                      // Buscador Integrado
+                      _buildSearchBar(),
+                      const SizedBox(height: 14),
+
+                      // Chips redondeados estilo píldora (Mockup 2)
+                      _buildPillFilters(),
+                      const SizedBox(height: 22),
+
+                      // Contador de resultados y reset si aplica
+                      _buildResultsCount(filteredPets.length),
+                      const SizedBox(height: 14),
+
+                      // Grid Responsive de Mascotas (2 cols móvil, 3 tablet, 4 desktop)
+                      if (filteredPets.isEmpty)
+                        _buildEmptyState()
+                      else
+                        _buildResponsiveGrid(filteredPets),
+                      const SizedBox(height: 80),
+                    ],
                   ),
                 ),
-                const SizedBox(height: 10),
-
-                // Filtro 1: Chips de Municipio
-                SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Row(
-                    children: _municipalities.map((mun) {
-                      final isSelected = _selectedMunicipality == mun;
-                      return Padding(
-                        padding: const EdgeInsets.only(right: 8),
-                        child: FilterChip(
-                          label: Text(mun),
-                          selected: isSelected,
-                          selectedColor: const Color(0xFFCCFBF1),
-                          checkmarkColor: const Color(0xFF0D9488),
-                          labelStyle: TextStyle(
-                            fontSize: 12,
-                            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                            color: isSelected ? const Color(0xFF0F766E) : const Color(0xFF334155),
-                          ),
-                          onSelected: (_) {
-                            setState(() {
-                              _selectedMunicipality = mun;
-                            });
-                          },
-                        ),
-                      );
-                    }).toList(),
-                  ),
-                ),
-                const SizedBox(height: 6),
-
-                // Filtro 2: Chips de Especie
-                SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Row(
-                    children: _speciesOptions.map((species) {
-                      final isSelected = _selectedSpecies == species;
-                      return Padding(
-                        padding: const EdgeInsets.only(right: 8),
-                        child: FilterChip(
-                          label: Text(species),
-                          selected: isSelected,
-                          selectedColor: const Color(0xFFFEF3C7),
-                          checkmarkColor: const Color(0xFFD97706),
-                          labelStyle: TextStyle(
-                            fontSize: 12,
-                            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                            color: isSelected ? const Color(0xFFB45309) : const Color(0xFF334155),
-                          ),
-                          onSelected: (_) {
-                            setState(() {
-                              _selectedSpecies = species;
-                            });
-                          },
-                        ),
-                      );
-                    }).toList(),
-                  ),
-                ),
-                const SizedBox(height: 10),
-
-                // Contador de peluditos y limpiar filtros
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      '${filteredPets.length} ${filteredPets.length == 1 ? "peludito esperando un hogar" : "peluditos esperando un hogar"} 🏡',
-                      style: const TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w600,
-                        color: Color(0xFF64748B),
-                      ),
-                    ),
-                    if (_selectedMunicipality != '📍 Todo AMB' ||
-                        _selectedSpecies != '🐾 Todas' ||
-                        _searchQuery.isNotEmpty)
-                      TextButton(
-                        onPressed: _resetFilters,
-                        child: const Text('Limpiar filtros', style: TextStyle(fontSize: 12)),
-                      ),
-                  ],
-                ),
-                const SizedBox(height: 8),
-
-                // Estado vacío cuando los filtros no devuelven nada
-                if (filteredPets.isEmpty)
-                  Container(
-                    margin: const EdgeInsets.only(top: 24),
-                    padding: const EdgeInsets.all(28),
-                    alignment: Alignment.center,
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(18),
-                          decoration: const BoxDecoration(
-                            color: Color(0xFFFEF3C7),
-                            shape: BoxShape.circle,
-                          ),
-                          child: const Icon(
-                            Icons.pets,
-                            size: 46,
-                            color: Color(0xFFD97706),
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        const Text(
-                          'No hay peluditos que coincidan con estos filtros',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: Color(0xFF1E293B),
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                        const SizedBox(height: 8),
-                        const Text(
-                          'Prueba seleccionando otro municipio o eliminando los términos de búsqueda.',
-                          style: TextStyle(fontSize: 13, color: Color(0xFF64748B)),
-                          textAlign: TextAlign.center,
-                        ),
-                        const SizedBox(height: 16),
-                        OutlinedButton.icon(
-                          onPressed: _resetFilters,
-                          icon: const Icon(Icons.refresh),
-                          label: const Text('Ver todas las mascotas'),
-                        ),
-                      ],
-                    ),
-                  )
-                else
-                  ...filteredPets.map((pet) => _buildPetCard(context, pet)),
-
-                const SizedBox(height: 60), // Margen inferior para el FAB
-              ],
+              ),
             );
           },
         ),
       ),
       floatingActionButton: FloatingActionButton.extended(
+        backgroundColor: PawCoColors.forest,
+        foregroundColor: Colors.white,
+        elevation: 3,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
         onPressed: () async {
-          final currentUser = Supabase.instance.client.auth.currentUser;
+          final currentUser = _getCurrentUser();
           if (currentUser == null) {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
@@ -365,53 +288,245 @@ class _AdoptionsPageState extends ConsumerState<AdoptionsPage> {
           ref.invalidate(petsProvider);
           ref.invalidate(myPetsProvider);
         },
-        icon: const Icon(Icons.add),
-        label: const Text('Dar en adopción'),
+        icon: const Icon(Icons.add, size: 20),
+        label: Text(
+          'Dar en adopción',
+          style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w700),
+        ),
       ),
     );
   }
 
-  Widget _buildPetCard(BuildContext context, Pet pet) {
-    Color speciesBg;
-    Color speciesFg;
-    IconData speciesIcon;
-
-    final lowerSpecies = pet.species.toLowerCase();
-    if (lowerSpecies.contains('gato')) {
-      speciesBg = const Color(0xFFFEF3C7);
-      speciesFg = const Color(0xFFB45309);
-      speciesIcon = Icons.pets;
-    } else if (lowerSpecies.contains('perro')) {
-      speciesBg = const Color(0xFFCCFBF1);
-      speciesFg = const Color(0xFF0F766E);
-      speciesIcon = Icons.pets;
-    } else {
-      speciesBg = const Color(0xFFEDE9FE);
-      speciesFg = const Color(0xFF6D28D9);
-      speciesIcon = Icons.cruelty_free;
-    }
-
-    return Card(
-      margin: const EdgeInsets.symmetric(vertical: 8),
-      elevation: 1.5,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-        side: const BorderSide(color: Color(0xFFE2E8F0)),
+  // ===========================================================================
+  // ENCABEZADO EDITORIAL
+  // ===========================================================================
+  Widget _buildEditorialHeader() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+      decoration: BoxDecoration(
+        color: PawCoColors.surface,
+        borderRadius: BorderRadius.circular(22),
+        border: Border.all(color: PawCoColors.borderLight),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.02),
+            blurRadius: 8,
+            offset: const Offset(0, 3),
+          ),
+        ],
       ),
-      child: InkWell(
+      child: Row(
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const PawCoBadge(
+                  label: 'ADOPCIÓN RESPONSABLE AMB',
+                  icon: Icons.favorite,
+                  backgroundColor: PawCoColors.terracottaLight,
+                  textColor: PawCoColors.terracottaDark,
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Encuentra un compañero',
+                  style: GoogleFonts.fraunces(
+                    fontSize: 26,
+                    fontWeight: FontWeight.w700,
+                    color: PawCoColors.ink,
+                    letterSpacing: -0.4,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  'Conoce a los perros, gatos y peluditos rescatados en Bucaramanga, Floridablanca, Girón y Piedecuesta que esperan un hogar amoroso.',
+                  style: GoogleFonts.plusJakartaSans(
+                    fontSize: 13.5,
+                    color: PawCoColors.muted,
+                    height: 1.45,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 12),
+          const AnimalSilhouetteCardWatermark(
+            width: 85,
+            height: 75,
+            opacity: 0.45,
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ===========================================================================
+  // BUSCADOR LIMPIO
+  // ===========================================================================
+  Widget _buildSearchBar() {
+    return Container(
+      decoration: BoxDecoration(
+        color: PawCoColors.surface,
         borderRadius: BorderRadius.circular(16),
-        onTap: () => context.push('/pet/${pet.id}'),
-        child: Padding(
-          padding: const EdgeInsets.all(12),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
+        border: Border.all(color: PawCoColors.border),
+      ),
+      child: TextField(
+        controller: _searchController,
+        decoration: InputDecoration(
+          hintText: 'Buscar por nombre, barrio, raza o especie...',
+          hintStyle: GoogleFonts.plusJakartaSans(
+            fontSize: 13.5,
+            color: PawCoColors.mutedLight,
+          ),
+          prefixIcon: const Icon(Icons.search, color: PawCoColors.forest),
+          suffixIcon: _searchQuery.isNotEmpty
+              ? IconButton(
+                  icon: const Icon(Icons.clear, size: 18),
+                  onPressed: () => _searchController.clear(),
+                )
+              : null,
+          border: InputBorder.none,
+          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        ),
+      ),
+    );
+  }
+
+  // ===========================================================================
+  // CHIPS REDONDEADOS ESTILO PÍLDORA (MOCKUP 2)
+  // ===========================================================================
+  Widget _buildPillFilters() {
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      physics: const BouncingScrollPhysics(),
+      child: Row(
+        children: _filterPills.map((pill) {
+          final isSelected = _selectedPill == pill;
+
+          return Padding(
+            padding: const EdgeInsets.only(right: 8),
+            child: FilterChip(
+              label: Text(
+                pill,
+                style: GoogleFonts.plusJakartaSans(
+                  fontSize: 12.5,
+                  fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                  color: isSelected ? Colors.white : PawCoColors.inkSecondary,
+                ),
+              ),
+              selected: isSelected,
+              selectedColor: PawCoColors.forest,
+              backgroundColor: PawCoColors.surface,
+              showCheckmark: false,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+                side: BorderSide(
+                  color: isSelected ? PawCoColors.forest : PawCoColors.border,
+                  width: 1.2,
+                ),
+              ),
+              onSelected: (_) {
+                setState(() {
+                  _selectedPill = pill;
+                });
+              },
+            ),
+          );
+        }).toList(),
+      ),
+    );
+  }
+
+  // ===========================================================================
+  // CONTADOR DE RESULTADOS
+  // ===========================================================================
+  Widget _buildResultsCount(int count) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          '$count ${count == 1 ? "compañero disponible" : "compañeros disponibles"}',
+          style: GoogleFonts.plusJakartaSans(
+            fontSize: 13,
+            fontWeight: FontWeight.w700,
+            color: PawCoColors.muted,
+          ),
+        ),
+        if (_selectedPill != '🐾 Todos' || _searchQuery.isNotEmpty)
+          GestureDetector(
+            onTap: () {
+              setState(() {
+                _selectedPill = '🐾 Todos';
+                _searchController.clear();
+              });
+            },
+            child: Text(
+              'Limpiar filtros',
+              style: GoogleFonts.plusJakartaSans(
+                fontSize: 12.5,
+                fontWeight: FontWeight.w600,
+                color: PawCoColors.forest,
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+
+  // ===========================================================================
+  // GRID RESPONSIVE DE MASCOTAS (MOCKUP 2)
+  // ===========================================================================
+  Widget _buildResponsiveGrid(List<Pet> pets) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final width = constraints.maxWidth;
+        int columns = 2; // Por defecto móvil: 2 columnas como Mockup 2
+        if (width >= 1050) {
+          columns = 4; // Desktop
+        } else if (width >= 650) {
+          columns = 3; // Tablet
+        }
+
+        const double spacing = 14.0;
+        final itemWidth = (width - (spacing * (columns - 1))) / columns;
+
+        return Wrap(
+          spacing: spacing,
+          runSpacing: spacing,
+          children: pets.map((pet) {
+            return SizedBox(
+              width: itemWidth,
+              child: _buildMockup2PetCard(pet),
+            );
+          }).toList(),
+        );
+      },
+    );
+  }
+
+  // ===========================================================================
+  // TARJETA DE MASCOTA CON BORDES DE 20PX, CORAZÓN Y TIPOGRAFÍA EDITORIAL
+  // ===========================================================================
+  Widget _buildMockup2PetCard(Pet pet) {
+    final isFavorite = _favoritePetIds.contains(pet.id);
+
+    return PawCoHoverCard(
+      borderRadius: 20,
+      padding: EdgeInsets.zero,
+      margin: EdgeInsets.zero,
+      onTap: () => context.push('/pet/${pet.id}'),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // Foto con bordes redondeados (20px arriba) + Botón interactivo de corazón
+          Stack(
             children: [
-              // Foto de la mascota con placeholder cálido
               ClipRRect(
-                borderRadius: BorderRadius.circular(14),
-                child: SizedBox(
-                  width: 110,
-                  height: 120,
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+                child: AspectRatio(
+                  aspectRatio: 1.05,
                   child: pet.photoUrl.isNotEmpty
                       ? Image.network(
                           pet.photoUrl,
@@ -420,12 +535,15 @@ class _AdoptionsPageState extends ConsumerState<AdoptionsPage> {
                           loadingBuilder: (context, child, loadingProgress) {
                             if (loadingProgress == null) return child;
                             return Container(
-                              color: const Color(0xFFF1F5F9),
+                              color: PawCoColors.background,
                               child: const Center(
                                 child: SizedBox(
-                                  width: 20,
-                                  height: 20,
-                                  child: CircularProgressIndicator(strokeWidth: 2),
+                                  width: 22,
+                                  height: 22,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    color: PawCoColors.forest,
+                                  ),
                                 ),
                               ),
                             );
@@ -434,146 +552,163 @@ class _AdoptionsPageState extends ConsumerState<AdoptionsPage> {
                       : _buildPlaceholderPhoto(),
                 ),
               ),
-              const SizedBox(width: 14),
 
-              // Información del peludito
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Fila superior: Nombre + Badge Especie
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Text(
-                            pet.name,
-                            style: const TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              color: Color(0xFF1E293B),
-                            ),
-                          ),
-                        ),
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                          decoration: BoxDecoration(
-                            color: speciesBg,
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(speciesIcon, size: 12, color: speciesFg),
-                              const SizedBox(width: 4),
-                              Text(
-                                pet.species,
-                                style: TextStyle(
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.bold,
-                                  color: speciesFg,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 4),
-
-                    // Badges de Municipio y Ubicación
-                    Row(
-                      children: [
-                        const Icon(
-                          Icons.location_on,
-                          size: 14,
-                          color: Color(0xFF0D9488),
-                        ),
-                        const SizedBox(width: 2),
-                        Expanded(
-                          child: Text(
-                            '${pet.city}${pet.neighborhood != null && pet.neighborhood!.isNotEmpty ? " • ${pet.neighborhood}" : ""}',
-                            style: const TextStyle(
-                              fontSize: 12,
-                              color: Color(0xFF0D9488),
-                              fontWeight: FontWeight.w600,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 5),
-
-                    // Chips de Edad y Tamaño
-                    Wrap(
-                      spacing: 6,
-                      runSpacing: 4,
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFF1F5F9),
-                            borderRadius: BorderRadius.circular(6),
-                          ),
-                          child: Text(
-                            '${pet.age} ${pet.age == 1 ? "año" : "años"}',
-                            style: const TextStyle(
-                              fontSize: 11,
-                              color: Color(0xFF475569),
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ),
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFF1F5F9),
-                            borderRadius: BorderRadius.circular(6),
-                          ),
-                          child: Text(
-                            'Tamaño ${pet.size}',
-                            style: const TextStyle(
-                              fontSize: 11,
-                              color: Color(0xFF475569),
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 6),
-
-                    // Descripción
-                    Text(
-                      pet.description,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        fontSize: 12,
-                        color: Color(0xFF64748B),
-                        height: 1.3,
+              // Botón de Corazón (Favorito interactivo en estado local)
+              Positioned(
+                top: 8,
+                right: 8,
+                child: Material(
+                  color: Colors.black.withValues(alpha: 0.38),
+                  shape: const CircleBorder(),
+                  child: InkWell(
+                    customBorder: const CircleBorder(),
+                    onTap: () => _toggleFavorite(pet.id, pet.name),
+                    child: Padding(
+                      padding: const EdgeInsets.all(7),
+                      child: Icon(
+                        isFavorite ? Icons.favorite : Icons.favorite_border,
+                        size: 18,
+                        color: isFavorite ? PawCoColors.terracotta : Colors.white,
                       ),
                     ),
-                  ],
+                  ),
+                ),
+              ),
+
+              // Píldora de especie/tamaño sutil en la esquina inferior izquierda de la foto
+              Positioned(
+                bottom: 8,
+                left: 8,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.92),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Text(
+                    pet.species,
+                    style: GoogleFonts.plusJakartaSans(
+                      fontSize: 10.5,
+                      fontWeight: FontWeight.w700,
+                      color: PawCoColors.ink,
+                    ),
+                  ),
                 ),
               ),
             ],
           ),
-        ),
+
+          // Información de la Mascota: Nombre + Edad + Municipio
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Nombre en tipografía editorial + edad (Luna • 2 años)
+                Text(
+                  '${pet.name} • ${pet.age == 1 ? "1 año" : "${pet.age} años"}',
+                  style: GoogleFonts.fraunces(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w700,
+                    color: PawCoColors.ink,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 3),
+
+                // Subtítulo con tamaño y municipio (Bucaramanga • Cabecera)
+                Row(
+                  children: [
+                    const Icon(
+                      Icons.location_on_outlined,
+                      size: 13,
+                      color: PawCoColors.forest,
+                    ),
+                    const SizedBox(width: 2),
+                    Expanded(
+                      child: Text(
+                        '${pet.city}${pet.neighborhood != null && pet.neighborhood!.isNotEmpty ? " • ${pet.neighborhood}" : ""}',
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: 11.5,
+                          color: PawCoColors.muted,
+                          fontWeight: FontWeight.w500,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
 
   Widget _buildPlaceholderPhoto() {
     return Container(
-      color: const Color(0xFFFEF3C7),
+      color: PawCoColors.sageMuted,
       child: const Center(
         child: Icon(
           Icons.pets,
-          size: 38,
-          color: Color(0xFFD97706),
+          size: 40,
+          color: PawCoColors.sage,
         ),
+      ),
+    );
+  }
+
+  Widget _buildEmptyState() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(36),
+      decoration: BoxDecoration(
+        color: PawCoColors.surface,
+        borderRadius: BorderRadius.circular(22),
+        border: Border.all(color: PawCoColors.border),
+      ),
+      child: Column(
+        children: [
+          const Icon(Icons.search_off_rounded, size: 52, color: PawCoColors.mutedLight),
+          const SizedBox(height: 14),
+          Text(
+            'No encontramos peluditos con estos filtros',
+            style: GoogleFonts.fraunces(
+              fontSize: 17,
+              fontWeight: FontWeight.w700,
+              color: PawCoColors.ink,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 6),
+          Text(
+            'Prueba seleccionando otro municipio o limpiando la búsqueda.',
+            style: GoogleFonts.plusJakartaSans(
+              fontSize: 13,
+              color: PawCoColors.muted,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 16),
+          OutlinedButton(
+            style: OutlinedButton.styleFrom(
+              foregroundColor: PawCoColors.forest,
+              side: const BorderSide(color: PawCoColors.forest),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+            ),
+            onPressed: () {
+              setState(() {
+                _selectedPill = '🐾 Todos';
+                _searchController.clear();
+              });
+            },
+            child: const Text('Ver todas las mascotas'),
+          ),
+        ],
       ),
     );
   }

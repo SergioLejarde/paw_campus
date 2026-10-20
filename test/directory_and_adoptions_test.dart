@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:paw_campus/features/adoptions/data/pets_repository.dart';
 import 'package:paw_campus/features/donations/domain/directory_entry.dart';
+import 'package:paw_campus/features/donations/domain/donation_campaign.dart';
 
 void main() {
   group('DirectoryEntry Model and Curated Directory Tests', () {
@@ -96,6 +97,61 @@ void main() {
       // Verificar que existan clínicas 24 horas reales
       final h24Entries = entries.where((e) => e.is24Hours).toList();
       expect(h24Entries.length, greaterThanOrEqualTo(4));
+    });
+  });
+
+  group('DonationCampaign Model and Active Causes Tests', () {
+    test('DonationCampaign serializes and deserializes correctly', () {
+      const campaign = DonationCampaign(
+        id: 'camp-test-1',
+        title: 'Meta de Alimento Refugio',
+        foundationName: 'Fundación Corazón Animal',
+        municipality: 'Girón',
+        category: CampaignCategory.foodBags,
+        description: '45 bultos para rescatados',
+        targetAmountCop: 4500000,
+        raisedAmountCop: 3150000,
+        daysLeft: 8,
+        petOrBeneficiaryName: '110 Peluditos',
+        photoUrl: 'https://example.com/food.jpg',
+        verifiedInvoiceCode: 'AUD-COL-2026-441',
+      );
+
+      final json = campaign.toJson();
+      expect(json['id'], 'camp-test-1');
+      expect(json['category'], CampaignCategory.foodBags);
+      expect(json['target_amount_cop'], 4500000);
+      expect(json['raised_amount_cop'], 3150000);
+      expect(json['verified_invoice_code'], 'AUD-COL-2026-441');
+
+      final reconstructed = DonationCampaign.fromJson(json);
+      expect(reconstructed.id, campaign.id);
+      expect(reconstructed.title, campaign.title);
+      expect(reconstructed.progressRatio, closeTo(0.70, 0.01));
+      expect(reconstructed.progressPercentage, 70);
+      expect(reconstructed.formattedTargetCop, '\$4.500.000 COP');
+      expect(reconstructed.formattedRaisedCop, '\$3.150.000 COP');
+      expect(reconstructed.progressSummary, contains('70%'));
+      expect(reconstructed.progressSummary, contains('8 días'));
+    });
+
+    test('DonationCampaign activeCampaigns contains 5 realistic causes in AMB', () {
+      final campaigns = DonationCampaign.activeCampaigns;
+      expect(campaigns.length, 5);
+
+      final categories = campaigns.map((c) => c.category).toSet();
+      expect(categories, contains(CampaignCategory.foodBags));
+      expect(categories, contains(CampaignCategory.hospitalizationSurgery));
+      expect(categories, contains(CampaignCategory.sterilization));
+
+      // Verificar que todas tengan factura o código auditado y montos válidos
+      for (final c in campaigns) {
+        expect(c.targetAmountCop, greaterThan(0));
+        expect(c.raisedAmountCop, greaterThan(0));
+        expect(c.daysLeft, greaterThan(0));
+        expect(c.verifiedInvoiceCode, isNotNull);
+        expect(c.foundationName, isNotEmpty);
+      }
     });
   });
 
