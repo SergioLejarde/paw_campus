@@ -8,6 +8,8 @@ import 'package:paw_campus/features/adoptions/presentation/admin_page.dart';
 import 'package:paw_campus/features/adoptions/presentation/add_pet_page.dart';
 import 'package:paw_campus/features/donations/presentation/donations_page.dart';
 import 'package:paw_campus/features/adoptions/presentation/pet_detail_page.dart';
+import 'package:paw_campus/features/lost_pets/presentation/lost_pets_page.dart';
+import 'package:paw_campus/features/lost_pets/presentation/add_lost_pet_page.dart';
 import 'package:paw_campus/features/profile/presentation/profile_page.dart';
 import 'package:paw_campus/features/profile/presentation/edit_profile_page.dart';
 import 'package:paw_campus/features/sos/presentation/sos_page.dart';
@@ -45,6 +47,16 @@ final GoRouter router = GoRouter(
       path: '/pets/new',
       name: 'add_pet',
       builder: (context, state) => const AddPetPage(),
+    ),
+    GoRoute(
+      path: '/lost-pets',
+      name: 'lost_pets',
+      builder: (context, state) => const LostPetsPage(),
+    ),
+    GoRoute(
+      path: '/lost-pets/new',
+      name: 'add_lost_pet',
+      builder: (context, state) => const AddLostPetPage(),
     ),
     GoRoute(
       path: '/sos',

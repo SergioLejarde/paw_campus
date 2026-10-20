@@ -4,6 +4,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../core/presentation/app_feedback.dart';
+import '../../lost_pets/data/lost_pets_repository.dart';
 import '../../sos/data/sos_repository.dart';
 import '../data/pets_repository.dart';
 
@@ -20,10 +21,11 @@ class AdminPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final petsAsync = ref.watch(pendingPetsProvider);
     final sosReportsAsync = ref.watch(allSosReportsAdminProvider);
+    final lostPetsAsync = ref.watch(allLostPetsAdminProvider);
     final user = Supabase.instance.client.auth.currentUser;
 
     return DefaultTabController(
-      length: 2,
+      length: 3,
       child: Scaffold(
         appBar: AppBar(
           title: const Text('Panel de Administración 🛠️'),
@@ -60,7 +62,11 @@ class AdminPage extends ConsumerWidget {
               ),
               Tab(
                 icon: Icon(Icons.campaign, color: Color(0xFFE11D48)),
-                text: '🚨 Denuncias SOS',
+                text: '🚨 SOS',
+              ),
+              Tab(
+                icon: Icon(Icons.location_on, color: Color(0xFF0D9488)),
+                text: '📍 Perdidos',
               ),
             ],
           ),
@@ -72,6 +78,9 @@ class AdminPage extends ConsumerWidget {
 
             // TAB 2: Denuncias de Maltrato SOS
             _buildSosReportsTab(context, ref, sosReportsAsync),
+
+            // TAB 3: Animales Perdidos / Encontrados
+            _buildLostPetsTab(context, ref, lostPetsAsync),
           ],
         ),
       ),
@@ -604,6 +613,401 @@ class AdminPage extends ConsumerWidget {
       if (context.mounted) {
         AppFeedback.hideLoadingDialog(context);
         AppFeedback.showError(context, e);
+      }
+    }
+  }
+
+  // ==========================================
+  // TAB 3: ANIMALES PERDIDOS / ENCONTRADOS
+  // ==========================================
+  Widget _buildLostPetsTab(
+    BuildContext context,
+    WidgetRef ref,
+    AsyncValue<List<LostPetReport>> lostPetsAsync,
+  ) {
+    return lostPetsAsync.when(
+      data: (reports) {
+        if (reports.isEmpty) {
+          return const Center(
+            child: Padding(
+              padding: EdgeInsets.all(24),
+              child: Text(
+                'No hay reportes de animales perdidos o encontrados 📍',
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Color(0xFF64748B),
+                ),
+              ),
+            ),
+          );
+        }
+
+        return RefreshIndicator(
+          onRefresh: () async => ref.refresh(allLostPetsAdminProvider.future),
+          child: ListView.builder(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            itemCount: reports.length,
+            itemBuilder: (context, index) {
+              final report = reports[index];
+              return _buildAdminLostPetCard(context, ref, report);
+            },
+          ),
+        );
+      },
+      loading: () => const Center(child: CircularProgressIndicator()),
+      error: (e, _) => Center(
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Text(
+            '⚠️ Error cargando reportes:\n$e',
+            textAlign: TextAlign.center,
+            style: const TextStyle(color: Colors.redAccent),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAdminLostPetCard(
+    BuildContext context,
+    WidgetRef ref,
+    LostPetReport report,
+  ) {
+    final isFlagged = report.status == 'flagged';
+    final isResolved = report.status == 'resolved';
+    final isLost = report.isLost;
+
+    final (statusLabel, statusColor, statusBg) = switch (report.status) {
+      'flagged' => (
+          '⚠️ Reportado como indebido',
+          const Color(0xFFE11D48),
+          const Color(0xFFFFE4E6)
+        ),
+      'resolved' => (
+          '🎉 Resuelto (¡Ya apareció!)',
+          const Color(0xFF0D9488),
+          const Color(0xFFCCFBF1)
+        ),
+      _ => (
+          '✅ Activo en el mapa',
+          const Color(0xFF059669),
+          const Color(0xFFD1FAE5)
+        ),
+    };
+
+    return Card(
+      elevation: isFlagged ? 3 : 1,
+      margin: const EdgeInsets.only(bottom: 14),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(14),
+        side: isFlagged
+            ? const BorderSide(color: Color(0xFFE11D48), width: 1.5)
+            : BorderSide.none,
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Cabecera: Tipo de alerta y Estado
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: isLost
+                        ? const Color(0xFFFFF1F2)
+                        : const Color(0xFFECFDF5),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(
+                    isLost ? '🔴 Mascota Perdida' : '🟢 Avistado / Encontrado',
+                    style: TextStyle(
+                      color: isLost
+                          ? const Color(0xFFE11D48)
+                          : const Color(0xFF059669),
+                      fontWeight: FontWeight.bold,
+                      fontSize: 12,
+                    ),
+                  ),
+                ),
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: statusBg,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(
+                    statusLabel,
+                    style: TextStyle(
+                      color: statusColor,
+                      fontSize: 11,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 10),
+
+            // Nombre y especie
+            Text(
+              '${report.petName} (${report.species})',
+              style: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF1E293B),
+              ),
+            ),
+            const SizedBox(height: 4),
+
+            // Ubicación
+            Row(
+              children: [
+                const Icon(Icons.location_on,
+                    size: 15, color: Color(0xFF0D9488)),
+                const SizedBox(width: 4),
+                Text(
+                  '${report.neighborhood}, ${report.municipality}',
+                  style: const TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: Color(0xFF475569),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+
+            // Foto si existe
+            if (report.photoUrl != null && report.photoUrl!.isNotEmpty) ...[
+              ClipRRect(
+                borderRadius: BorderRadius.circular(10),
+                child: Image.network(
+                  report.photoUrl!,
+                  height: 140,
+                  width: double.infinity,
+                  fit: BoxFit.cover,
+                  errorBuilder: (_, __, ___) => const SizedBox.shrink(),
+                ),
+              ),
+              const SizedBox(height: 8),
+            ],
+
+            // Descripción
+            Text(
+              report.description,
+              style: const TextStyle(
+                fontSize: 13,
+                color: Color(0xFF334155),
+                height: 1.35,
+              ),
+            ),
+            const SizedBox(height: 8),
+
+            // Teléfono de contacto
+            Row(
+              children: [
+                const Icon(Icons.phone, size: 14, color: Color(0xFF64748B)),
+                const SizedBox(width: 6),
+                Text(
+                  'Contacto: ${report.contactPhone}',
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: Color(0xFF64748B),
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            const Divider(height: 1),
+            const SizedBox(height: 10),
+
+            // Acciones de Moderación para el Admin
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                if (isFlagged || isResolved)
+                  ElevatedButton.icon(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF0D9488),
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 8,
+                      ),
+                      minimumSize: const Size(0, 34),
+                    ),
+                    icon: const Icon(Icons.check_circle_outline, size: 16),
+                    label: const Text(
+                      'Restaurar como Activo',
+                      style:
+                          TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                    ),
+                    onPressed: () => _updateLostPetStatus(
+                      context,
+                      ref,
+                      report.id,
+                      'active',
+                    ),
+                  ),
+                if (!isResolved)
+                  OutlinedButton.icon(
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: const Color(0xFF0D9488),
+                      side: const BorderSide(color: Color(0xFF0D9488)),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 8,
+                      ),
+                      minimumSize: const Size(0, 34),
+                    ),
+                    icon: const Icon(Icons.celebration_outlined, size: 16),
+                    label: const Text(
+                      'Marcar Resuelto',
+                      style: TextStyle(fontSize: 12),
+                    ),
+                    onPressed: () => _updateLostPetStatus(
+                      context,
+                      ref,
+                      report.id,
+                      'resolved',
+                    ),
+                  ),
+                if (!isFlagged)
+                  TextButton.icon(
+                    style: TextButton.styleFrom(
+                      foregroundColor: const Color(0xFFE11D48),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 8,
+                      ),
+                      minimumSize: const Size(0, 34),
+                    ),
+                    icon: const Icon(Icons.flag_outlined, size: 16),
+                    label: const Text(
+                      'Marcar Indebido',
+                      style: TextStyle(fontSize: 12),
+                    ),
+                    onPressed: () => _updateLostPetStatus(
+                      context,
+                      ref,
+                      report.id,
+                      'flagged',
+                    ),
+                  ),
+                TextButton.icon(
+                  style: TextButton.styleFrom(
+                    foregroundColor: const Color(0xFF94A3B8),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 8,
+                    ),
+                    minimumSize: const Size(0, 34),
+                  ),
+                  icon: const Icon(Icons.delete_outline, size: 16),
+                  label: const Text(
+                    'Eliminar',
+                    style: TextStyle(fontSize: 12),
+                  ),
+                  onPressed: () => _deleteLostPetReport(
+                    context,
+                    ref,
+                    report.id,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// Función auxiliar para actualizar el estado de reportes de perdidos
+  Future<void> _updateLostPetStatus(
+    BuildContext context,
+    WidgetRef ref,
+    String reportId,
+    String newStatus,
+  ) async {
+    final repo = ref.read(lostPetsRepositoryProvider);
+    try {
+      AppFeedback.showLoadingDialog(
+        context,
+        message: 'Actualizando reporte...',
+      );
+      await repo.updateReportStatus(reportId, newStatus);
+      ref.invalidate(allLostPetsAdminProvider);
+      ref.invalidate(activeLostPetsProvider);
+      if (!context.mounted) return;
+      AppFeedback.hideLoadingDialog(context);
+
+      final msg = switch (newStatus) {
+        'active' => 'Reporte reactivado en el mapa público',
+        'resolved' => 'Reporte marcado como resuelto',
+        'flagged' => 'Reporte marcado como indebido',
+        _ => 'Estado actualizado',
+      };
+      AppFeedback.showSuccess(context, msg);
+    } catch (e) {
+      if (context.mounted) {
+        AppFeedback.hideLoadingDialog(context);
+        AppFeedback.showError(context, e);
+      }
+    }
+  }
+
+  /// Función auxiliar para eliminar definitivamente un reporte de perdidos
+  Future<void> _deleteLostPetReport(
+    BuildContext context,
+    WidgetRef ref,
+    String reportId,
+  ) async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Eliminar reporte'),
+        content: const Text(
+          '¿Estás seguro de que deseas eliminar este reporte de forma permanente?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Cancelar'),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFFE11D48),
+              foregroundColor: Colors.white,
+            ),
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('Eliminar'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm == true && context.mounted) {
+      final repo = ref.read(lostPetsRepositoryProvider);
+      try {
+        AppFeedback.showLoadingDialog(context, message: 'Eliminando...');
+        await repo.deleteReport(reportId);
+        ref.invalidate(allLostPetsAdminProvider);
+        ref.invalidate(activeLostPetsProvider);
+        if (!context.mounted) return;
+        AppFeedback.hideLoadingDialog(context);
+        AppFeedback.showSuccess(context, 'Reporte eliminado correctamente');
+      } catch (e) {
+        if (context.mounted) {
+          AppFeedback.hideLoadingDialog(context);
+          AppFeedback.showError(context, e);
+        }
       }
     }
   }
