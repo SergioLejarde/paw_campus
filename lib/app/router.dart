@@ -1,26 +1,24 @@
 import 'package:go_router/go_router.dart';
+import 'package:paw_campus/app/main_shell.dart';
 import 'package:paw_campus/features/auth/presentation/login_page.dart';
 import 'package:paw_campus/features/auth/presentation/register_page.dart';
 import 'package:paw_campus/features/adoptions/presentation/adoptions_page.dart';
 import 'package:paw_campus/features/adoptions/presentation/my_pets_page.dart';
 import 'package:paw_campus/features/adoptions/presentation/admin_page.dart';
+import 'package:paw_campus/features/adoptions/presentation/add_pet_page.dart';
 import 'package:paw_campus/features/donations/presentation/donations_page.dart';
 import 'package:paw_campus/features/adoptions/presentation/pet_detail_page.dart';
-
-// 🔹 NUEVOS IMPORTS (Profile)
 import 'package:paw_campus/features/profile/presentation/profile_page.dart';
 import 'package:paw_campus/features/profile/presentation/edit_profile_page.dart';
 
 final GoRouter router = GoRouter(
-  initialLocation: '/login',
+  initialLocation: '/',
   routes: [
-
-    /// 🔥 ESTA ES LA NUEVA RUTA QUE FALTABA
     GoRoute(
       path: '/',
-      redirect: (_, __) => '/login',
+      name: 'home',
+      builder: (context, state) => const MainShell(),
     ),
-
     GoRoute(
       path: '/login',
       name: 'login',
@@ -42,6 +40,11 @@ final GoRouter router = GoRouter(
       builder: (context, state) => const MyPetsPage(),
     ),
     GoRoute(
+      path: '/pets/new',
+      name: 'add_pet',
+      builder: (context, state) => const AddPetPage(),
+    ),
+    GoRoute(
       path: '/donations',
       name: 'donations',
       builder: (context, state) => const DonationsPage(),
@@ -59,10 +62,6 @@ final GoRouter router = GoRouter(
         return PetDetailPage(petId: id);
       },
     ),
-
-    // =========================
-    // 🔥 PROFILE ROUTES
-    // =========================
     GoRoute(
       path: '/profile',
       name: 'profile',

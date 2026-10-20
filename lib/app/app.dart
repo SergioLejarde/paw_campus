@@ -20,7 +20,7 @@ class PawCampusApp extends ConsumerWidget {
     // final config = ref.watch(appConfigProvider);
 
     return MaterialApp.router(
-      title: 'PawCampus',
+      title: 'PawCo',
       debugShowCheckedModeBanner: false,
       routerConfig: router,
 
@@ -30,7 +30,7 @@ class PawCampusApp extends ConsumerWidget {
       // ✅ Por ahora, si el sistema pide dark, usamos el mismo tema para que no cambie feo
       darkTheme: lightTheme,
 
-      // ✅ No forzamos oscuro: usamos claro (lo que quieres para el video)
+      // ✅ No forzamos oscuro: usamos claro
       themeMode: ThemeMode.light,
     );
   }

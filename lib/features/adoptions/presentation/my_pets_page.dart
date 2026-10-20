@@ -27,7 +27,7 @@ class MyPetsPage extends ConsumerWidget {
               child: Center(
                 child: Text(
                   user.email ?? '',
-                  style: const TextStyle(fontSize: 13, color: Colors.white70),
+                  style: const TextStyle(fontSize: 13, color: Color(0xFF64748B)),
                 ),
               ),
             ),

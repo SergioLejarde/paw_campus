@@ -22,6 +22,16 @@ class AdminPage extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Panel de Administración 🛠️'),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            if (context.canPop()) {
+              context.pop();
+            } else {
+              context.go('/');
+            }
+          },
+        ),
         actions: [
           if (user != null)
             Padding(
@@ -29,7 +39,7 @@ class AdminPage extends ConsumerWidget {
               child: Center(
                 child: Text(
                   user.email ?? '',
-                  style: const TextStyle(fontSize: 13, color: Colors.white70),
+                  style: const TextStyle(fontSize: 13, color: Color(0xFF64748B)),
                 ),
               ),
             ),

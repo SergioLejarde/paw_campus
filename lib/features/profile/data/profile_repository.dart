@@ -47,6 +47,7 @@ class ProfileRepository {
     String? name,
     String? phone,
     String? photoUrl,
+    String? city,
   }) async {
     final user = supabase.auth.currentUser;
     if (user == null) {
@@ -57,6 +58,7 @@ class ProfileRepository {
     if (name != null) updates['name'] = name;
     if (phone != null) updates['phone'] = phone;
     if (photoUrl != null) updates['photo_url'] = photoUrl;
+    if (city != null) updates['city'] = city;
 
     final response = await supabase
         .from('profiles')

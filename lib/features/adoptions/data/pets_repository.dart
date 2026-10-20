@@ -1,43 +1,10 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
+import '../domain/pet.dart';
+
+export '../domain/pet.dart';
 
 /// Instancia global de Supabase
 final supabase = Supabase.instance.client;
-
-/// Modelo de datos para una mascota (id = uuid en Supabase)
-class Pet {
-  final String id; // uuid
-  final String name;
-  final String species;
-  final int age;
-  final String description;
-  final String photoUrl;
-  final String status;
-  final String createdBy; // uuid de auth.users
-
-  Pet({
-    required this.id,
-    required this.name,
-    required this.species,
-    required this.age,
-    required this.description,
-    required this.photoUrl,
-    required this.status,
-    required this.createdBy,
-  });
-
-  factory Pet.fromJson(Map<String, dynamic> json) => Pet(
-        id: (json['id'] ?? '').toString(),
-        name: json['name'] ?? '',
-        species: json['species'] ?? '',
-        age: (json['age'] ?? 0) is int
-            ? json['age']
-            : int.tryParse('${json['age']}') ?? 0,
-        description: json['description'] ?? '',
-        photoUrl: json['photo_url'] ?? '',
-        status: json['status'] ?? 'pending',
-        createdBy: (json['created_by'] ?? '').toString(),
-      );
-}
 
 /// Repositorio central de mascotas (CRUD + filtros)
 class PetsRepository {
@@ -48,11 +15,14 @@ class PetsRepository {
     required int age,
     required String description,
     required String photoUrl,
+    String city = 'Bucaramanga',
+    String? neighborhood,
+    String size = 'Mediano',
   }) async {
     final user = supabase.auth.currentUser;
     if (user == null) throw Exception('Usuario no autenticado');
 
-    await supabase.from('pets').insert({
+    final fullData = {
       'name': name,
       'species': species,
       'age': age,
@@ -60,7 +30,27 @@ class PetsRepository {
       'photo_url': photoUrl,
       'created_by': user.id,
       'status': 'pending',
-    });
+      'city': city,
+      if (neighborhood != null && neighborhood.isNotEmpty)
+        'neighborhood': neighborhood,
+      'size': size,
+    };
+
+    try {
+      await supabase.from('pets').insert(fullData);
+    } catch (_) {
+      // Si la tabla pets aún no tiene las columnas city, neighborhood o size,
+      // reintenta con el esquema base para garantizar que nunca falle.
+      await supabase.from('pets').insert({
+        'name': name,
+        'species': species,
+        'age': age,
+        'description': description,
+        'photo_url': photoUrl,
+        'created_by': user.id,
+        'status': 'pending',
+      });
+    }
   }
 
   /// Obtiene las mascotas aprobadas (visibles al público)
@@ -144,8 +134,6 @@ class PetsRepository {
     if (response.isEmpty) {
       throw Exception('No se encontró la mascota o no se pudo actualizar.');
     }
-
-    // Éxito
   }
 
   /// Cambia el estado de una mascota a 'approved' (versión simplificada)

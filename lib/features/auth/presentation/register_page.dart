@@ -30,7 +30,15 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
     final password = _passwordController.text.trim();
 
     if (email.isEmpty || password.isEmpty) {
-      AppFeedback.showError(context, Exception('Ingresa correo y contrasena'));
+      AppFeedback.showError(context, Exception('Ingresa correo y contraseña'));
+      return;
+    }
+
+    if (password.length < 6) {
+      AppFeedback.showError(
+        context,
+        Exception('La contraseña debe tener al menos 6 caracteres'),
+      );
       return;
     }
 
@@ -43,7 +51,10 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
 
       if (!mounted) return;
 
-      AppFeedback.showSuccess(context, 'Cuenta creada. Ahora inicia sesion.');
+      AppFeedback.showSuccess(
+        context,
+        '¡Cuenta creada exitosamente en PawCo! Ahora inicia sesión.',
+      );
 
       context.go('/login');
     } catch (e) {
@@ -57,49 +68,131 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Registro')),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            TextField(
-              controller: _emailController,
-              decoration: const InputDecoration(labelText: 'Correo'),
-              keyboardType: TextInputType.emailAddress,
-              textInputAction: TextInputAction.next,
-            ),
-            const SizedBox(height: 12),
-            TextField(
-              controller: _passwordController,
-              decoration: const InputDecoration(labelText: 'Contraseña'),
-              obscureText: true,
-              textInputAction: TextInputAction.done,
-              onSubmitted: (_) => _loading ? null : _register(),
-            ),
-            const SizedBox(height: 20),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: _loading ? null : _register,
-                child: _loading
-                    ? const SizedBox(
-                        height: 22,
-                        width: 22,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          color: Colors.white,
+      appBar: AppBar(
+        title: const Text('Crear cuenta'),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            if (context.canPop()) {
+              context.pop();
+            } else {
+              context.go('/');
+            }
+          },
+        ),
+      ),
+      body: Center(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(24),
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 420),
+            child: Card(
+              elevation: 2,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 28),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: const BoxDecoration(
+                        color: Color(0xFFCCFBF1),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.person_add_alt_1,
+                        size: 40,
+                        color: Color(0xFF0D9488),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    const Text(
+                      'Únete a PawCo 🐾',
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF1E293B),
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    const Text(
+                      'Crea tu cuenta para publicar mascotas y participar en la comunidad.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontSize: 13, color: Color(0xFF64748B)),
+                    ),
+                    const SizedBox(height: 24),
+
+                    TextField(
+                      controller: _emailController,
+                      keyboardType: TextInputType.emailAddress,
+                      textInputAction: TextInputAction.next,
+                      decoration: const InputDecoration(
+                        labelText: 'Correo electrónico',
+                        prefixIcon: Icon(Icons.email_outlined),
+                      ),
+                    ),
+                    const SizedBox(height: 14),
+                    TextField(
+                      controller: _passwordController,
+                      obscureText: true,
+                      textInputAction: TextInputAction.done,
+                      onSubmitted: (_) => _loading ? null : _register(),
+                      decoration: const InputDecoration(
+                        labelText: 'Contraseña (mínimo 6 caracteres)',
+                        prefixIcon: Icon(Icons.lock_outline),
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                    SizedBox(
+                      width: double.infinity,
+                      height: 48,
+                      child: ElevatedButton(
+                        onPressed: _loading ? null : _register,
+                        child: _loading
+                            ? const SizedBox(
+                                height: 22,
+                                width: 22,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: Colors.white,
+                                ),
+                              )
+                            : const Text(
+                                'Registrarme en PawCo',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    TextButton(
+                      onPressed: _loading ? null : () => context.go('/login'),
+                      child: const Text('¿Ya tienes cuenta? Iniciar sesión'),
+                    ),
+
+                    const Divider(height: 32),
+
+                    OutlinedButton.icon(
+                      style: OutlinedButton.styleFrom(
+                        side: const BorderSide(color: Color(0xFFE2E8F0)),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
                         ),
-                      )
-                    : const Text('Crear cuenta'),
+                      ),
+                      onPressed: () => context.go('/'),
+                      icon: const Icon(Icons.home_outlined, size: 18),
+                      label: const Text(
+                        'Continuar como invitado',
+                        style: TextStyle(color: Color(0xFF64748B)),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
-            const SizedBox(height: 8),
-            TextButton(
-              onPressed: _loading ? null : () => context.go('/login'),
-              child: const Text('Volver a iniciar sesión'),
-            ),
-          ],
+          ),
         ),
       ),
     );
