@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 import '../features/adoptions/presentation/adoptions_page.dart';
 import '../features/donations/presentation/donations_page.dart';
 import '../features/profile/presentation/profile_page.dart';
+import '../features/sos/presentation/sos_page.dart';
 
 /// Provider reactivo para controlar la pestaña activa de navegación principal
 final mainNavIndexProvider = StateProvider<int>((ref) => 0);
@@ -19,7 +19,7 @@ class MainShell extends ConsumerWidget {
     final List<Widget> pages = [
       const AdoptionsPage(),
       const _LostPetsPlaceholderView(),
-      const _SosPlaceholderView(),
+      const SosPage(),
       const DonationsPage(),
       const ProfilePage(),
     ];
@@ -154,149 +154,4 @@ class _LostPetsPlaceholderView extends StatelessWidget {
   }
 }
 
-/// Vista de emergencia y rutas oficiales de denuncia de maltrato en Colombia (Fase 2)
-class _SosPlaceholderView extends StatelessWidget {
-  const _SosPlaceholderView();
 
-  Future<void> _makeCall(String number) async {
-    final uri = Uri.parse('tel:$number');
-    if (await canLaunchUrl(uri)) {
-      await launchUrl(uri);
-    }
-  }
-
-  Future<void> _openLink(String url) async {
-    final uri = Uri.parse(url);
-    await launchUrl(uri, mode: LaunchMode.externalApplication);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Row(
-          children: [
-            Icon(Icons.emergency, color: Color(0xFFE11D48)),
-            SizedBox(width: 8),
-            Text('🚨 SOS Maltrato Animal'),
-          ],
-        ),
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: const Color(0xFFFFE4E6),
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: const Color(0xFFFDA4AF)),
-              ),
-              child: const Row(
-                children: [
-                  Icon(Icons.shield_outlined, color: Color(0xFFE11D48), size: 36),
-                  SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Protección Animal en Colombia',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: Color(0xFF9F1239),
-                          ),
-                        ),
-                        SizedBox(height: 4),
-                        Text(
-                          'El maltrato animal es un delito sancionado por la Ley 1774 de 2016.',
-                          style: TextStyle(
-                            fontSize: 13,
-                            color: Color(0xFF881337),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 16),
-            Card(
-              child: ListTile(
-                leading: const CircleAvatar(
-                  backgroundColor: Color(0xFFFFE4E6),
-                  child: Icon(Icons.phone_in_talk, color: Color(0xFFE11D48)),
-                ),
-                title: const Text(
-                  'Línea 123 — Emergencias y Policía Nacional',
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-                subtitle: const Text('Para casos en flagrancia o peligro inminente de vida.'),
-                trailing: ElevatedButton.icon(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFFE11D48),
-                  ),
-                  icon: const Icon(Icons.call, size: 18),
-                  label: const Text('Llamar'),
-                  onPressed: () => _makeCall('123'),
-                ),
-              ),
-            ),
-            const SizedBox(height: 8),
-            Card(
-              child: ListTile(
-                leading: const CircleAvatar(
-                  backgroundColor: Color(0xFFFEF3C7),
-                  child: Icon(Icons.gavel, color: Color(0xFFD97706)),
-                ),
-                title: const Text(
-                  'Fiscalía General — Grupo GELMA (Línea 122)',
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-                subtitle: const Text('Grupo Especial para la Lucha Contra el Maltrato Animal.'),
-                trailing: ElevatedButton.icon(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF0D9488),
-                  ),
-                  icon: const Icon(Icons.open_in_new, size: 18),
-                  label: const Text('Denunciar'),
-                  onPressed: () => _openLink('https://sicecon.fiscalia.gov.co/denuncia/LlenarFormulario'),
-                ),
-              ),
-            ),
-            const SizedBox(height: 16),
-            Card(
-              color: Colors.white,
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  children: [
-                    const Icon(Icons.add_alert_outlined, color: Color(0xFF0D9488), size: 36),
-                    const SizedBox(height: 10),
-                    const Text(
-                      'Reporte Ciudadano PawCo (Fase 2)',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 6),
-                    const Text(
-                      'En la Fase 2 podrás radicar reportes con fotos, ubicación en Bucaramanga y opción de denuncia anónima.',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(fontSize: 13, color: Color(0xFF64748B)),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}

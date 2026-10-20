@@ -10,6 +10,8 @@ import 'package:paw_campus/features/donations/presentation/donations_page.dart';
 import 'package:paw_campus/features/adoptions/presentation/pet_detail_page.dart';
 import 'package:paw_campus/features/profile/presentation/profile_page.dart';
 import 'package:paw_campus/features/profile/presentation/edit_profile_page.dart';
+import 'package:paw_campus/features/sos/presentation/sos_page.dart';
+import 'package:paw_campus/features/sos/presentation/create_sos_report_page.dart';
 
 final GoRouter router = GoRouter(
   initialLocation: '/',
@@ -43,6 +45,16 @@ final GoRouter router = GoRouter(
       path: '/pets/new',
       name: 'add_pet',
       builder: (context, state) => const AddPetPage(),
+    ),
+    GoRoute(
+      path: '/sos',
+      name: 'sos',
+      builder: (context, state) => const SosPage(),
+    ),
+    GoRoute(
+      path: '/sos/new',
+      name: 'create_sos_report',
+      builder: (context, state) => const CreateSosReportPage(),
     ),
     GoRoute(
       path: '/donations',
