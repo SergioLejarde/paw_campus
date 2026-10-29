@@ -391,56 +391,59 @@ class SosPage extends ConsumerWidget {
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: PawCoColors.borderLight),
       ),
-      child: ExpansionTile(
-        tilePadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 4),
-        leading: Container(
-          padding: const EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            color: PawCoColors.sageLight,
-            borderRadius: BorderRadius.circular(10),
+      child: Material(
+        color: Colors.transparent,
+        child: ExpansionTile(
+          tilePadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 4),
+          leading: Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: PawCoColors.sageLight,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: const Icon(Icons.checklist_rounded, color: PawCoColors.forest),
           ),
-          child: const Icon(Icons.checklist_rounded, color: PawCoColors.forest),
+          title: Text(
+            '¿Qué pruebas debo reunir antes de denunciar?',
+            style: GoogleFonts.fraunces(
+              fontSize: 15,
+              fontWeight: FontWeight.w700,
+              color: PawCoColors.ink,
+            ),
+          ),
+          subtitle: Text(
+            'Recomendaciones para que tu denuncia prospere legalmente',
+            style: GoogleFonts.plusJakartaSans(fontSize: 12, color: PawCoColors.muted),
+          ),
+          childrenPadding: const EdgeInsets.fromLTRB(18, 0, 18, 18),
+          children: [
+            const Divider(color: PawCoColors.borderLight),
+            const SizedBox(height: 6),
+            _buildChecklistItem(
+              Icons.camera_alt_outlined,
+              'Fotos o videos claros:',
+              'Donde se evidencie el estado del animal, sus lesiones o las condiciones inadecuadas del lugar.',
+            ),
+            const SizedBox(height: 10),
+            _buildChecklistItem(
+              Icons.place_outlined,
+              'Ubicación exacta:',
+              'Dirección con nomenclatura clara en Bucaramanga, Floridablanca, Girón o Piedecuesta, o punto de referencia visible.',
+            ),
+            const SizedBox(height: 10),
+            _buildChecklistItem(
+              Icons.access_time_outlined,
+              'Fecha, hora y recurrencia:',
+              'Anotar si es una agresión puntual o una situación reiterada en el tiempo.',
+            ),
+            const SizedBox(height: 10),
+            _buildChecklistItem(
+              Icons.person_outline,
+              'Datos del agresor o tenedor (si los conoces):',
+              'Nombre, descripción física o relación con el inmueble. Nunca te pongas en riesgo para obtenerlos.',
+            ),
+          ],
         ),
-        title: Text(
-          '¿Qué pruebas debo reunir antes de denunciar?',
-          style: GoogleFonts.fraunces(
-            fontSize: 15,
-            fontWeight: FontWeight.w700,
-            color: PawCoColors.ink,
-          ),
-        ),
-        subtitle: Text(
-          'Recomendaciones para que tu denuncia prospere legalmente',
-          style: GoogleFonts.plusJakartaSans(fontSize: 12, color: PawCoColors.muted),
-        ),
-        childrenPadding: const EdgeInsets.fromLTRB(18, 0, 18, 18),
-        children: [
-          const Divider(color: PawCoColors.borderLight),
-          const SizedBox(height: 6),
-          _buildChecklistItem(
-            Icons.camera_alt_outlined,
-            'Fotos o videos claros:',
-            'Donde se evidencie el estado del animal, sus lesiones o las condiciones inadecuadas del lugar.',
-          ),
-          const SizedBox(height: 10),
-          _buildChecklistItem(
-            Icons.place_outlined,
-            'Ubicación exacta:',
-            'Dirección con nomenclatura clara en Bucaramanga, Floridablanca, Girón o Piedecuesta, o punto de referencia visible.',
-          ),
-          const SizedBox(height: 10),
-          _buildChecklistItem(
-            Icons.access_time_outlined,
-            'Fecha, hora y recurrencia:',
-            'Anotar si es una agresión puntual o una situación reiterada en el tiempo.',
-          ),
-          const SizedBox(height: 10),
-          _buildChecklistItem(
-            Icons.person_outline,
-            'Datos del agresor o tenedor (si los conoces):',
-            'Nombre, descripción física o relación con el inmueble. Nunca te pongas en riesgo para obtenerlos.',
-          ),
-        ],
       ),
     );
   }

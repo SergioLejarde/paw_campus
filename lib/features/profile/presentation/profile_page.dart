@@ -287,30 +287,33 @@ class ProfilePage extends ConsumerWidget {
                           borderRadius: BorderRadius.circular(16),
                           border: Border.all(color: const Color(0xFFFDE68A)),
                         ),
-                        child: ListTile(
-                          contentPadding: const EdgeInsets.all(16),
-                          leading: Container(
-                            padding: const EdgeInsets.all(10),
-                            decoration: const BoxDecoration(
-                              color: Color(0xFFFDE68A),
-                              shape: BoxShape.circle,
+                        child: Material(
+                          color: Colors.transparent,
+                          child: ListTile(
+                            contentPadding: const EdgeInsets.all(16),
+                            leading: Container(
+                              padding: const EdgeInsets.all(10),
+                              decoration: const BoxDecoration(
+                                color: Color(0xFFFDE68A),
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(Icons.admin_panel_settings, color: Color(0xFFB45309), size: 24),
                             ),
-                            child: const Icon(Icons.admin_panel_settings, color: Color(0xFFB45309), size: 24),
-                          ),
-                          title: const Text(
-                            'Panel de Administración',
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 15,
-                              color: Color(0xFF92400E),
+                            title: const Text(
+                              'Panel de Administración',
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 15,
+                                color: Color(0xFF92400E),
+                              ),
                             ),
+                            subtitle: const Text(
+                              'Aprobar o rechazar mascotas en adopción pendientes.',
+                              style: TextStyle(fontSize: 13, color: Color(0xFFB45309)),
+                            ),
+                            trailing: const Icon(Icons.chevron_right, color: Color(0xFFB45309)),
+                            onTap: () => context.push('/admin'),
                           ),
-                          subtitle: const Text(
-                            'Aprobar o rechazar mascotas en adopción pendientes.',
-                            style: TextStyle(fontSize: 13, color: Color(0xFFB45309)),
-                          ),
-                          trailing: const Icon(Icons.chevron_right, color: Color(0xFFB45309)),
-                          onTap: () => context.push('/admin'),
                         ),
                       ),
                       const SizedBox(height: 12),
@@ -325,23 +328,26 @@ class ProfilePage extends ConsumerWidget {
                         borderRadius: BorderRadius.circular(16),
                         border: Border.all(color: PawCoColors.border),
                       ),
-                      child: ListTile(
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                        leading: Container(
-                          padding: const EdgeInsets.all(10),
-                          decoration: BoxDecoration(
-                            color: PawCoColors.surfaceMuted,
-                            borderRadius: BorderRadius.circular(12),
+                      child: Material(
+                        color: Colors.transparent,
+                        child: ListTile(
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                          leading: Container(
+                            padding: const EdgeInsets.all(10),
+                            decoration: BoxDecoration(
+                              color: PawCoColors.surfaceMuted,
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: const Icon(Icons.pets_rounded, color: PawCoColors.forest, size: 20),
                           ),
-                          child: const Icon(Icons.pets_rounded, color: PawCoColors.forest, size: 20),
+                          title: const Text(
+                            'Mis mascotas publicadas',
+                            style: TextStyle(fontWeight: FontWeight.w600),
+                          ),
+                          subtitle: const Text('Revisa el estado de tus mascotas en adopción'),
+                          trailing: const Icon(Icons.chevron_right),
+                          onTap: () => context.push('/my-pets'),
                         ),
-                        title: const Text(
-                          'Mis mascotas publicadas',
-                          style: TextStyle(fontWeight: FontWeight.w600),
-                        ),
-                        subtitle: const Text('Revisa el estado de tus mascotas en adopción'),
-                        trailing: const Icon(Icons.chevron_right),
-                        onTap: () => context.push('/my-pets'),
                       ),
                     ),
 

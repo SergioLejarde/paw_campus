@@ -158,13 +158,12 @@ final ThemeData lightTheme = ThemeData(
   ),
 
   scaffoldBackgroundColor: PawCoColors.background,
-  splashFactory: InkSparkle.splashFactory,
 
   pageTransitionsTheme: const PageTransitionsTheme(
     builders: {
-      TargetPlatform.android: CupertinoPageTransitionsBuilder(),
-      TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
-      TargetPlatform.macOS: CupertinoPageTransitionsBuilder(),
+      TargetPlatform.android: ZoomPageTransitionsBuilder(),
+      TargetPlatform.iOS: ZoomPageTransitionsBuilder(),
+      TargetPlatform.macOS: FadeUpwardsPageTransitionsBuilder(),
       TargetPlatform.windows: FadeUpwardsPageTransitionsBuilder(),
       TargetPlatform.linux: FadeUpwardsPageTransitionsBuilder(),
     },

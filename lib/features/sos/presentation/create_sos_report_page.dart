@@ -771,29 +771,32 @@ class _CreateSosReportPageState extends ConsumerState<CreateSosReportPage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         // Switch de confidencialidad en verde bosque
-                        SwitchListTile(
-                          contentPadding: EdgeInsets.zero,
-                          activeThumbColor: PawCoColors.forest,
-                          activeTrackColor: PawCoColors.sageLight,
-                          title: Text(
-                            'Enviar denuncia de forma anónima',
-                            style: GoogleFonts.fraunces(
-                              fontWeight: FontWeight.w700,
-                              fontSize: 15,
-                              color: PawCoColors.ink,
+                        Material(
+                          color: Colors.transparent,
+                          child: SwitchListTile(
+                            contentPadding: EdgeInsets.zero,
+                            activeThumbColor: PawCoColors.forest,
+                            activeTrackColor: PawCoColors.sageLight,
+                            title: Text(
+                              'Enviar denuncia de forma anónima',
+                              style: GoogleFonts.fraunces(
+                                fontWeight: FontWeight.w700,
+                                fontSize: 15,
+                                color: PawCoColors.ink,
+                              ),
                             ),
-                          ),
-                          subtitle: Text(
-                            'Tu identidad y cuenta de usuario no quedarán asociadas al reporte público.',
-                            style: GoogleFonts.plusJakartaSans(
-                              fontSize: 12,
-                              color: PawCoColors.inkSecondary,
+                            subtitle: Text(
+                              'Tu identidad y cuenta de usuario no quedarán asociadas al reporte público.',
+                              style: GoogleFonts.plusJakartaSans(
+                                fontSize: 12,
+                                color: PawCoColors.inkSecondary,
+                              ),
                             ),
+                            value: _isAnonymous,
+                            onChanged: (val) {
+                              setState(() => _isAnonymous = val);
+                            },
                           ),
-                          value: _isAnonymous,
-                          onChanged: (val) {
-                            setState(() => _isAnonymous = val);
-                          },
                         ),
                         if (!_isAnonymous) ...[
                           const SizedBox(height: 10),
