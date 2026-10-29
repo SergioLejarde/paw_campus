@@ -220,7 +220,13 @@ class _OverviewPageState extends ConsumerState<OverviewPage> {
                 children: [
                   // --- 1. Saludo Editorial Superior ---
                   _buildTopEditorialGreeting(isDesktop),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 18),
+
+                  // --- 1.5 Manifiesto Emocional (Conexión Directa) ---
+                  PawCoFadeSlide(
+                    child: _buildEmotionalCalloutCard(isDesktop),
+                  ),
+                  const SizedBox(height: 20),
 
                   // --- 2. Hero Banner ("Conviértete en un Héroe") ---
                   PawCoFadeSlide(
@@ -378,6 +384,173 @@ class _OverviewPageState extends ConsumerState<OverviewPage> {
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildEmotionalCalloutCard(bool isDesktop) {
+    return Container(
+      width: double.infinity,
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            Color(0xFFFFFCF7),
+            Color(0xFFF9EFE8),
+          ],
+        ),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(
+          color: PawCoColors.terracotta.withValues(alpha: 0.38),
+          width: 1.5,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: PawCoColors.terracotta.withValues(alpha: 0.10),
+            blurRadius: 22,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
+      child: Stack(
+        children: [
+          const Positioned(
+            right: 12,
+            bottom: 6,
+            child: AnimalSilhouetteCardWatermark(
+              width: 140,
+              height: 95,
+              opacity: 0.16,
+            ),
+          ),
+          Padding(
+            padding: EdgeInsets.symmetric(
+              horizontal: isDesktop ? 28.0 : 20.0,
+              vertical: isDesktop ? 24.0 : 20.0,
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 5,
+                      ),
+                      decoration: BoxDecoration(
+                        color: PawCoColors.terracotta.withValues(alpha: 0.14),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(
+                            Icons.volunteer_activism,
+                            size: 14,
+                            color: PawCoColors.terracottaDark,
+                          ),
+                          const SizedBox(width: 6),
+                          Text(
+                            'Tu ayuda a un clic de distancia',
+                            style: GoogleFonts.plusJakartaSans(
+                              fontSize: 11.5,
+                              fontWeight: FontWeight.w700,
+                              color: PawCoColors.terracottaDark,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  '¿Alguna vez has sentido la impotencia de ver a un animalito sufriendo y no poder ayudarlo lo suficiente?',
+                  style: GoogleFonts.fraunces(
+                    fontSize: isDesktop ? 22 : 18.5,
+                    fontWeight: FontWeight.w700,
+                    color: PawCoColors.ink,
+                    height: 1.28,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                Text(
+                  'Con PawCo tienes el poder real de cambiar su destino y transformar nuestra sociedad, empezando hoy en Bucaramanga y su Área Metropolitana, y próximamente en toda Colombia y el mundo.',
+                  style: GoogleFonts.plusJakartaSans(
+                    fontSize: isDesktop ? 14.5 : 13.5,
+                    color: PawCoColors.inkSecondary,
+                    height: 1.5,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'No te quedes nunca más con el sentimiento de "debí haber hecho más" o "quisiera que existiera algo para ayudarlos": la solución que soñabas ya está aquí, a un solo clic de distancia.',
+                  style: GoogleFonts.plusJakartaSans(
+                    fontSize: isDesktop ? 14.5 : 13.5,
+                    fontWeight: FontWeight.w600,
+                    color: PawCoColors.forestDark,
+                    height: 1.48,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Wrap(
+                  spacing: 10,
+                  runSpacing: 8,
+                  children: [
+                    ElevatedButton.icon(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: PawCoColors.terracotta,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 18,
+                          vertical: 11,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                      ),
+                      onPressed: () {
+                        ref.read(mainNavIndexProvider.notifier).state = 3; // Donar
+                      },
+                      icon: const Icon(Icons.favorite, size: 16),
+                      label: Text(
+                        'Hacer el cambio hoy',
+                        style: GoogleFonts.plusJakartaSans(
+                          fontWeight: FontWeight.w700,
+                          fontSize: 13.5,
+                        ),
+                      ),
+                    ),
+                    OutlinedButton.icon(
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: PawCoColors.forest,
+                        side: const BorderSide(color: PawCoColors.forest, width: 1.2),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 11,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                      ),
+                      onPressed: _openReportChoiceDialog,
+                      icon: const Icon(Icons.pets_outlined, size: 16),
+                      label: Text(
+                        'Reportar un animalito que me necesita',
+                        style: GoogleFonts.plusJakartaSans(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 13.5,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 

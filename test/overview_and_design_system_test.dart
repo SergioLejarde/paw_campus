@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:paw_campus/app/theme.dart';
 import 'package:paw_campus/core/presentation/pawco_design_system.dart';
@@ -10,6 +11,9 @@ import 'package:paw_campus/features/sos/presentation/create_sos_report_page.dart
 import 'package:paw_campus/features/sos/presentation/sos_page.dart';
 
 void main() {
+  setUpAll(() {
+    GoogleFonts.config.allowRuntimeFetching = false;
+  });
   testWidgets('AnimalSilhouettesPainter paints without errors', (tester) async {
     await tester.pumpWidget(
       MaterialApp(
@@ -67,6 +71,10 @@ void main() {
 
     expect(find.text('PawCo Santander'), findsOneWidget);
     expect(find.text('Juntos por los animales'), findsOneWidget);
+    expect(
+      find.textContaining('¿Alguna vez has sentido la impotencia de ver a un animalito sufriendo'),
+      findsOneWidget,
+    );
     expect(find.text('Conviértete en un Héroe para los Animales'), findsOneWidget);
     expect(find.text('Transparencia Total'), findsOneWidget);
     expect(find.text('Sergio Lejarde'), findsOneWidget);
