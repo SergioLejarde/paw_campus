@@ -452,7 +452,7 @@ class _OverviewPageState extends ConsumerState<OverviewPage> {
                           ),
                           const SizedBox(width: 6),
                           Text(
-                            'Tu ayuda a un clic de distancia',
+                            'Impacto real a un clic de distancia',
                             style: GoogleFonts.plusJakartaSans(
                               fontSize: 11.5,
                               fontWeight: FontWeight.w700,
@@ -466,7 +466,7 @@ class _OverviewPageState extends ConsumerState<OverviewPage> {
                 ),
                 const SizedBox(height: 12),
                 Text(
-                  '¿Alguna vez has sentido la impotencia de ver a un animalito sufriendo y no poder ayudarlo lo suficiente?',
+                  '¿Alguna vez has querido ayudar a un peludito, pero sentiste que faltaban herramientas para lograr un impacto real?',
                   style: GoogleFonts.fraunces(
                     fontSize: isDesktop ? 22 : 18.5,
                     fontWeight: FontWeight.w700,
@@ -476,7 +476,7 @@ class _OverviewPageState extends ConsumerState<OverviewPage> {
                 ),
                 const SizedBox(height: 10),
                 Text(
-                  'Con PawCo tienes el poder real de cambiar su destino y transformar nuestra sociedad, empezando hoy en Bucaramanga y su Área Metropolitana, y próximamente en toda Colombia y el mundo.',
+                  'En PawCo transformamos tus buenas intenciones en resultados tangibles. Conectamos tu solidaridad con acciones directas y transparentes que hoy están cambiando vidas en Bucaramanga y su Área Metropolitana, con la visión de llegar muy pronto a toda Colombia y el mundo.',
                   style: GoogleFonts.plusJakartaSans(
                     fontSize: isDesktop ? 14.5 : 13.5,
                     color: PawCoColors.inkSecondary,
@@ -485,7 +485,7 @@ class _OverviewPageState extends ConsumerState<OverviewPage> {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'No te quedes nunca más con el sentimiento de "debí haber hecho más" o "quisiera que existiera algo para ayudarlos": la solución que soñabas ya está aquí, a un solo clic de distancia.',
+                  'Pasa del deseo de ayudar a la satisfacción de ser parte del cambio: la plataforma que esperabas para proteger y respaldar a nuestros animales ya está aquí, a un solo clic de distancia.',
                   style: GoogleFonts.plusJakartaSans(
                     fontSize: isDesktop ? 14.5 : 13.5,
                     fontWeight: FontWeight.w600,
@@ -515,7 +515,7 @@ class _OverviewPageState extends ConsumerState<OverviewPage> {
                       },
                       icon: const Icon(Icons.favorite, size: 16),
                       label: Text(
-                        'Hacer el cambio hoy',
+                        'Sumarme al cambio hoy',
                         style: GoogleFonts.plusJakartaSans(
                           fontWeight: FontWeight.w700,
                           fontSize: 13.5,
@@ -537,7 +537,7 @@ class _OverviewPageState extends ConsumerState<OverviewPage> {
                       onPressed: _openReportChoiceDialog,
                       icon: const Icon(Icons.pets_outlined, size: 16),
                       label: Text(
-                        'Reportar un animalito que me necesita',
+                        'Brindar ayuda a un peludito',
                         style: GoogleFonts.plusJakartaSans(
                           fontWeight: FontWeight.w600,
                           fontSize: 13.5,

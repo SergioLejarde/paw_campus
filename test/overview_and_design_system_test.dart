@@ -72,7 +72,7 @@ void main() {
     expect(find.text('PawCo Santander'), findsOneWidget);
     expect(find.text('Juntos por los animales'), findsOneWidget);
     expect(
-      find.textContaining('¿Alguna vez has sentido la impotencia de ver a un animalito sufriendo'),
+      find.textContaining('¿Alguna vez has querido ayudar a un peludito'),
       findsOneWidget,
     );
     expect(find.text('Conviértete en un Héroe para los Animales'), findsOneWidget);
