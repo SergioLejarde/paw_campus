@@ -505,7 +505,7 @@ class SosPage extends ConsumerWidget {
               const SizedBox(width: 14),
               Expanded(
                 child: Text(
-                  'Reportar Caso a la Red PawCo',
+                  'Reportar Caso a la Red PawCol',
                   style: GoogleFonts.fraunces(
                     color: PawCoColors.ink,
                     fontSize: 20,

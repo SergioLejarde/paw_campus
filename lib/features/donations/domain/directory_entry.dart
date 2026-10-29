@@ -82,7 +82,7 @@ class DirectoryEntry {
   String get whatsappUrl {
     final digits = cleanWhatsapp;
     final formatted = digits.startsWith('57') ? digits : '57$digits';
-    return 'https://wa.me/$formatted?text=Hola,%20los%20contacto%20desde%20la%20comunidad%20PawCo%20🐾';
+    return 'https://wa.me/$formatted?text=Hola,%20los%20contacto%20desde%20la%20comunidad%20PawCol%20🐾';
   }
 
   factory DirectoryEntry.fromJson(Map<String, dynamic> json) {

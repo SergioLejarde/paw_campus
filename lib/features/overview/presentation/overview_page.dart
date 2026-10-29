@@ -290,7 +290,7 @@ class _OverviewPageState extends ConsumerState<OverviewPage> {
                             const Icon(Icons.pets, size: 18, color: PawCoColors.forest),
                             const SizedBox(width: 8),
                             Text(
-                              'PawCo • Bucaramanga & Área Metropolitana',
+                              'PawCol • Bucaramanga & Área Metropolitana',
                               style: GoogleFonts.fraunces(
                                 fontSize: 14,
                                 fontWeight: FontWeight.w600,
@@ -343,7 +343,7 @@ class _OverviewPageState extends ConsumerState<OverviewPage> {
                 ),
                 const SizedBox(width: 8),
                 Text(
-                  'PawCo Santander',
+                  'PawCol Santander',
                   style: GoogleFonts.plusJakartaSans(
                     fontSize: 13,
                     fontWeight: FontWeight.w700,
@@ -391,24 +391,17 @@ class _OverviewPageState extends ConsumerState<OverviewPage> {
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            Color(0xFFFFFCF7),
-            Color(0xFFF9EFE8),
-          ],
-        ),
-        borderRadius: BorderRadius.circular(24),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(18),
         border: Border.all(
-          color: PawCoColors.terracotta.withValues(alpha: 0.38),
-          width: 1.5,
+          color: PawCoColors.border,
+          width: 1,
         ),
         boxShadow: [
           BoxShadow(
-            color: PawCoColors.terracotta.withValues(alpha: 0.10),
-            blurRadius: 22,
-            offset: const Offset(0, 8),
+            color: Colors.black.withValues(alpha: 0.025),
+            blurRadius: 16,
+            offset: const Offset(0, 4),
           ),
         ],
       ),
@@ -420,7 +413,7 @@ class _OverviewPageState extends ConsumerState<OverviewPage> {
             child: AnimalSilhouetteCardWatermark(
               width: 140,
               height: 95,
-              opacity: 0.16,
+              opacity: 0.14,
             ),
           ),
           Padding(
@@ -436,27 +429,28 @@ class _OverviewPageState extends ConsumerState<OverviewPage> {
                     Container(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 10,
-                        vertical: 5,
+                        vertical: 4,
                       ),
                       decoration: BoxDecoration(
-                        color: PawCoColors.terracotta.withValues(alpha: 0.14),
-                        borderRadius: BorderRadius.circular(20),
+                        color: PawCoColors.surfaceMuted,
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: PawCoColors.border),
                       ),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           const Icon(
-                            Icons.volunteer_activism,
-                            size: 14,
-                            color: PawCoColors.terracottaDark,
+                            Icons.volunteer_activism_outlined,
+                            size: 13,
+                            color: PawCoColors.forest,
                           ),
                           const SizedBox(width: 6),
                           Text(
                             'Impacto real a un clic de distancia',
                             style: GoogleFonts.plusJakartaSans(
                               fontSize: 11.5,
-                              fontWeight: FontWeight.w700,
-                              color: PawCoColors.terracottaDark,
+                              fontWeight: FontWeight.w600,
+                              color: PawCoColors.inkSecondary,
                             ),
                           ),
                         ],
@@ -466,17 +460,18 @@ class _OverviewPageState extends ConsumerState<OverviewPage> {
                 ),
                 const SizedBox(height: 12),
                 Text(
-                  '¿Alguna vez has querido ayudar a un peludito, pero sentiste que faltaban herramientas para lograr un impacto real?',
+                  '¿Alguna vez has querido ayudar a un peludito, pero sentiste que faltaba algo para lograr un bienestar real?',
                   style: GoogleFonts.fraunces(
                     fontSize: isDesktop ? 22 : 18.5,
-                    fontWeight: FontWeight.w700,
+                    fontWeight: FontWeight.w600,
                     color: PawCoColors.ink,
                     height: 1.28,
+                    letterSpacing: -0.3,
                   ),
                 ),
                 const SizedBox(height: 10),
                 Text(
-                  'En PawCo transformamos tus buenas intenciones en resultados tangibles. Conectamos tu solidaridad con acciones directas y transparentes que hoy están cambiando vidas en Bucaramanga y su Área Metropolitana, con la visión de llegar muy pronto a toda Colombia y el mundo.',
+                  'En PawCol transformamos tus buenas intenciones en resultados tangibles. Conectamos tu solidaridad con acciones directas y transparentes que hoy están cambiando vidas en Bucaramanga y su Área Metropolitana, con la visión de llegar muy pronto a toda Colombia y el mundo.',
                   style: GoogleFonts.plusJakartaSans(
                     fontSize: isDesktop ? 14.5 : 13.5,
                     color: PawCoColors.inkSecondary,
@@ -489,7 +484,7 @@ class _OverviewPageState extends ConsumerState<OverviewPage> {
                   style: GoogleFonts.plusJakartaSans(
                     fontSize: isDesktop ? 14.5 : 13.5,
                     fontWeight: FontWeight.w600,
-                    color: PawCoColors.forestDark,
+                    color: PawCoColors.ink,
                     height: 1.48,
                   ),
                 ),
@@ -500,42 +495,42 @@ class _OverviewPageState extends ConsumerState<OverviewPage> {
                   children: [
                     ElevatedButton.icon(
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: PawCoColors.terracotta,
+                        backgroundColor: PawCoColors.forest,
                         foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(
                           horizontal: 18,
-                          vertical: 11,
+                          vertical: 12,
                         ),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(14),
+                          borderRadius: BorderRadius.circular(10),
                         ),
                       ),
                       onPressed: () {
                         ref.read(mainNavIndexProvider.notifier).state = 3; // Donar
                       },
-                      icon: const Icon(Icons.favorite, size: 16),
+                      icon: const Icon(Icons.favorite_border, size: 15),
                       label: Text(
                         'Sumarme al cambio hoy',
                         style: GoogleFonts.plusJakartaSans(
-                          fontWeight: FontWeight.w700,
+                          fontWeight: FontWeight.w600,
                           fontSize: 13.5,
                         ),
                       ),
                     ),
                     OutlinedButton.icon(
                       style: OutlinedButton.styleFrom(
-                        foregroundColor: PawCoColors.forest,
-                        side: const BorderSide(color: PawCoColors.forest, width: 1.2),
+                        foregroundColor: PawCoColors.ink,
+                        side: const BorderSide(color: PawCoColors.border, width: 1.2),
                         padding: const EdgeInsets.symmetric(
                           horizontal: 16,
-                          vertical: 11,
+                          vertical: 12,
                         ),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(14),
+                          borderRadius: BorderRadius.circular(10),
                         ),
                       ),
                       onPressed: _openReportChoiceDialog,
-                      icon: const Icon(Icons.pets_outlined, size: 16),
+                      icon: const Icon(Icons.pets_outlined, size: 15),
                       label: Text(
                         'Brindar ayuda a un peludito',
                         style: GoogleFonts.plusJakartaSans(
@@ -562,17 +557,20 @@ class _OverviewPageState extends ConsumerState<OverviewPage> {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            Color(0xFFC5D3C0), // Verde salvia suave
-            Color(0xFFA6BA9F),
-            Color(0xFF92A88D), // Verde oliva apacible
+            Color(0xFFEDF0EA), // Piedra salvia clara y neutra
+            Color(0xFFE2E7DE),
           ],
         ),
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(
+          color: const Color(0xFFD2D9CC),
+          width: 1,
+        ),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF3E5641).withValues(alpha: 0.15),
-            blurRadius: 18,
-            offset: const Offset(0, 6),
+            color: PawCoColors.ink.withValues(alpha: 0.03),
+            blurRadius: 16,
+            offset: const Offset(0, 4),
           ),
         ],
       ),
@@ -585,13 +583,13 @@ class _OverviewPageState extends ConsumerState<OverviewPage> {
             child: AnimalSilhouetteCardWatermark(
               width: 130,
               height: 90,
-              opacity: 0.22,
+              opacity: 0.16,
             ),
           ),
           Padding(
             padding: EdgeInsets.symmetric(
               horizontal: isDesktop ? 32.0 : 22.0,
-              vertical: isDesktop ? 30.0 : 24.0,
+              vertical: isDesktop ? 28.0 : 22.0,
             ),
             child: Row(
               children: [
@@ -603,20 +601,21 @@ class _OverviewPageState extends ConsumerState<OverviewPage> {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                         decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.35),
-                          borderRadius: BorderRadius.circular(16),
+                          color: Colors.white.withValues(alpha: 0.7),
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: const Color(0xFFD2D9CC)),
                         ),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            const Icon(Icons.favorite, size: 13, color: PawCoColors.forestDark),
+                            const Icon(Icons.favorite_border, size: 12, color: PawCoColors.forest),
                             const SizedBox(width: 5),
                             Text(
                               'Causa Solidaria Santandereana',
                               style: GoogleFonts.plusJakartaSans(
                                 fontSize: 11,
-                                fontWeight: FontWeight.w700,
-                                color: PawCoColors.forestDark,
+                                fontWeight: FontWeight.w600,
+                                color: PawCoColors.forest,
                               ),
                             ),
                           ],
@@ -626,33 +625,34 @@ class _OverviewPageState extends ConsumerState<OverviewPage> {
                       Text(
                         'Conviértete en un Héroe para los Animales',
                         style: GoogleFonts.fraunces(
-                          fontSize: isDesktop ? 28 : 22,
-                          fontWeight: FontWeight.w700,
-                          color: const Color(0xFF1E2E1F),
-                          height: 1.2,
+                          fontSize: isDesktop ? 26 : 21,
+                          fontWeight: FontWeight.w600,
+                          color: PawCoColors.ink,
+                          height: 1.22,
+                          letterSpacing: -0.3,
                         ),
                       ),
                       const SizedBox(height: 8),
                       Text(
                         'Adopta, reporta maltrato o apoya con bultos de concentrado a los albergues más necesitados del AMB.',
                         style: GoogleFonts.plusJakartaSans(
-                          fontSize: isDesktop ? 14 : 12.5,
-                          color: const Color(0xFF2C3E2D),
-                          height: 1.4,
+                          fontSize: isDesktop ? 14 : 13,
+                          color: PawCoColors.inkSecondary,
+                          height: 1.45,
                         ),
                       ),
                       const SizedBox(height: 18),
                       Wrap(
-                        spacing: 12,
-                        runSpacing: 10,
+                        spacing: 10,
+                        runSpacing: 8,
                         children: [
                           ElevatedButton(
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.white,
-                              foregroundColor: PawCoColors.forestDark,
-                              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-                              elevation: 2,
+                              backgroundColor: PawCoColors.forest,
+                              foregroundColor: Colors.white,
+                              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                              elevation: 0,
                             ),
                             onPressed: () {
                               ref.read(mainNavIndexProvider.notifier).state = 1; // Adopciones
@@ -662,24 +662,31 @@ class _OverviewPageState extends ConsumerState<OverviewPage> {
                               children: [
                                 Text(
                                   'Explorar Adopciones',
-                                  style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w700),
+                                  style: GoogleFonts.plusJakartaSans(
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 13.5,
+                                  ),
                                 ),
                                 const SizedBox(width: 6),
-                                const Icon(Icons.arrow_forward, size: 16),
+                                const Icon(Icons.arrow_forward, size: 15),
                               ],
                             ),
                           ),
                           OutlinedButton(
                             style: OutlinedButton.styleFrom(
-                              foregroundColor: const Color(0xFF1E2E1F),
-                              side: const BorderSide(color: Color(0xFF1E2E1F), width: 1.2),
-                              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                              backgroundColor: Colors.white.withValues(alpha: 0.65),
+                              foregroundColor: PawCoColors.ink,
+                              side: const BorderSide(color: Color(0xFFC5CEBE), width: 1),
+                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                             ),
                             onPressed: () => _scrollToKey(_transparencyKey),
                             child: Text(
                               'Conocer nuestra misión',
-                              style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w600),
+                              style: GoogleFonts.plusJakartaSans(
+                                fontWeight: FontWeight.w600,
+                                fontSize: 13.5,
+                              ),
                             ),
                           ),
                         ],
@@ -808,9 +815,9 @@ class _OverviewPageState extends ConsumerState<OverviewPage> {
 
   Widget _buildActionCard(_QuickActionItem item) {
     return PawCoHoverCard(
-      backgroundColor: item.backgroundColor,
-      borderColor: item.accentColor.withValues(alpha: 0.25),
-      padding: const EdgeInsets.all(16),
+      backgroundColor: PawCoColors.surface,
+      borderColor: PawCoColors.border,
+      padding: const EdgeInsets.all(18),
       margin: EdgeInsets.zero,
       onTap: item.onTap,
       child: Column(
@@ -819,10 +826,10 @@ class _OverviewPageState extends ConsumerState<OverviewPage> {
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.8),
-              borderRadius: BorderRadius.circular(12),
+              color: item.backgroundColor,
+              borderRadius: BorderRadius.circular(10),
             ),
-            child: Icon(item.icon, size: 24, color: item.accentColor),
+            child: Icon(item.icon, size: 22, color: item.accentColor),
           ),
           const SizedBox(height: 14),
           Text(
@@ -1021,7 +1028,7 @@ class _OverviewPageState extends ConsumerState<OverviewPage> {
                       ),
                     ),
                     Text(
-                      '¿Por qué creamos PawCo Web y Móvil?',
+                      '¿Por qué creamos PawCol Web y Móvil?',
                       style: GoogleFonts.plusJakartaSans(
                         fontSize: 13,
                         fontWeight: FontWeight.w600,
@@ -1043,7 +1050,7 @@ class _OverviewPageState extends ConsumerState<OverviewPage> {
             ),
             child: Text(
               'Sabemos que muchas personas de buen corazón en Bucaramanga y en toda Colombia quieren ayudar, pero frecuentemente no donan por temor a que su dinero se pierda o no sea destinado realmente a los animales afectados.\n\n'
-              'PawCo nació específicamente para erradicar esa duda y garantizar al 100% que cada aporte llegue a metas concretas y verificables: compra directa de bultos de concentrado, pago de facturas de hospitalización veterinaria, cirugías de urgencia y esterilizaciones en fundaciones auditadas del Área Metropolitana.',
+              'PawCol nació específicamente para erradicar esa duda y garantizar al 100% que cada aporte llegue a metas concretas y verificables: compra directa de bultos de concentrado, pago de facturas de hospitalización veterinaria, cirugías de urgencia y esterilizaciones en fundaciones auditadas del Área Metropolitana.',
               style: GoogleFonts.plusJakartaSans(
                 fontSize: 13.5,
                 color: PawCoColors.ink,
@@ -1210,7 +1217,7 @@ class _OverviewPageState extends ConsumerState<OverviewPage> {
                 ),
                 const SizedBox(height: 6),
                 Text(
-                  'Fundador y Desarrollador de PawCo • Bucaramanga, Santander',
+                  'Fundador y Desarrollador de PawCol • Bucaramanga, Santander',
                   style: GoogleFonts.plusJakartaSans(
                     fontSize: 12.5,
                     fontWeight: FontWeight.w600,
@@ -1221,7 +1228,7 @@ class _OverviewPageState extends ConsumerState<OverviewPage> {
                 Text(
                   'Soy un joven ingeniero de 24 años apasionado por la tecnología y comprometido de corazón con el bienestar animal.\n\n'
                   'Al ver de cerca las dificultades que viven a diario los refugios en Bucaramanga, Floridablanca, Girón y Piedecuesta, y la desconfianza ciudadana hacia los canales tradicionales de donación, decidí poner mis conocimientos en ingeniería de software para crear una plataforma transparente, accesible y comunitaria.\n\n'
-                  'PawCo es mi aporte para demostrar que con honestidad, diseño y tecnología podemos salvar cientos de vidas.',
+                  'PawCol es mi aporte para demostrar que con honestidad, diseño y tecnología podemos salvar cientos de vidas.',
                   style: GoogleFonts.plusJakartaSans(
                     fontSize: 13,
                     color: PawCoColors.ink,
@@ -1441,7 +1448,7 @@ class _VolunteerApplicationModalState extends State<_VolunteerApplicationModal> 
 
     // Preparar mensaje para WhatsApp directo de coordinación
     final rolesString = _selectedRoles.join(', ');
-    final message = '¡Hola equipo PawCo! Me gustaría postularme como voluntario en el AMB:\n'
+    final message = '¡Hola equipo PawCol! Me gustaría postularme como voluntario en el AMB:\n'
         '• Nombre: ${_nameController.text.trim()}\n'
         '• Municipio: $_selectedCity\n'
         '• Roles de interés: $rolesString\n'

@@ -15,7 +15,7 @@ class AnimalSilhouettesPainter extends CustomPainter {
 
   const AnimalSilhouettesPainter({
     this.silhouetteColor = PawCoColors.silhouette,
-    this.opacity = 0.42,
+    this.opacity = 0.28,
   });
 
   @override
@@ -282,7 +282,7 @@ class AnimalSilhouetteBackground extends StatelessWidget {
     required this.child,
     this.backgroundColor = PawCoColors.background,
     this.silhouetteColor = PawCoColors.silhouette,
-    this.opacity = 0.42,
+    this.opacity = 0.28,
   });
 
   @override
@@ -504,9 +504,9 @@ class PawCoFadeSlide extends StatelessWidget {
   const PawCoFadeSlide({
     super.key,
     required this.child,
-    this.duration = const Duration(milliseconds: 400),
-    this.verticalOffset = 18.0,
-    this.curve = Curves.easeOutCubic,
+    this.duration = const Duration(milliseconds: 340),
+    this.verticalOffset = 10.0,
+    this.curve = Curves.easeOutQuart,
   });
 
   @override
@@ -546,7 +546,7 @@ class PawCoHoverCard extends StatefulWidget {
     this.onTap,
     this.backgroundColor = PawCoColors.surface,
     this.borderColor = PawCoColors.border,
-    this.borderRadius = 20.0,
+    this.borderRadius = 16.0,
     this.padding = const EdgeInsets.all(18.0),
     this.margin = const EdgeInsets.symmetric(vertical: 6.0),
   });
@@ -560,27 +560,29 @@ class _PawCoHoverCardState extends State<PawCoHoverCard> {
 
   @override
   Widget build(BuildContext context) {
-    final activeBorder = _isHovered ? PawCoColors.sage : widget.borderColor;
-    final translateY = _isHovered ? -3.0 : 0.0;
-    final shadowElevation = _isHovered ? 8.0 : 1.0;
+    final activeBorder = _isHovered
+        ? PawCoColors.ink.withValues(alpha: 0.24)
+        : widget.borderColor;
+    final translateY = _isHovered ? -2.0 : 0.0;
+    final shadowElevation = _isHovered ? 6.0 : 0.5;
 
     return MouseRegion(
       onEnter: (_) => setState(() => _isHovered = true),
       onExit: (_) => setState(() => _isHovered = false),
       cursor: widget.onTap != null ? SystemMouseCursors.click : SystemMouseCursors.basic,
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        curve: Curves.easeOutCubic,
+        duration: const Duration(milliseconds: 220),
+        curve: Curves.easeOutQuart,
         margin: widget.margin,
         transform: Matrix4.translationValues(0, translateY, 0),
         decoration: BoxDecoration(
           color: widget.backgroundColor,
           borderRadius: BorderRadius.circular(widget.borderRadius),
-          border: Border.all(color: activeBorder, width: _isHovered ? 1.5 : 1.0),
+          border: Border.all(color: activeBorder, width: 1.0),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: _isHovered ? 0.08 : 0.02),
-              blurRadius: shadowElevation * 2,
+              color: Colors.black.withValues(alpha: _isHovered ? 0.05 : 0.015),
+              blurRadius: shadowElevation * 2.5,
               offset: Offset(0, shadowElevation),
             ),
           ],

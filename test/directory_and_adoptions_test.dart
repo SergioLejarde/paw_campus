@@ -50,7 +50,7 @@ void main() {
       expect(entry.cleanPhone, '3159876543');
       expect(entry.telUrl, 'tel:3159876543');
       expect(entry.whatsappUrl, contains('https://wa.me/573159876543'));
-      expect(entry.whatsappUrl, contains('PawCo'));
+      expect(entry.whatsappUrl, contains('PawCol'));
     });
 
     test('DirectoryEntry copyWith updates attributes without mutating original', () {

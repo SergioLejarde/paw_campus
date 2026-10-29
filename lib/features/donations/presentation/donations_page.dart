@@ -227,7 +227,7 @@ class _DonationsPageState extends State<DonationsPage> {
             ),
             const SizedBox(width: 10),
             Text(
-              'PawCo Donaciones',
+              'PawCol Donaciones',
               style: GoogleFonts.fraunces(
                 fontWeight: FontWeight.w700,
                 fontSize: 20,
@@ -1675,7 +1675,7 @@ class _DonationsPageState extends State<DonationsPage> {
                 ),
                 const SizedBox(height: 18),
                 Text(
-                  campaign != null ? 'Aporte a Meta Auditada' : 'Donación Directa PawCo',
+                  campaign != null ? 'Aporte a Meta Auditada' : 'Donación Directa PawCol',
                   style: GoogleFonts.fraunces(
                     fontSize: 20,
                     fontWeight: FontWeight.w700,
@@ -1948,7 +1948,7 @@ class _DonationsPageState extends State<DonationsPage> {
                     onPressed: () {
                       Navigator.pop(context);
                       final url =
-                          'https://wa.me/${entry.cleanWhatsapp.startsWith("57") ? entry.cleanWhatsapp : "57${entry.cleanWhatsapp}"}?text=Hola%20${Uri.encodeComponent(entry.name)},%20deseo%20postularme%20como%20voluntario%20a%20través%20de%20la%20comunidad%20PawCo%20🐾';
+                          'https://wa.me/${entry.cleanWhatsapp.startsWith("57") ? entry.cleanWhatsapp : "57${entry.cleanWhatsapp}"}?text=Hola%20${Uri.encodeComponent(entry.name)},%20deseo%20postularme%20como%20voluntario%20a%20través%20de%20la%20comunidad%20PawCol%20🐾';
                       _openWhatsApp(url);
                     },
                   ),

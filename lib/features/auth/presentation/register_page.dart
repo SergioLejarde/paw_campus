@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:paw_campus/app/theme.dart';
 import 'package:paw_campus/core/presentation/app_feedback.dart';
 import '../data/auth_repository.dart';
 
@@ -53,7 +55,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
 
       AppFeedback.showSuccess(
         context,
-        '¡Cuenta creada exitosamente en PawCo! Ahora inicia sesión.',
+        '¡Cuenta creada exitosamente en PawCol! Ahora inicia sesión.',
       );
 
       context.go('/login');
@@ -68,6 +70,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: PawCoColors.background,
       appBar: AppBar(
         title: const Text('Crear cuenta'),
         leading: IconButton(
@@ -86,39 +89,54 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
           padding: const EdgeInsets.all(24),
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 420),
-            child: Card(
-              elevation: 2,
+            child: Container(
+              decoration: BoxDecoration(
+                color: PawCoColors.surface,
+                borderRadius: BorderRadius.circular(18),
+                border: Border.all(color: PawCoColors.border),
+                boxShadow: [
+                  BoxShadow(
+                    color: PawCoColors.ink.withValues(alpha: 0.04),
+                    blurRadius: 18,
+                    offset: const Offset(0, 6),
+                  ),
+                ],
+              ),
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 28),
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Container(
-                      padding: const EdgeInsets.all(16),
-                      decoration: const BoxDecoration(
-                        color: Color(0xFFCCFBF1),
-                        shape: BoxShape.circle,
+                      padding: const EdgeInsets.all(14),
+                      decoration: BoxDecoration(
+                        color: PawCoColors.surfaceMuted,
+                        borderRadius: BorderRadius.circular(14),
+                        border: Border.all(color: PawCoColors.border),
                       ),
                       child: const Icon(
-                        Icons.person_add_alt_1,
-                        size: 40,
-                        color: Color(0xFF0D9488),
+                        Icons.person_add_alt_1_rounded,
+                        size: 32,
+                        color: PawCoColors.forest,
                       ),
                     ),
                     const SizedBox(height: 16),
-                    const Text(
-                      'Únete a PawCo 🐾',
-                      style: TextStyle(
+                    Text(
+                      'Únete a PawCol',
+                      style: GoogleFonts.fraunces(
                         fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xFF1E293B),
+                        fontWeight: FontWeight.w700,
+                        color: PawCoColors.ink,
                       ),
                     ),
                     const SizedBox(height: 6),
-                    const Text(
+                    Text(
                       'Crea tu cuenta para publicar mascotas y participar en la comunidad.',
                       textAlign: TextAlign.center,
-                      style: TextStyle(fontSize: 13, color: Color(0xFF64748B)),
+                      style: GoogleFonts.plusJakartaSans(
+                        fontSize: 13.5,
+                        color: PawCoColors.inkSecondary,
+                      ),
                     ),
                     const SizedBox(height: 24),
 
@@ -158,10 +176,10 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                                 ),
                               )
                             : const Text(
-                                'Registrarme en PawCo',
+                                'Registrarme en PawCol',
                                 style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w700,
                                 ),
                               ),
                       ),
@@ -172,11 +190,11 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                       child: const Text('¿Ya tienes cuenta? Iniciar sesión'),
                     ),
 
-                    const Divider(height: 32),
+                    const Divider(height: 32, color: PawCoColors.border),
 
                     OutlinedButton.icon(
                       style: OutlinedButton.styleFrom(
-                        side: const BorderSide(color: Color(0xFFE2E8F0)),
+                        side: const BorderSide(color: PawCoColors.border),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
@@ -185,7 +203,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                       icon: const Icon(Icons.home_outlined, size: 18),
                       label: const Text(
                         'Continuar como invitado',
-                        style: TextStyle(color: Color(0xFF64748B)),
+                        style: TextStyle(color: PawCoColors.inkSecondary),
                       ),
                     ),
                   ],

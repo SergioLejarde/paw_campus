@@ -1,78 +1,82 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-/// 🎨 Paleta de colores editorial orgánica de PawCo
-/// Inspirada en la estética natural, cálida y de rescate animalista (Bucaramanga y AMB)
+/// 🎨 Paleta de colores neutra contemporánea de PawCol
+/// Diseñada con estética arquitectónica limpia, tonos piedra/lino cálidos y acentos orgánicos sobrios.
 abstract class PawCoColors {
-  // Fondos y superficies
-  static const Color background = Color(0xFFF6F3EC); // Avena / Marfil cálido
-  static const Color surface = Color(0xFFFFFFFF); // Blanco puro para tarjetas
-  static const Color surfaceMuted = Color(0xFFEEE9DF); // Crema neutro
-  static const Color border = Color(0xFFE0D9CC); // Borde sutil orgánico
-  static const Color borderLight = Color(0xFFECE7DD);
+  // Fondos y superficies neutras (Piedra / Lino / Alabastro)
+  static const Color background = Color(0xFFF8F7F4); // Alabastro cálido neutro
+  static const Color surface = Color(0xFFFFFFFF); // Blanco puro limpio
+  static const Color surfaceMuted = Color(0xFFF1EFEA); // Piedra suave
+  static const Color border = Color(0xFFE5E2DC); // Línea fina arquitectónica (1px)
+  static const Color borderLight = Color(0xFFEEECE7);
 
-  // Verdes bosque y salvia (Naturaleza, esperanza, vida)
-  static const Color forest = Color(0xFF3E5641); // Verde bosque profundo (Primario)
-  static const Color forestDark = Color(0xFF283B2B);
-  static const Color sage = Color(0xFF7A947B); // Verde salvia suave
-  static const Color sageLight = Color(0xFFDCE5DC); // Píldoras activas y fondos
-  static const Color sageMuted = Color(0xFFEBF0EA);
+  // Acentos primarios neutros-orgánicos (Oliva carbón / Salvia piedra)
+  static const Color forest = Color(0xFF2C3A2F); // Verde carbón profundo y sobrio
+  static const Color forestDark = Color(0xFF1E2820);
+  static const Color sage = Color(0xFF6E7F71); // Salvia grisácea neutra
+  static const Color sageLight = Color(0xFFE7ECE7); // Superficie activa sutil
+  static const Color sageMuted = Color(0xFFF2F4F2);
 
-  // Terracota y coral cálido (Alertas, SOS, pasión, donaciones urgentes)
-  static const Color terracotta = Color(0xFFD87A61); // Terracota cálido
-  static const Color terracottaDark = Color(0xFFB85840);
-  static const Color terracottaLight = Color(0xFFF7E4DE); // Fondos suaves de SOS/Alertas
-  static const Color terracottaMuted = Color(0xFFFDF2EF);
+  // Acento cálido terroso (Arcilla / Terracota suave sin saturación excesiva)
+  static const Color terracotta = Color(0xFFC26D53); // Arcilla sobria
+  static const Color terracottaDark = Color(0xFF9E523B);
+  static const Color terracottaLight = Color(0xFFF6EBE7);
+  static const Color terracottaMuted = Color(0xFFFBF6F4);
 
-  // Azul pizarra (Voluntariado, comunidad y transparencia)
-  static const Color slateBlue = Color(0xFF708B99);
-  static const Color slateBlueLight = Color(0xFFDCE6EC);
-  static const Color slateBlueMuted = Color(0xFFEFF4F8);
+  // Gris pizarra cálido (Voluntariado y elementos secundarios)
+  static const Color slateBlue = Color(0xFF5E6F78);
+  static const Color slateBlueLight = Color(0xFFE6ECEF);
+  static const Color slateBlueMuted = Color(0xFFF3F6F8);
 
-  // Arena y trigo
-  static const Color sand = Color(0xFFE9DFCE);
-  static const Color sandLight = Color(0xFFF4EEE2);
+  // Arena y lino
+  static const Color sand = Color(0xFFE8E2D5);
+  static const Color sandLight = Color(0xFFF4F1EA);
 
-  // Siluetas y marcas de agua
-  static const Color silhouette = Color(0xFFE2D8C3); // Cálido visible y reconocible
+  // Siluetas de perros y gatos en tono lino/piedra armónico
+  static const Color silhouette = Color(0xFFE4DFD3);
 
-  // Texto y contrastes
-  static const Color ink = Color(0xFF1E2621); // Carbón vegetal profundo
-  static const Color inkSecondary = Color(0xFF3A443E);
-  static const Color muted = Color(0xFF5C6660); // Gris verde oliva legible
-  static const Color mutedLight = Color(0xFF8A948E);
+  // Tipografía y contrastes neutros (Espresso / Taupe)
+  static const Color ink = Color(0xFF1C1B19); // Carbón espresso casi negro
+  static const Color inkSecondary = Color(0xFF3D3B37);
+  static const Color muted = Color(0xFF6E6A63); // Taupe neutro de alta legibilidad
+  static const Color mutedLight = Color(0xFF969188);
 
-  // Éxito y estados
-  static const Color success = Color(0xFF2E7D32);
-  static const Color warning = Color(0xFFD97706);
-  static const Color error = Color(0xFFDC2626);
+  // Estados semánticos sobrios
+  static const Color success = Color(0xFF2D6A4F);
+  static const Color warning = Color(0xFFB45309);
+  static const Color error = Color(0xFFB91C1C);
 }
 
-/// ✍️ Tipografía editorial de PawCo (Fraunces para titulares, Plus Jakarta Sans para cuerpo)
+/// ✍️ Tipografía moderna y editorial de PawCol
 class PawCoTypography {
   static TextTheme textTheme(BuildContext context) {
     return TextTheme(
       displayLarge: GoogleFonts.fraunces(
         fontSize: 34,
-        fontWeight: FontWeight.w700,
+        fontWeight: FontWeight.w600,
         color: PawCoColors.ink,
-        letterSpacing: -0.5,
+        letterSpacing: -0.6,
+        height: 1.15,
       ),
       displayMedium: GoogleFonts.fraunces(
         fontSize: 28,
-        fontWeight: FontWeight.w700,
+        fontWeight: FontWeight.w600,
         color: PawCoColors.ink,
-        letterSpacing: -0.3,
+        letterSpacing: -0.4,
+        height: 1.18,
       ),
       displaySmall: GoogleFonts.fraunces(
         fontSize: 24,
         fontWeight: FontWeight.w600,
         color: PawCoColors.ink,
+        letterSpacing: -0.3,
       ),
       headlineLarge: GoogleFonts.fraunces(
         fontSize: 22,
         fontWeight: FontWeight.w600,
         color: PawCoColors.ink,
+        letterSpacing: -0.2,
       ),
       headlineMedium: GoogleFonts.fraunces(
         fontSize: 20,
@@ -88,6 +92,7 @@ class PawCoTypography {
         fontSize: 18,
         fontWeight: FontWeight.w700,
         color: PawCoColors.ink,
+        letterSpacing: -0.2,
       ),
       titleMedium: GoogleFonts.plusJakartaSans(
         fontSize: 16,
@@ -103,39 +108,40 @@ class PawCoTypography {
         fontSize: 15,
         fontWeight: FontWeight.normal,
         color: PawCoColors.ink,
-        height: 1.5,
+        height: 1.55,
       ),
       bodyMedium: GoogleFonts.plusJakartaSans(
         fontSize: 14,
         fontWeight: FontWeight.normal,
-        color: PawCoColors.ink,
-        height: 1.45,
+        color: PawCoColors.inkSecondary,
+        height: 1.5,
       ),
       bodySmall: GoogleFonts.plusJakartaSans(
-        fontSize: 12,
+        fontSize: 12.5,
         fontWeight: FontWeight.normal,
         color: PawCoColors.muted,
+        height: 1.4,
       ),
       labelLarge: GoogleFonts.plusJakartaSans(
         fontSize: 14,
         fontWeight: FontWeight.w600,
-        letterSpacing: 0.2,
+        letterSpacing: 0.1,
       ),
       labelMedium: GoogleFonts.plusJakartaSans(
         fontSize: 12,
         fontWeight: FontWeight.w600,
-        letterSpacing: 0.2,
+        letterSpacing: 0.1,
       ),
       labelSmall: GoogleFonts.plusJakartaSans(
         fontSize: 11,
         fontWeight: FontWeight.w500,
-        letterSpacing: 0.2,
+        letterSpacing: 0.1,
       ),
     );
   }
 }
 
-/// 🎨 Tema global de PawCo (Material 3 — Editorial, cálido, limpio y animalista)
+/// 🎨 Tema global de PawCol (Material 3 — Neutro, moderno, limpio y humano)
 final ThemeData lightTheme = ThemeData(
   useMaterial3: true,
   brightness: Brightness.light,
@@ -151,10 +157,19 @@ final ThemeData lightTheme = ThemeData(
     brightness: Brightness.light,
   ),
 
-  // Fondo marfil / avena cálido
   scaffoldBackgroundColor: PawCoColors.background,
+  splashFactory: InkSparkle.splashFactory,
 
-  // AppBar editorial
+  pageTransitionsTheme: const PageTransitionsTheme(
+    builders: {
+      TargetPlatform.android: CupertinoPageTransitionsBuilder(),
+      TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
+      TargetPlatform.macOS: CupertinoPageTransitionsBuilder(),
+      TargetPlatform.windows: FadeUpwardsPageTransitionsBuilder(),
+      TargetPlatform.linux: FadeUpwardsPageTransitionsBuilder(),
+    },
+  ),
+
   appBarTheme: AppBarTheme(
     backgroundColor: PawCoColors.background,
     foregroundColor: PawCoColors.ink,
@@ -163,30 +178,29 @@ final ThemeData lightTheme = ThemeData(
     centerTitle: false,
     titleTextStyle: GoogleFonts.fraunces(
       color: PawCoColors.ink,
-      fontSize: 22,
-      fontWeight: FontWeight.w700,
+      fontSize: 21,
+      fontWeight: FontWeight.w600,
+      letterSpacing: -0.3,
     ),
-    iconTheme: const IconThemeData(color: PawCoColors.forest),
+    iconTheme: const IconThemeData(color: PawCoColors.ink),
   ),
 
-  // NavigationBar inferior móvil estilizada
   navigationBarTheme: NavigationBarThemeData(
     backgroundColor: Colors.white,
-    elevation: 6,
-    shadowColor: Colors.black.withValues(alpha: 0.08),
-    indicatorColor: PawCoColors.sageLight,
-    height: 68,
+    elevation: 0,
+    indicatorColor: PawCoColors.surfaceMuted,
+    height: 64,
     iconTheme: WidgetStateProperty.resolveWith((states) {
       if (states.contains(WidgetState.selected)) {
-        return const IconThemeData(color: PawCoColors.forest, size: 25);
+        return const IconThemeData(color: PawCoColors.forest, size: 23);
       }
-      return const IconThemeData(color: PawCoColors.muted, size: 23);
+      return const IconThemeData(color: PawCoColors.muted, size: 22);
     }),
     labelTextStyle: WidgetStateProperty.resolveWith((states) {
       if (states.contains(WidgetState.selected)) {
         return GoogleFonts.plusJakartaSans(
-          color: PawCoColors.forest,
-          fontSize: 11.5,
+          color: PawCoColors.ink,
+          fontSize: 11,
           fontWeight: FontWeight.w700,
         );
       }
@@ -198,40 +212,38 @@ final ThemeData lightTheme = ThemeData(
     }),
   ),
 
-  // Tarjetas editoriales con bordes sutiles y esquinas suaves
   cardTheme: CardThemeData(
     color: PawCoColors.surface,
     elevation: 0,
-    shadowColor: Colors.black.withValues(alpha: 0.04),
+    shadowColor: Colors.transparent,
     shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(20),
+      borderRadius: BorderRadius.circular(16),
       side: const BorderSide(color: PawCoColors.border, width: 1),
     ),
-    margin: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+    margin: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
   ),
 
-  // Botones principales con verde bosque y esquinas redondeadas
   elevatedButtonTheme: ElevatedButtonThemeData(
     style: ElevatedButton.styleFrom(
       backgroundColor: PawCoColors.forest,
       foregroundColor: Colors.white,
-      padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 14),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       elevation: 0,
       textStyle: GoogleFonts.plusJakartaSans(
-        fontSize: 14.5,
-        fontWeight: FontWeight.w700,
-        letterSpacing: 0.2,
+        fontSize: 14,
+        fontWeight: FontWeight.w600,
+        letterSpacing: 0.1,
       ),
     ),
   ),
 
   outlinedButtonTheme: OutlinedButtonThemeData(
     style: OutlinedButton.styleFrom(
-      foregroundColor: PawCoColors.forest,
-      side: const BorderSide(color: PawCoColors.border, width: 1.5),
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 13),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      foregroundColor: PawCoColors.ink,
+      side: const BorderSide(color: PawCoColors.border, width: 1.2),
+      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 13),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       textStyle: GoogleFonts.plusJakartaSans(
         fontSize: 14,
         fontWeight: FontWeight.w600,
@@ -249,29 +261,27 @@ final ThemeData lightTheme = ThemeData(
     ),
   ),
 
-  // Chips
   chipTheme: ChipThemeData(
     backgroundColor: Colors.white,
-    selectedColor: PawCoColors.sageLight,
-    secondarySelectedColor: PawCoColors.sageLight,
-    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+    selectedColor: PawCoColors.surfaceMuted,
+    secondarySelectedColor: PawCoColors.surfaceMuted,
+    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
     shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(12),
+      borderRadius: BorderRadius.circular(10),
       side: const BorderSide(color: PawCoColors.border),
     ),
     labelStyle: GoogleFonts.plusJakartaSans(
-      color: PawCoColors.ink,
+      color: PawCoColors.inkSecondary,
       fontSize: 13,
       fontWeight: FontWeight.w500,
     ),
     secondaryLabelStyle: GoogleFonts.plusJakartaSans(
-      color: PawCoColors.forest,
+      color: PawCoColors.ink,
       fontSize: 13,
-      fontWeight: FontWeight.w700,
+      fontWeight: FontWeight.w600,
     ),
   ),
 
-  // Inputs con fondo blanco y borde suave
   inputDecorationTheme: InputDecorationTheme(
     filled: true,
     fillColor: Colors.white,
@@ -280,28 +290,27 @@ final ThemeData lightTheme = ThemeData(
       fontSize: 14,
     ),
     border: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(16),
+      borderRadius: BorderRadius.circular(12),
       borderSide: const BorderSide(color: PawCoColors.border),
     ),
     enabledBorder: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(16),
+      borderRadius: BorderRadius.circular(12),
       borderSide: const BorderSide(color: PawCoColors.border),
     ),
     focusedBorder: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(16),
-      borderSide: const BorderSide(color: PawCoColors.forest, width: 1.8),
+      borderRadius: BorderRadius.circular(12),
+      borderSide: const BorderSide(color: PawCoColors.forest, width: 1.5),
     ),
     contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
   ),
 
-  // TabBar
   tabBarTheme: TabBarThemeData(
-    labelColor: PawCoColors.forest,
+    labelColor: PawCoColors.ink,
     unselectedLabelColor: PawCoColors.muted,
     indicatorColor: PawCoColors.forest,
     labelStyle: GoogleFonts.plusJakartaSans(
       fontSize: 14,
-      fontWeight: FontWeight.w700,
+      fontWeight: FontWeight.w600,
     ),
     unselectedLabelStyle: GoogleFonts.plusJakartaSans(
       fontSize: 14,
@@ -310,18 +319,16 @@ final ThemeData lightTheme = ThemeData(
     indicatorSize: TabBarIndicatorSize.tab,
   ),
 
-  // Snackbars
   snackBarTheme: SnackBarThemeData(
-    backgroundColor: PawCoColors.forest,
+    backgroundColor: PawCoColors.ink,
     contentTextStyle: GoogleFonts.plusJakartaSans(
       color: Colors.white,
-      fontSize: 14,
+      fontSize: 13.5,
       fontWeight: FontWeight.w500,
     ),
-    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
     behavior: SnackBarBehavior.floating,
   ),
 
-  // Iconos
-  iconTheme: const IconThemeData(color: PawCoColors.forest),
+  iconTheme: const IconThemeData(color: PawCoColors.ink),
 );

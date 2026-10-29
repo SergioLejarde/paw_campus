@@ -239,7 +239,7 @@ class PetDetailPage extends ConsumerWidget {
                             }
 
                             final uri = Uri.parse(
-                              'https://wa.me/$cleanPhone?text=Hola,%20vi%20a%20${Uri.encodeComponent(pet.name)}%20en%20PawCo%20y%20me%20gustar%C3%ADa%20adoptarlo.',
+                              'https://wa.me/$cleanPhone?text=Hola,%20vi%20a%20${Uri.encodeComponent(pet.name)}%20en%20PawCol%20y%20me%20gustar%C3%ADa%20adoptarlo.',
                             );
 
                             final launched = await launchUrl(

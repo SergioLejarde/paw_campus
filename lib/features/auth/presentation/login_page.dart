@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:paw_campus/app/theme.dart';
 import 'package:paw_campus/core/presentation/app_feedback.dart';
 
 final supabase = Supabase.instance.client;
@@ -60,7 +62,7 @@ class _LoginPageState extends State<LoginPage> {
 
       if (!mounted) return;
 
-      AppFeedback.showSuccess(context, '¡Bienvenido de vuelta a PawCo!');
+      AppFeedback.showSuccess(context, '¡Bienvenido de vuelta a PawCol!');
       context.go(isAdmin ? '/admin' : '/');
     } catch (e) {
       if (!mounted) return;
@@ -73,6 +75,7 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: PawCoColors.background,
       appBar: AppBar(
         title: const Text('Iniciar sesión'),
         leading: IconButton(
@@ -91,40 +94,55 @@ class _LoginPageState extends State<LoginPage> {
           padding: const EdgeInsets.all(24),
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 420),
-            child: Card(
-              elevation: 2,
+            child: Container(
+              decoration: BoxDecoration(
+                color: PawCoColors.surface,
+                borderRadius: BorderRadius.circular(18),
+                border: Border.all(color: PawCoColors.border),
+                boxShadow: [
+                  BoxShadow(
+                    color: PawCoColors.ink.withValues(alpha: 0.04),
+                    blurRadius: 18,
+                    offset: const Offset(0, 6),
+                  ),
+                ],
+              ),
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 28),
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    // Logo PawCo
+                    // Logo PawCol
                     Container(
-                      padding: const EdgeInsets.all(16),
-                      decoration: const BoxDecoration(
-                        color: Color(0xFFCCFBF1),
-                        shape: BoxShape.circle,
+                      padding: const EdgeInsets.all(14),
+                      decoration: BoxDecoration(
+                        color: PawCoColors.surfaceMuted,
+                        borderRadius: BorderRadius.circular(14),
+                        border: Border.all(color: PawCoColors.border),
                       ),
                       child: const Icon(
-                        Icons.pets,
-                        size: 44,
-                        color: Color(0xFF0D9488),
+                        Icons.pets_rounded,
+                        size: 32,
+                        color: PawCoColors.forest,
                       ),
                     ),
                     const SizedBox(height: 16),
-                    const Text(
-                      '🐾 PawCo',
-                      style: TextStyle(
+                    Text(
+                      'PawCol',
+                      style: GoogleFonts.fraunces(
                         fontSize: 26,
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xFF1E293B),
+                        fontWeight: FontWeight.w700,
+                        color: PawCoColors.ink,
                       ),
                     ),
                     const SizedBox(height: 6),
-                    const Text(
+                    Text(
                       'Comunidad animalista de Bucaramanga y Colombia',
                       textAlign: TextAlign.center,
-                      style: TextStyle(fontSize: 13, color: Color(0xFF64748B)),
+                      style: GoogleFonts.plusJakartaSans(
+                        fontSize: 13.5,
+                        color: PawCoColors.inkSecondary,
+                      ),
                     ),
                     const SizedBox(height: 24),
 
@@ -168,8 +186,8 @@ class _LoginPageState extends State<LoginPage> {
                             : const Text(
                                 "Iniciar sesión",
                                 style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w700,
                                 ),
                               ),
                       ),
@@ -183,12 +201,12 @@ class _LoginPageState extends State<LoginPage> {
                       child: const Text('¿No tienes cuenta? Crear cuenta'),
                     ),
 
-                    const Divider(height: 32),
+                    const Divider(height: 32, color: PawCoColors.border),
 
                     // Volver al modo invitado
                     OutlinedButton.icon(
                       style: OutlinedButton.styleFrom(
-                        side: const BorderSide(color: Color(0xFFE2E8F0)),
+                        side: const BorderSide(color: PawCoColors.border),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
@@ -197,7 +215,7 @@ class _LoginPageState extends State<LoginPage> {
                       icon: const Icon(Icons.home_outlined, size: 18),
                       label: const Text(
                         'Continuar como invitado',
-                        style: TextStyle(color: Color(0xFF64748B)),
+                        style: TextStyle(color: PawCoColors.inkSecondary),
                       ),
                     ),
                   ],

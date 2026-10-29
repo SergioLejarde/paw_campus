@@ -153,7 +153,7 @@ class _AdoptionsPageState extends ConsumerState<AdoptionsPage> {
             ),
             const SizedBox(width: 10),
             Text(
-              'PawCo Adopciones',
+              'PawCol Adopciones',
               style: GoogleFonts.fraunces(
                 fontWeight: FontWeight.w700,
                 fontSize: 20,

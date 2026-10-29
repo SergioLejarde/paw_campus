@@ -1,11 +1,11 @@
 {
-    "name": "paw_campus",
-    "short_name": "paw_campus",
+    "name": "PawCol — Bienestar Animal Colombia",
+    "short_name": "PawCol",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#0175C2",
-    "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "background_color": "#F8F7F4",
+    "theme_color": "#2C3A2F",
+    "description": "Plataforma de Adopciones, Donaciones Auditadas, Voluntariado y SOS en Bucaramanga y Colombia.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

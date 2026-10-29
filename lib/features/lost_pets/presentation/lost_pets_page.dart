@@ -1054,8 +1054,8 @@ class _LostPetsPageState extends ConsumerState<LostPetsPage> {
     }
 
     final message = report.isLost
-        ? 'Hola, vi tu reporte en PawCo sobre ${report.petName} (${report.species} en ${report.neighborhood}, ${report.municipality}) y quiero brindarte información.'
-        : 'Hola, vi en PawCo que avistaron o encontraron a ${report.petName} (${report.species} en ${report.neighborhood}, ${report.municipality}) y quisiera consultar información.';
+        ? 'Hola, vi tu reporte en PawCol sobre ${report.petName} (${report.species} en ${report.neighborhood}, ${report.municipality}) y quiero brindarte información.'
+        : 'Hola, vi en PawCol que avistaron o encontraron a ${report.petName} (${report.species} en ${report.neighborhood}, ${report.municipality}) y quisiera consultar información.';
 
     final uri = Uri.parse(
       'https://wa.me/$cleanPhone?text=${Uri.encodeComponent(message)}',
@@ -1170,7 +1170,7 @@ class _LostPetsPageState extends ConsumerState<LostPetsPage> {
       if (context.mounted) {
         AppFeedback.showSuccess(
           context,
-          'Gracias por tu reporte. El equipo de PawCo revisará esta publicación.',
+          'Gracias por tu reporte. El equipo de PawCol revisará esta publicación.',
         );
       }
     }

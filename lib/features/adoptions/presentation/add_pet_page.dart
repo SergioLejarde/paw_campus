@@ -314,7 +314,7 @@ class _AddPetPageState extends ConsumerState<AddPetPage> {
                   ),
                   const SizedBox(height: 12),
                   const Text(
-                    'Tu publicación será revisada por el equipo de PawCo antes de aparecer en el catálogo público.',
+                    'Tu publicación será revisada por el equipo de PawCol antes de aparecer en el catálogo público.',
                     textAlign: TextAlign.center,
                     style: TextStyle(fontSize: 12, color: Color(0xFF64748B)),
                   ),

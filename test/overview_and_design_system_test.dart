@@ -69,7 +69,7 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    expect(find.text('PawCo Santander'), findsOneWidget);
+    expect(find.text('PawCol Santander'), findsOneWidget);
     expect(find.text('Juntos por los animales'), findsOneWidget);
     expect(
       find.textContaining('¿Alguna vez has querido ayudar a un peludito'),
@@ -107,7 +107,7 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    expect(find.text('PawCo Donaciones'), findsOneWidget);
+    expect(find.text('PawCol Donaciones'), findsOneWidget);
     expect(find.text('Apoya Nuestras Causas y Alianzas'), findsOneWidget);
     expect(find.text('Apoya Nuestras Causas Verificadas'), findsOneWidget);
     expect(find.text('Donación Directa con Propósito'), findsOneWidget);
@@ -126,7 +126,7 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    expect(find.text('PawCo Adopciones'), findsOneWidget);
+    expect(find.text('PawCol Adopciones'), findsOneWidget);
     expect(find.text('Encuentra un compañero'), findsOneWidget);
     expect(find.text('🐕 Perros'), findsOneWidget);
     expect(find.text('🐈 Gatos'), findsOneWidget);

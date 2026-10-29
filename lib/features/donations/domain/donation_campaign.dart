@@ -227,7 +227,7 @@ class DonationCampaign {
     DonationCampaign(
       id: 'camp-esterilizacion-norte-bga',
       title: 'Jornada Gratuita de 60 Esterilizaciones en Barrios vulnerables del Norte de Bucaramanga',
-      foundationName: 'Unidad de Bienestar Animal (UBA) & Voluntariado PawCo',
+      foundationName: 'Unidad de Bienestar Animal (UBA) & Voluntariado PawCol',
       municipality: 'Bucaramanga',
       category: CampaignCategory.sterilization,
       description:

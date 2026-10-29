@@ -20,7 +20,7 @@ class PawCampusApp extends ConsumerWidget {
     // final config = ref.watch(appConfigProvider);
 
     return MaterialApp.router(
-      title: 'PawCo',
+      title: 'PawCol',
       debugShowCheckedModeBanner: false,
       routerConfig: router,
 
