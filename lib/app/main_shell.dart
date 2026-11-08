@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -14,10 +16,11 @@ import 'theme.dart';
 /// Provider reactivo para controlar la pestaña activa de navegación principal
 final mainNavIndexProvider = StateProvider<int>((ref) => 0);
 
-/// 🐾 Shell principal de PawCol con navegación adaptable y transiciones smooth:
-/// - Web / Tablet horizontal (>= 860px): Barra superior minimalista y responsiva (_WebTopNavBar)
-/// - Móvil (< 860px): Barra inferior limpia (NavigationBar) con 6 destinos
-/// - Transiciones suaves (AnimatedSwitcher) al navegar entre módulos
+/// 💜 Shell principal de PawCol ("Aurora Híbrida + Paleta Violeta 2"):
+/// - Web / Escritorio (>= 860px): Barra superior estilo SaaS moderno sobre fondo Aurora
+///   con indicador activo inferior en degradado Lila-Malva e insignias luminosas.
+/// - Móvil (< 860px): Barra de navegación inferior flotante tipo cápsula con cristal
+///   esmerilado (`BackdropFilter`), 100% libre de overflow desde `320px`.
 class MainShell extends ConsumerWidget {
   const MainShell({super.key});
 
@@ -27,13 +30,13 @@ class MainShell extends ConsumerWidget {
     final screenWidth = MediaQuery.of(context).size.width;
     final isDesktop = screenWidth >= 860;
 
-    final List<Widget> pages = [
-      const OverviewPage(key: ValueKey('page_overview')), // 0: Inicio & Nosotros
-      const AdoptionsPage(key: ValueKey('page_adoptions')), // 1: Adopciones
-      const LostPetsPage(key: ValueKey('page_lost_pets')), // 2: Perdidos & Mapa
-      const DonationsPage(key: ValueKey('page_donations')), // 3: Fundaciones & Donar
-      const SosPage(key: ValueKey('page_sos')), // 4: Denunciar SOS
-      const ProfilePage(key: ValueKey('page_profile')), // 5: Mi Perfil
+    final List<Widget> pages = const [
+      OverviewPage(key: ValueKey('page_overview')), // 0: Inicio & Nosotros
+      AdoptionsPage(key: ValueKey('page_adoptions')), // 1: Adopciones
+      LostPetsPage(key: ValueKey('page_lost_pets')), // 2: Perdidos & Mapa
+      DonationsPage(key: ValueKey('page_donations')), // 3: Fundaciones & Donar
+      SosPage(key: ValueKey('page_sos')), // 4: Denunciar SOS
+      ProfilePage(key: ValueKey('page_profile')), // 5: Mi Perfil
     ];
 
     return Scaffold(
@@ -41,7 +44,7 @@ class MainShell extends ConsumerWidget {
       body: AnimalSilhouetteBackground(
         child: Column(
           children: [
-            if (isDesktop) _WebTopNavBar(currentIndex: currentIndex, ref: ref),
+            if (isDesktop) _WebSaaSTopNavBar(currentIndex: currentIndex, ref: ref),
             Expanded(
               child: Theme(
                 data: Theme.of(context).copyWith(
@@ -76,69 +79,200 @@ class MainShell extends ConsumerWidget {
       ),
       bottomNavigationBar: isDesktop
           ? null
-          : Container(
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                border: Border(
-                  top: BorderSide(color: PawCoColors.border, width: 1),
-                ),
-              ),
-              child: SafeArea(
-                top: false,
-                child: NavigationBar(
-                  selectedIndex: currentIndex,
-                  onDestinationSelected: (index) {
-                    ref.read(mainNavIndexProvider.notifier).state = index;
-                  },
-                  backgroundColor: Colors.white,
-                  elevation: 0,
-                  indicatorColor: PawCoColors.surfaceMuted,
-                  labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
-                  destinations: const [
-                    NavigationDestination(
-                      icon: Icon(Icons.home_outlined),
-                      selectedIcon: Icon(Icons.home, color: PawCoColors.ink),
-                      label: 'Inicio',
-                    ),
-                    NavigationDestination(
-                      icon: Icon(Icons.pets_outlined),
-                      selectedIcon: Icon(Icons.pets, color: PawCoColors.ink),
-                      label: 'Adoptar',
-                    ),
-                    NavigationDestination(
-                      icon: Icon(Icons.location_on_outlined),
-                      selectedIcon: Icon(Icons.location_on, color: PawCoColors.ink),
-                      label: 'Perdidos',
-                    ),
-                    NavigationDestination(
-                      icon: Icon(Icons.volunteer_activism_outlined),
-                      selectedIcon: Icon(Icons.volunteer_activism, color: PawCoColors.ink),
-                      label: 'Donar',
-                    ),
-                    NavigationDestination(
-                      icon: Icon(Icons.campaign_outlined, color: PawCoColors.terracotta),
-                      selectedIcon: Icon(Icons.campaign, color: PawCoColors.terracottaDark),
-                      label: 'SOS',
-                    ),
-                    NavigationDestination(
-                      icon: Icon(Icons.person_outline),
-                      selectedIcon: Icon(Icons.person, color: PawCoColors.ink),
-                      label: 'Perfil',
-                    ),
-                  ],
-                ),
-              ),
+          : _MobileFloatingCapsuleNavBar(
+              currentIndex: currentIndex,
+              onSelect: (index) {
+                ref.read(mainNavIndexProvider.notifier).state = index;
+              },
             ),
     );
   }
 }
 
-/// 💻 Barra de Navegación Superior Minimalista y Responsiva para Web y Escritorio (>= 860px)
-class _WebTopNavBar extends StatelessWidget {
+/// 📱 Barra de navegación inferior flotante tipo cápsula (Móvil `< 860px`)
+class _MobileFloatingCapsuleNavBar extends StatelessWidget {
+  final int currentIndex;
+  final ValueChanged<int> onSelect;
+
+  const _MobileFloatingCapsuleNavBar({
+    required this.currentIndex,
+    required this.onSelect,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isUltraCompact = screenWidth < 360;
+
+    final items = const [
+      _CapsuleNavSpec(
+        icon: Icons.home_outlined,
+        activeIcon: Icons.home_rounded,
+        label: 'Inicio',
+      ),
+      _CapsuleNavSpec(
+        icon: Icons.pets_outlined,
+        activeIcon: Icons.pets_rounded,
+        label: 'Adoptar',
+      ),
+      _CapsuleNavSpec(
+        icon: Icons.location_on_outlined,
+        activeIcon: Icons.location_on_rounded,
+        label: 'Perdidos',
+      ),
+      _CapsuleNavSpec(
+        icon: Icons.volunteer_activism_outlined,
+        activeIcon: Icons.volunteer_activism_rounded,
+        label: 'Donar',
+      ),
+      _CapsuleNavSpec(
+        icon: Icons.campaign_outlined,
+        activeIcon: Icons.campaign_rounded,
+        label: 'SOS',
+        isAccent: true,
+      ),
+      _CapsuleNavSpec(
+        icon: Icons.person_outline_rounded,
+        activeIcon: Icons.person_rounded,
+        label: 'Perfil',
+      ),
+    ];
+
+    return SafeArea(
+      top: false,
+      child: Padding(
+        padding: EdgeInsets.fromLTRB(
+          isUltraCompact ? 8 : 14,
+          4,
+          isUltraCompact ? 8 : 14,
+          10,
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(28),
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
+            child: Container(
+              height: 66,
+              padding: EdgeInsets.symmetric(horizontal: isUltraCompact ? 4 : 8),
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.92),
+                borderRadius: BorderRadius.circular(28),
+                border: Border.all(
+                  color: PawCoColors.border,
+                  width: 1.2,
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: PawCoColors.plum.withValues(alpha: 0.12),
+                    blurRadius: 24,
+                    offset: const Offset(0, 8),
+                  ),
+                ],
+              ),
+              child: Row(
+                children: List.generate(items.length, (index) {
+                  final spec = items[index];
+                  final isSelected = currentIndex == index;
+                  final activeBg = spec.isAccent
+                      ? PawCoColors.malva
+                      : PawCoColors.plum;
+                  final idleColor = spec.isAccent
+                      ? PawCoColors.terracottaDark
+                      : PawCoColors.muted;
+
+                  return Expanded(
+                    child: Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        onTap: () => onSelect(index),
+                        borderRadius: BorderRadius.circular(20),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 6,
+                            horizontal: 2,
+                          ),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              AnimatedContainer(
+                                duration: const Duration(milliseconds: 220),
+                                curve: Curves.easeOutCubic,
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: isSelected
+                                      ? (isUltraCompact ? 8 : 11)
+                                      : 6,
+                                  vertical: 4,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: isSelected
+                                      ? activeBg
+                                      : (spec.isAccent
+                                          ? PawCoColors.softMalva
+                                              .withValues(alpha: 0.55)
+                                          : Colors.transparent),
+                                  borderRadius: BorderRadius.circular(16),
+                                ),
+                                child: Icon(
+                                  isSelected ? spec.activeIcon : spec.icon,
+                                  size: isUltraCompact ? 18 : 20,
+                                  color: isSelected ? Colors.white : idleColor,
+                                ),
+                              ),
+                              const SizedBox(height: 3),
+                              FittedBox(
+                                fit: BoxFit.scaleDown,
+                                child: Text(
+                                  spec.label,
+                                  maxLines: 1,
+                                  style: GoogleFonts.plusJakartaSans(
+                                    fontSize: isUltraCompact ? 9.5 : 10.5,
+                                    fontWeight: isSelected
+                                        ? FontWeight.w800
+                                        : FontWeight.w600,
+                                    color: isSelected
+                                        ? (spec.isAccent
+                                            ? PawCoColors.terracottaDark
+                                            : PawCoColors.plum)
+                                        : idleColor,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  );
+                }),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _CapsuleNavSpec {
+  final IconData icon;
+  final IconData activeIcon;
+  final String label;
+  final bool isAccent;
+
+  const _CapsuleNavSpec({
+    required this.icon,
+    required this.activeIcon,
+    required this.label,
+    this.isAccent = false,
+  });
+}
+
+/// 💻 Barra de Navegación Superior Estilo SaaS Moderno (Web / Escritorio `>= 860px`)
+class _WebSaaSTopNavBar extends StatelessWidget {
   final int currentIndex;
   final WidgetRef ref;
 
-  const _WebTopNavBar({
+  const _WebSaaSTopNavBar({
     required this.currentIndex,
     required this.ref,
   });
@@ -146,15 +280,18 @@ class _WebTopNavBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
-    final isCompactDesktop = width < 1120;
+    final isCompactDesktop = width < 1140;
 
     return Container(
-      height: 68,
+      height: 70,
       padding: EdgeInsets.symmetric(horizontal: isCompactDesktop ? 16 : 32),
-      decoration: const BoxDecoration(
-        color: Colors.white,
+      decoration: BoxDecoration(
+        color: PawCoColors.auroraStart,
         border: Border(
-          bottom: BorderSide(color: PawCoColors.border, width: 1),
+          bottom: BorderSide(
+            color: Colors.white.withValues(alpha: 0.10),
+            width: 1,
+          ),
         ),
       ),
       child: Center(
@@ -162,60 +299,91 @@ class _WebTopNavBar extends StatelessWidget {
           constraints: const BoxConstraints(maxWidth: 1280),
           child: Row(
             children: [
-              // --- LOGO Y MARCA ---
-              InkWell(
-                onTap: () => ref.read(mainNavIndexProvider.notifier).state = 0,
-                borderRadius: BorderRadius.circular(12),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 6),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(7),
-                        decoration: BoxDecoration(
-                          color: PawCoColors.ink,
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: const Icon(Icons.pets, color: Colors.white, size: 18),
-                      ),
-                      const SizedBox(width: 10),
-                      Text(
-                        'PawCol',
-                        style: GoogleFonts.fraunces(
-                          fontSize: 22,
-                          fontWeight: FontWeight.w600,
-                          color: PawCoColors.ink,
-                          letterSpacing: -0.5,
-                        ),
-                      ),
-                      if (!isCompactDesktop) ...[
-                        const SizedBox(width: 10),
+              // --- LOGO SAAS `{PawCol}` ---
+              Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  onTap: () => ref.read(mainNavIndexProvider.notifier).state = 0,
+                  borderRadius: BorderRadius.circular(14),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 6),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                          padding: const EdgeInsets.all(8),
                           decoration: BoxDecoration(
-                            color: PawCoColors.surfaceMuted,
-                            borderRadius: BorderRadius.circular(6),
-                            border: Border.all(color: PawCoColors.border),
+                            gradient: const LinearGradient(
+                              colors: [PawCoColors.orchid, PawCoColors.malva],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            ),
+                            borderRadius: BorderRadius.circular(11),
                           ),
-                          child: Text(
-                            'Bucaramanga & AMB',
+                          child: const Icon(
+                            Icons.pets_rounded,
+                            color: Colors.white,
+                            size: 18,
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        RichText(
+                          text: TextSpan(
                             style: GoogleFonts.plusJakartaSans(
-                              fontSize: 11,
-                              fontWeight: FontWeight.w600,
-                              color: PawCoColors.muted,
+                              fontSize: 20,
+                              fontWeight: FontWeight.w800,
+                              letterSpacing: -0.5,
+                            ),
+                            children: const [
+                              TextSpan(
+                                text: '{',
+                                style: TextStyle(color: PawCoColors.lilacGlow),
+                              ),
+                              TextSpan(
+                                text: 'PawCol',
+                                style: TextStyle(color: Colors.white),
+                              ),
+                              TextSpan(
+                                text: '}',
+                                style: TextStyle(color: PawCoColors.malva),
+                              ),
+                            ],
+                          ),
+                        ),
+                        if (!isCompactDesktop) ...[
+                          const SizedBox(width: 10),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 9,
+                              vertical: 3.5,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withValues(alpha: 0.08),
+                              borderRadius: BorderRadius.circular(999),
+                              border: Border.all(
+                                color: Colors.white.withValues(alpha: 0.14),
+                              ),
+                            ),
+                            child: Text(
+                              'COL • AMB',
+                              style: GoogleFonts.plusJakartaSans(
+                                fontSize: 10.5,
+                                fontWeight: FontWeight.w700,
+                                color: PawCoColors.lilacGlow,
+                                letterSpacing: 0.3,
+                              ),
                             ),
                           ),
-                        ),
+                        ],
                       ],
-                    ],
+                    ),
                   ),
                 ),
               ),
 
               const SizedBox(width: 16),
 
-              // --- PESTAÑAS HORIZONTALES ADAPTABLES ---
+              // --- PESTAÑAS HORIZONTALES CON INDICADOR EN DEGRADADO ---
               Expanded(
                 child: Center(
                   child: SingleChildScrollView(
@@ -224,39 +392,39 @@ class _WebTopNavBar extends StatelessWidget {
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        _buildNavButton(
+                        _buildSaaSNavItem(
                           index: 0,
                           label: isCompactDesktop ? 'Inicio' : 'Inicio & Nosotros',
                           icon: Icons.home_outlined,
-                          activeIcon: Icons.home,
+                          activeIcon: Icons.home_rounded,
                         ),
-                        const SizedBox(width: 4),
-                        _buildNavButton(
+                        const SizedBox(width: 6),
+                        _buildSaaSNavItem(
                           index: 1,
                           label: 'Adopciones',
                           icon: Icons.pets_outlined,
-                          activeIcon: Icons.pets,
+                          activeIcon: Icons.pets_rounded,
                         ),
-                        const SizedBox(width: 4),
-                        _buildNavButton(
+                        const SizedBox(width: 6),
+                        _buildSaaSNavItem(
                           index: 2,
                           label: isCompactDesktop ? 'Perdidos' : 'Perdidos & Mapa',
                           icon: Icons.location_on_outlined,
-                          activeIcon: Icons.location_on,
+                          activeIcon: Icons.location_on_rounded,
                         ),
-                        const SizedBox(width: 4),
-                        _buildNavButton(
+                        const SizedBox(width: 6),
+                        _buildSaaSNavItem(
                           index: 3,
-                          label: isCompactDesktop ? 'Fundaciones' : 'Fundaciones & Donar',
+                          label: isCompactDesktop ? 'Donar' : 'Fundaciones & Donar',
                           icon: Icons.volunteer_activism_outlined,
-                          activeIcon: Icons.volunteer_activism,
+                          activeIcon: Icons.volunteer_activism_rounded,
                         ),
-                        const SizedBox(width: 4),
-                        _buildNavButton(
+                        const SizedBox(width: 6),
+                        _buildSaaSNavItem(
                           index: 4,
                           label: isCompactDesktop ? 'SOS' : 'Denunciar SOS',
                           icon: Icons.campaign_outlined,
-                          activeIcon: Icons.campaign,
+                          activeIcon: Icons.campaign_rounded,
                           isSos: true,
                         ),
                       ],
@@ -267,67 +435,113 @@ class _WebTopNavBar extends StatelessWidget {
 
               const SizedBox(width: 12),
 
-              // --- ACCIONES RÁPIDAS DERECHA ---
+              // --- ACCIONES RÁPIDAS DERECHA ESTILO BRACE / SAAS ---
               Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  ElevatedButton.icon(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: PawCoColors.forest,
-                      foregroundColor: Colors.white,
-                      padding: EdgeInsets.symmetric(
-                        horizontal: isCompactDesktop ? 12 : 16,
-                        vertical: 11,
+                  // Botón píldora con borde luminoso Malva
+                  Container(
+                    decoration: BoxDecoration(
+                      gradient: const LinearGradient(
+                        colors: [PawCoColors.plumVibrant, PawCoColors.malva],
                       ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      elevation: 0,
+                      borderRadius: BorderRadius.circular(999),
+                      boxShadow: [
+                        BoxShadow(
+                          color: PawCoColors.malva.withValues(alpha: 0.30),
+                          blurRadius: 14,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
                     ),
-                    onPressed: () => ref.read(mainNavIndexProvider.notifier).state = 3,
-                    icon: const Icon(Icons.favorite_border, size: 15, color: Colors.white),
-                    label: Text(
-                      isCompactDesktop ? 'Donar' : 'Donar Ahora',
-                      style: GoogleFonts.plusJakartaSans(
-                        fontWeight: FontWeight.w600,
-                        fontSize: 13,
+                    child: Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        onTap: () => ref.read(mainNavIndexProvider.notifier).state = 3,
+                        borderRadius: BorderRadius.circular(999),
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: isCompactDesktop ? 13 : 17,
+                            vertical: 9,
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(
+                                Icons.favorite_rounded,
+                                size: 15,
+                                color: Colors.white,
+                              ),
+                              const SizedBox(width: 6),
+                              Text(
+                                isCompactDesktop ? 'Donar' : 'Donar Ahora',
+                                style: GoogleFonts.plusJakartaSans(
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 13,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              const SizedBox(width: 3),
+                              const Icon(
+                                Icons.chevron_right_rounded,
+                                size: 16,
+                                color: Colors.white,
+                              ),
+                            ],
+                          ),
+                        ),
                       ),
                     ),
                   ),
                   const SizedBox(width: 10),
-                  InkWell(
-                    onTap: () => ref.read(mainNavIndexProvider.notifier).state = 5,
-                    borderRadius: BorderRadius.circular(10),
-                    child: AnimatedContainer(
-                      duration: const Duration(milliseconds: 200),
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                      decoration: BoxDecoration(
-                        color: currentIndex == 5 ? PawCoColors.surfaceMuted : Colors.white,
-                        borderRadius: BorderRadius.circular(10),
-                        border: Border.all(
-                          color: currentIndex == 5 ? PawCoColors.ink : PawCoColors.border,
-                          width: 1,
+                  Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      onTap: () => ref.read(mainNavIndexProvider.notifier).state = 5,
+                      borderRadius: BorderRadius.circular(999),
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 200),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 13,
+                          vertical: 8.5,
                         ),
-                      ),
-                      child: Row(
-                        children: [
-                          Icon(
-                            Icons.person_outline,
-                            size: 17,
-                            color: currentIndex == 5 ? PawCoColors.ink : PawCoColors.inkSecondary,
+                        decoration: BoxDecoration(
+                          color: currentIndex == 5
+                              ? Colors.white.withValues(alpha: 0.16)
+                              : Colors.white.withValues(alpha: 0.06),
+                          borderRadius: BorderRadius.circular(999),
+                          border: Border.all(
+                            color: currentIndex == 5
+                                ? PawCoColors.lilacGlow
+                                : Colors.white.withValues(alpha: 0.18),
+                            width: 1.1,
                           ),
-                          if (!isCompactDesktop) ...[
-                            const SizedBox(width: 6),
-                            Text(
-                              'Mi Perfil',
-                              style: GoogleFonts.plusJakartaSans(
-                                fontSize: 13,
-                                fontWeight: currentIndex == 5 ? FontWeight.w600 : FontWeight.w500,
-                                color: currentIndex == 5 ? PawCoColors.ink : PawCoColors.inkSecondary,
-                              ),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.person_outline_rounded,
+                              size: 17,
+                              color: currentIndex == 5
+                                  ? Colors.white
+                                  : PawCoColors.lilacGlow,
                             ),
+                            if (!isCompactDesktop) ...[
+                              const SizedBox(width: 6),
+                              Text(
+                                'Mi Perfil',
+                                style: GoogleFonts.plusJakartaSans(
+                                  fontSize: 13,
+                                  fontWeight: currentIndex == 5
+                                      ? FontWeight.w700
+                                      : FontWeight.w600,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ],
                           ],
-                        ],
+                        ),
                       ),
                     ),
                   ),
@@ -340,7 +554,7 @@ class _WebTopNavBar extends StatelessWidget {
     );
   }
 
-  Widget _buildNavButton({
+  Widget _buildSaaSNavItem({
     required int index,
     required String label,
     required IconData icon,
@@ -348,50 +562,59 @@ class _WebTopNavBar extends StatelessWidget {
     bool isSos = false,
   }) {
     final isSelected = currentIndex == index;
-
-    final bgColor = isSelected
-        ? (isSos ? PawCoColors.terracottaLight : PawCoColors.surfaceMuted)
-        : Colors.transparent;
-
     final textColor = isSelected
-        ? (isSos ? PawCoColors.terracottaDark : PawCoColors.ink)
-        : (isSos ? PawCoColors.terracottaDark : PawCoColors.muted);
+        ? Colors.white
+        : (isSos
+            ? const Color(0xFFFDA4AF)
+            : Colors.white.withValues(alpha: 0.72));
 
-    final borderColor = isSelected
-        ? (isSos ? PawCoColors.terracotta.withValues(alpha: 0.3) : PawCoColors.border)
-        : Colors.transparent;
-
-    return InkWell(
-      onTap: () => ref.read(mainNavIndexProvider.notifier).state = index,
-      borderRadius: BorderRadius.circular(10),
-      hoverColor: PawCoColors.surfaceMuted.withValues(alpha: 0.6),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        curve: Curves.easeOutQuart,
-        padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 8),
-        decoration: BoxDecoration(
-          color: bgColor,
-          borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: borderColor, width: 1),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              isSelected ? activeIcon : icon,
-              size: 16,
-              color: textColor,
-            ),
-            const SizedBox(width: 6),
-            Text(
-              label,
-              style: GoogleFonts.plusJakartaSans(
-                color: textColor,
-                fontSize: 13,
-                fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: () => ref.read(mainNavIndexProvider.notifier).state = index,
+        borderRadius: BorderRadius.circular(12),
+        hoverColor: Colors.white.withValues(alpha: 0.06),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    isSelected ? activeIcon : icon,
+                    size: 16,
+                    color: isSelected
+                        ? (isSos ? PawCoColors.malva : PawCoColors.lilacGlow)
+                        : textColor,
+                  ),
+                  const SizedBox(width: 6),
+                  Text(
+                    label,
+                    style: GoogleFonts.plusJakartaSans(
+                      color: textColor,
+                      fontSize: 13,
+                      fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                    ),
+                  ),
+                ],
               ),
-            ),
-          ],
+              const SizedBox(height: 5),
+              // Indicador activo inferior en degradado Lila -> Rosa Malva
+              AnimatedContainer(
+                duration: const Duration(milliseconds: 220),
+                height: 2.5,
+                width: isSelected ? 28 : 0,
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                    colors: [PawCoColors.lilacGlow, PawCoColors.malva],
+                  ),
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

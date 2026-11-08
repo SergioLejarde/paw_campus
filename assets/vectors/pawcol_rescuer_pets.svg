@@ -1,0 +1,119 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 300" width="360" height="300">
+  <defs>
+    <linearGradient id="auroraGlow" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#D8B4FE" stop-opacity="0.32" />
+      <stop offset="55%" stop-color="#E6759D" stop-opacity="0.24" />
+      <stop offset="100%" stop-color="#431E61" stop-opacity="0.08" />
+    </linearGradient>
+    <linearGradient id="rescuerJacket" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#9333EA" />
+      <stop offset="100%" stop-color="#E6759D" />
+    </linearGradient>
+    <linearGradient id="dogCoat" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#FDE68A" />
+      <stop offset="100%" stop-color="#F59E0B" />
+    </linearGradient>
+    <linearGradient id="catCoat" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#F3E8FF" />
+      <stop offset="100%" stop-color="#D8B4FE" />
+    </linearGradient>
+    <linearGradient id="badgeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#E6759D" />
+      <stop offset="100%" stop-color="#FBBF24" />
+    </linearGradient>
+  </defs>
+
+  <!-- Soft backdrop blob -->
+  <ellipse cx="182" cy="176" rx="146" ry="102" fill="url(#auroraGlow)" />
+  <ellipse cx="180" cy="268" rx="134" ry="16" fill="#1B0B2E" opacity="0.38" />
+
+  <!-- Decorative sparkles & stars -->
+  <circle cx="56" cy="74" r="5" fill="#FBBF24" opacity="0.9" />
+  <circle cx="308" cy="64" r="6" fill="#D8B4FE" opacity="0.85" />
+  <circle cx="288" cy="118" r="3.5" fill="#E6759D" opacity="0.9" />
+  <path d="M96 42 L99 50 L107 53 L99 56 L96 64 L93 56 L85 53 L93 50 Z" fill="#FBBF24" />
+  <path d="M266 36 L268 42 L274 44 L268 46 L266 52 L264 46 L258 44 L264 42 Z" fill="#F9A8D4" />
+
+  <!-- Floating Heart Shield Emblem -->
+  <g transform="translate(154, 24)">
+    <circle cx="26" cy="26" r="24" fill="#2B124C" stroke="#D8B4FE" stroke-width="1.8" opacity="0.92" />
+    <path d="M26 38 C26 38 13 29 13 20.5 C13 16.5 16.2 13.5 20 13.5 C22.6 13.5 24.8 15 26 17 C27.2 15 29.4 13.5 32 13.5 C35.8 13.5 39 16.5 39 20.5 C39 29 26 38 26 38 Z" fill="url(#badgeGrad)" />
+  </g>
+
+  <!-- Stylized Rescuer Character (Modern SaaS Flat Vector) -->
+  <g transform="translate(188, 66)">
+    <!-- Legs -->
+    <path d="M36 126 L28 192 L42 192 L50 132 Z" fill="#2A1245" />
+    <path d="M58 126 L66 192 L80 192 L68 132 Z" fill="#230E3B" />
+    <!-- Shoes -->
+    <rect x="20" y="190" width="24" height="10" rx="5" fill="#E6759D" />
+    <rect x="64" y="190" width="24" height="10" rx="5" fill="#E6759D" />
+    <!-- Torso / Jacket -->
+    <path d="M24 62 C24 50 36 44 50 44 C64 44 76 50 78 62 L84 128 L18 128 Z" fill="url(#rescuerJacket)" />
+    <!-- Inner shirt & Volunteer Lanyard -->
+    <path d="M42 45 L50 74 L58 45 Z" fill="#FAF6F9" />
+    <rect x="44" y="76" width="12" height="16" rx="3" fill="#FAF6F9" opacity="0.95" />
+    <circle cx="50" cy="84" r="3" fill="#431E61" />
+    <!-- Reaching Left Arm petting/presenting -->
+    <path d="M26 56 L-12 86 L-6 96 L32 72 Z" fill="#A855F7" />
+    <circle cx="-11" cy="91" r="6.5" fill="#FDE2D2" />
+    <!-- Neck & Head -->
+    <rect x="44" y="32" width="12" height="16" rx="5" fill="#FDE2D2" />
+    <circle cx="50" cy="24" r="16" fill="#FDE2D2" />
+    <!-- Hair -->
+    <path d="M34 24 C34 10 44 4 56 6 C66 8 72 18 68 30 C64 20 56 16 44 17 C38 18 35 21 34 24 Z" fill="#3B1763" />
+    <circle cx="68" cy="14" r="8" fill="#3B1763" />
+    <!-- Friendly smile -->
+    <circle cx="44" cy="23" r="1.8" fill="#231138" />
+    <path d="M44 29 Q48 33 53 29" fill="none" stroke="#231138" stroke-width="1.8" stroke-linecap="round" />
+  </g>
+
+  <!-- Happy Golden Dog (Left-Center) -->
+  <g transform="translate(64, 128)">
+    <!-- Wagging Tail -->
+    <path d="M22 96 C4 86 2 64 14 54 C20 58 18 76 28 88 Z" fill="#F59E0B" />
+    <!-- Body -->
+    <path d="M26 138 C20 112 24 78 44 66 C62 56 80 68 84 94 L88 138 Z" fill="url(#dogCoat)" />
+    <!-- Chest patch -->
+    <path d="M56 72 C68 74 76 88 74 110 C64 112 54 102 52 84 Z" fill="#FEF3C7" />
+    <!-- Front legs -->
+    <rect x="52" y="106" width="12" height="34" rx="6" fill="#FDE68A" />
+    <rect x="70" y="106" width="12" height="34" rx="6" fill="#F59E0B" />
+    <!-- Head -->
+    <circle cx="66" cy="48" r="24" fill="url(#dogCoat)" />
+    <!-- Snout -->
+    <ellipse cx="82" cy="52" rx="14" ry="10" fill="#FEF3C7" />
+    <circle cx="92" cy="48" r="4.2" fill="#231138" />
+    <!-- Floppy Ear -->
+    <path d="M50 34 C40 40 38 58 48 64 C56 64 58 48 56 36 Z" fill="#D97706" />
+    <!-- Eye & Smile -->
+    <circle cx="68" cy="43" r="2.8" fill="#231138" />
+    <circle cx="69" cy="42" r="1" fill="#FFFFFF" />
+    <path d="M74 56 Q82 62 88 55" fill="none" stroke="#231138" stroke-width="2" stroke-linecap="round" />
+    <!-- Malva Rescue Collar & Tag -->
+    <rect x="46" y="66" width="34" height="8" rx="4" fill="#E6759D" />
+    <circle cx="68" cy="76" r="5" fill="#FBBF24" />
+  </g>
+
+  <!-- Cute Lilac Cat (Center-Right) -->
+  <g transform="translate(154, 174)">
+    <!-- Curved Feline Tail -->
+    <path d="M58 80 C76 80 84 62 76 48 C70 50 72 68 56 72 Z" fill="#C084FC" />
+    <!-- Cat Body -->
+    <path d="M18 92 C16 66 24 46 38 46 C52 46 60 66 58 92 Z" fill="url(#catCoat)" />
+    <!-- Cat Head -->
+    <circle cx="38" cy="32" r="18" fill="url(#catCoat)" />
+    <!-- Pointed Ears -->
+    <polygon points="22,22 26,4 36,16" fill="#D8B4FE" />
+    <polygon points="54,22 50,4 40,16" fill="#D8B4FE" />
+    <polygon points="25,20 27,9 34,17" fill="#F9A8D4" />
+    <polygon points="51,20 49,9 42,17" fill="#F9A8D4" />
+    <!-- Eyes & Whiskers -->
+    <circle cx="32" cy="31" r="2.3" fill="#231138" />
+    <circle cx="44" cy="31" r="2.3" fill="#231138" />
+    <polygon points="36,36 40,36 38,39" fill="#E6759D" />
+    <!-- Collar -->
+    <rect x="25" y="46" width="26" height="5.5" rx="2.7" fill="#431E61" />
+    <circle cx="38" cy="53" r="3.5" fill="#E6759D" />
+  </g>
+</svg>

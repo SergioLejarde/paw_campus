@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120">
+  <defs>
+    <linearGradient id="shieldBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#431E61" />
+      <stop offset="55%" stop-color="#7E22CE" />
+      <stop offset="100%" stop-color="#E6759D" />
+    </linearGradient>
+    <linearGradient id="shieldRim" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#D8B4FE" />
+      <stop offset="100%" stop-color="#FBBF24" />
+    </linearGradient>
+  </defs>
+  <circle cx="60" cy="60" r="54" fill="#F3ECF9" />
+  <circle cx="60" cy="60" r="46" fill="#E8DDF5" opacity="0.65" />
+  <path d="M60 16 L94 30 L94 58 C94 81 79 98 60 105 C41 98 26 81 26 58 L26 30 Z" fill="url(#shieldBg)" stroke="url(#shieldRim)" stroke-width="3" />
+  <!-- Paw + Checkmark inside shield -->
+  <circle cx="50" cy="46" r="4.5" fill="#FAF6F9" opacity="0.9" />
+  <circle cx="60" cy="42" r="4.5" fill="#FAF6F9" opacity="0.9" />
+  <circle cx="70" cy="46" r="4.5" fill="#FAF6F9" opacity="0.9" />
+  <path d="M46 64 L56 74 L76 52" fill="none" stroke="#FBBF24" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" />
+</svg>

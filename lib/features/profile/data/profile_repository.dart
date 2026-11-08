@@ -4,15 +4,23 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../domain/profile.dart';
 
-final supabase = Supabase.instance.client;
-
 class ProfileRepository {
+  SupabaseClient get _supabase => Supabase.instance.client;
+
+  User? _safeCurrentUser() {
+    try {
+      return _supabase.auth.currentUser;
+    } catch (_) {
+      return null;
+    }
+  }
+
   /// Obtiene el perfil del usuario autenticado actual
   Future<UserProfile?> getCurrentProfile() async {
-    final user = supabase.auth.currentUser;
+    final user = _safeCurrentUser();
     if (user == null) return null;
 
-    final response = await supabase
+    final response = await _supabase
         .from('profiles')
         .select()
         .eq('id', user.id)
@@ -24,7 +32,7 @@ class ProfileRepository {
 
   /// Obtiene el perfil por id
   Future<UserProfile?> getProfileById(String id) async {
-    final response = await supabase
+    final response = await _supabase
         .from('profiles')
         .select()
         .eq('id', id)
@@ -39,7 +47,7 @@ class ProfileRepository {
     required String userId,
     required String email,
   }) async {
-    await supabase.from('profiles').insert({'id': userId, 'email': email});
+    await _supabase.from('profiles').insert({'id': userId, 'email': email});
   }
 
   /// Actualiza campos del perfil del usuario actual
@@ -49,7 +57,7 @@ class ProfileRepository {
     String? photoUrl,
     String? city,
   }) async {
-    final user = supabase.auth.currentUser;
+    final user = _safeCurrentUser();
     if (user == null) {
       throw Exception('No hay usuario autenticado');
     }
@@ -60,7 +68,7 @@ class ProfileRepository {
     if (photoUrl != null) updates['photo_url'] = photoUrl;
     if (city != null) updates['city'] = city;
 
-    final response = await supabase
+    final response = await _supabase
         .from('profiles')
         .update(updates)
         .eq('id', user.id)
@@ -78,7 +86,7 @@ class ProfileRepository {
   // 📸 Subir foto de perfil (WEB + MOBILE correcto)
   // ============================================================
   Future<String> uploadProfilePhoto(XFile file) async {
-    final user = supabase.auth.currentUser;
+    final user = _safeCurrentUser();
     if (user == null) {
       throw Exception('No hay usuario autenticado');
     }
@@ -87,10 +95,9 @@ class ProfileRepository {
     final fileName = '${DateTime.now().millisecondsSinceEpoch}.$ext';
     final filePath = 'avatars/${user.id}/$fileName';
 
-    final storage = supabase.storage.from('avatars');
+    final storage = _supabase.storage.from('avatars');
 
     if (kIsWeb) {
-      // 🌍 WEB → subir bytes
       final bytes = await file.readAsBytes();
       await storage.uploadBinary(
         filePath,
@@ -98,7 +105,6 @@ class ProfileRepository {
         fileOptions: const FileOptions(upsert: true),
       );
     } else {
-      // 📱 MOBILE → usar File sin romper Web
       final fileBytes = await file.readAsBytes();
       await storage.uploadBinary(
         filePath,

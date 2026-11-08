@@ -1,6 +1,9 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:qr_flutter/qr_flutter.dart';
@@ -33,7 +36,8 @@ class _DonationsPageState extends State<DonationsPage> {
   int? _selectedPresetAmount = 120000;
   final TextEditingController _customAmountController = TextEditingController();
   bool _isCustomAmount = false;
-  String _selectedFoundationBeneficiary = 'Todas las fundaciones del AMB (Donde más se necesite)';
+  String _selectedFoundationBeneficiary =
+      'Todas las fundaciones del AMB (Donde más se necesite)';
 
   // Sección 3: Directorio y Mapa
   int _directoryViewMode = 0; // 0: Vista Lista, 1: Vista Mapa
@@ -106,7 +110,8 @@ class _DonationsPageState extends State<DonationsPage> {
   Future<void> _launchExternalUrl(String url, String errorMessage) async {
     final uri = Uri.parse(url);
     try {
-      final launched = await launchUrl(uri, mode: LaunchMode.externalApplication);
+      final launched =
+          await launchUrl(uri, mode: LaunchMode.externalApplication);
       if (!launched && mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(errorMessage)),
@@ -165,11 +170,11 @@ class _DonationsPageState extends State<DonationsPage> {
 
   List<DirectoryEntry> _filterDirectory(List<DirectoryEntry> all) {
     return all.where((entry) {
-      // Filtro por categoría
       if (_selectedDirectoryCategory != 'Todos') {
         if (_selectedDirectoryCategory == 'Veterinarias 24/7' ||
             _selectedDirectoryCategory == 'Urgencias 24/7') {
-          if (!entry.is24Hours && entry.category != DirectoryCategory.veterinary24h) {
+          if (!entry.is24Hours &&
+              entry.category != DirectoryCategory.veterinary24h) {
             return false;
           }
         } else if (_selectedDirectoryCategory == 'Fundaciones') {
@@ -181,7 +186,6 @@ class _DonationsPageState extends State<DonationsPage> {
         }
       }
 
-      // Filtro por municipio
       if (_selectedMunicipality != 'Todo AMB') {
         if (entry.municipality != _selectedMunicipality &&
             entry.municipality != DirectoryMunicipality.metropolitana) {
@@ -189,14 +193,20 @@ class _DonationsPageState extends State<DonationsPage> {
         }
       }
 
-      // Filtro por texto
       if (_searchQuery.isNotEmpty) {
         final matchName = entry.name.toLowerCase().contains(_searchQuery);
-        final matchDesc = entry.description.toLowerCase().contains(_searchQuery);
+        final matchDesc =
+            entry.description.toLowerCase().contains(_searchQuery);
         final matchAddr = entry.address.toLowerCase().contains(_searchQuery);
-        final matchNeigh = (entry.neighborhood ?? '').toLowerCase().contains(_searchQuery);
-        final matchMun = entry.municipality.toLowerCase().contains(_searchQuery);
-        if (!matchName && !matchDesc && !matchAddr && !matchNeigh && !matchMun) {
+        final matchNeigh =
+            (entry.neighborhood ?? '').toLowerCase().contains(_searchQuery);
+        final matchMun =
+            entry.municipality.toLowerCase().contains(_searchQuery);
+        if (!matchName &&
+            !matchDesc &&
+            !matchAddr &&
+            !matchNeigh &&
+            !matchMun) {
           return false;
         }
       }
@@ -209,151 +219,237 @@ class _DonationsPageState extends State<DonationsPage> {
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     final isDesktop = screenWidth >= 900;
+    final isMobileShell = screenWidth < 860;
 
     return Scaffold(
       backgroundColor: Colors.transparent,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        title: Row(
+      body: SingleChildScrollView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Container(
-              padding: const EdgeInsets.all(7),
-              decoration: BoxDecoration(
-                color: PawCoColors.forest.withValues(alpha: 0.1),
-                shape: BoxShape.circle,
+            // ===============================================================
+            // HERO AURORA HÍBRIDA + ESCUDO VECTORIAL DE TRANSPARENCIA 100%
+            // ===============================================================
+            PawColAuroraWaveHeader(
+              contentPadding: EdgeInsets.fromLTRB(
+                isDesktop ? 32 : 16,
+                MediaQuery.of(context).padding.top + (isDesktop ? 24 : 16),
+                isDesktop ? 32 : 16,
+                18,
               ),
-              child: const Icon(Icons.volunteer_activism, color: PawCoColors.forest, size: 20),
+              waveHeight: 54,
+              child: _buildAuroraHeaderContent(context, isDesktop),
             ),
-            const SizedBox(width: 10),
-            Text(
-              'PawCol Donaciones',
-              style: GoogleFonts.fraunces(
-                fontWeight: FontWeight.w700,
-                fontSize: 20,
-                color: PawCoColors.ink,
+
+            // ===============================================================
+            // ZONA MARFIL-LILA PASTEL (#FAF6F9): METAS, WOMPI Y DIRECTORIO
+            // ===============================================================
+            Padding(
+              padding: EdgeInsets.symmetric(
+                horizontal: isDesktop ? 32 : 16,
+                vertical: 12,
+              ),
+              child: Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 1200),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // SECCIÓN 1: METAS DE ALIMENTO, HOSPITALIZACIÓN Y CIRUGÍA
+                      _buildVerifiedCausesSection(
+                        context,
+                        isDesktop,
+                        screenWidth,
+                      ),
+                      const SizedBox(height: 38),
+
+                      // SECCIÓN 2: DONACIÓN DIRECTA CON PROPÓSITO
+                      _buildDirectDonationSection(context, screenWidth),
+                      const SizedBox(height: 38),
+
+                      // SECCIÓN 3: FUNDACIONES Y DIRECTORIO 24/7
+                      _buildFoundationsDirectorySection(context, isDesktop),
+                      SizedBox(height: isMobileShell ? 120 : 64),
+                    ],
+                  ),
+                ),
               ),
             ),
           ],
-        ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.qr_code_2_rounded, color: PawCoColors.forest),
-            tooltip: 'Ver QR de Donación Directa',
-            onPressed: () => _showDonationQrModal(context, null),
-          ),
-        ],
-      ),
-      body: SingleChildScrollView(
-        physics: const AlwaysScrollableScrollPhysics(),
-        padding: EdgeInsets.symmetric(
-          horizontal: isDesktop ? 32 : 16,
-          vertical: 12,
-        ),
-        child: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 1200),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Cabecera Editorial Principal
-                _buildEditorialHeader(),
-                const SizedBox(height: 28),
-
-                // ============================================================
-                // SECCIÓN 1: METAS DE ALIMENTO, HOSPITALIZACIÓN Y CIRUGÍA
-                // ============================================================
-                _buildVerifiedCausesSection(context, isDesktop),
-                const SizedBox(height: 40),
-
-                // ============================================================
-                // SECCIÓN 2: DONACIÓN DIRECTA CON PROPÓSITO (MOCKUP 3)
-                // ============================================================
-                _buildDirectDonationSection(context),
-                const SizedBox(height: 40),
-
-                // ============================================================
-                // SECCIÓN 3: FUNDACIONES Y DIRECTORIO 24/7 (MOCKUP 4)
-                // ============================================================
-                _buildFoundationsDirectorySection(context, isDesktop),
-                const SizedBox(height: 60),
-              ],
-            ),
-          ),
         ),
       ),
     );
   }
 
   // ===========================================================================
-  // CABECERA EDITORIAL
+  // CABECERA AURORA VIOLETA 2
   // ===========================================================================
-  Widget _buildEditorialHeader() {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(22),
-      decoration: BoxDecoration(
-        color: PawCoColors.surface,
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: PawCoColors.borderLight),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.03),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+  Widget _buildAuroraHeaderContent(BuildContext context, bool isDesktop) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Wrap(
+          spacing: 10,
+          runSpacing: 10,
+          alignment: WrapAlignment.spaceBetween,
+          crossAxisAlignment: WrapCrossAlignment.center,
+          children: [
+            Row(
+              mainAxisSize: MainAxisSize.min,
               children: [
-                const PawCoBadge(
-                  label: 'TRANSPARENCIA Y SOLIDARIDAD SANTANDER',
-                  icon: Icons.verified_user_outlined,
-                  backgroundColor: PawCoColors.sageLight,
-                  textColor: PawCoColors.forest,
-                ),
-                const SizedBox(height: 10),
-                Text(
-                  'Apoya Nuestras Causas y Alianzas',
-                  style: GoogleFonts.fraunces(
-                    fontSize: 26,
-                    fontWeight: FontWeight.w700,
-                    color: PawCoColors.ink,
-                    letterSpacing: -0.3,
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                      colors: [PawCoColors.orchid, PawCoColors.malva],
+                    ),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Icon(
+                    Icons.volunteer_activism_rounded,
+                    color: Colors.white,
+                    size: 18,
                   ),
                 ),
-                const SizedBox(height: 8),
-                Text(
-                  'Cada aporte transforma el destino de un animal rescatado en Bucaramanga, Floridablanca, Girón y Piedecuesta. Metas verificadas con facturas y alianzas con refugios.',
-                  style: GoogleFonts.plusJakartaSans(
-                    fontSize: 14,
-                    color: PawCoColors.muted,
-                    height: 1.5,
+                const SizedBox(width: 10),
+                Flexible(
+                  child: Text(
+                    'PawCol Donaciones',
+                    style: GoogleFonts.plusJakartaSans(
+                      fontWeight: FontWeight.w800,
+                      fontSize: 18,
+                      color: Colors.white,
+                      letterSpacing: -0.3,
+                    ),
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
               ],
             ),
-          ),
-          const SizedBox(width: 16),
-          const AnimalSilhouetteCardWatermark(
-            width: 100,
-            height: 90,
-            opacity: 0.45,
-          ),
-        ],
-      ),
+            Material(
+              color: Colors.white.withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(999),
+              child: InkWell(
+                borderRadius: BorderRadius.circular(999),
+                onTap: () => _showDonationQrModal(context, null),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 14,
+                    vertical: 8,
+                  ),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(999),
+                    border: Border.all(
+                      color: PawCoColors.lilacGlow.withValues(alpha: 0.35),
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(
+                        Icons.qr_code_2_rounded,
+                        size: 17,
+                        color: PawCoColors.lilacGlow,
+                      ),
+                      const SizedBox(width: 6),
+                      Text(
+                        'QR Directo',
+                        style: GoogleFonts.plusJakartaSans(
+                          fontWeight: FontWeight.w700,
+                          color: Colors.white,
+                          fontSize: 12.5,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 18),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 11,
+                      vertical: 5,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.10),
+                      borderRadius: BorderRadius.circular(999),
+                      border: Border.all(
+                        color: PawCoColors.amberGlow.withValues(alpha: 0.45),
+                      ),
+                    ),
+                    child: Text(
+                      '✨ TRANSPARENCIA Y SOLIDARIDAD SANTANDER',
+                      style: GoogleFonts.plusJakartaSans(
+                        fontSize: 10.5,
+                        fontWeight: FontWeight.w800,
+                        color: PawCoColors.amberGlow,
+                        letterSpacing: 0.4,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  PawColGradientText(
+                    'Apoya Nuestras Causas y Alianzas',
+                    style: GoogleFonts.plusJakartaSans(
+                      fontSize: isDesktop ? 34 : 25,
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: -0.7,
+                      height: 1.15,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Cada aporte transforma el destino de un animal rescatado en Bucaramanga, Floridablanca, Girón y Piedecuesta. Metas verificadas con facturas y alianzas con refugios.',
+                    style: GoogleFonts.plusJakartaSans(
+                      fontSize: 13.5,
+                      color: Colors.white.withValues(alpha: 0.84),
+                      height: 1.5,
+                    ),
+                  ),
+                  const SizedBox(height: 14),
+                  PawColRealBadgeButton(
+                    label: 'Aportar Bultos de Concentrado',
+                    onTap: _openWompi,
+                  ),
+                ],
+              ),
+            ),
+            if (isDesktop) ...[
+              const SizedBox(width: 24),
+              SvgPicture.asset(
+                'assets/vectors/pawcol_shield.svg',
+                width: 118,
+                height: 118,
+                fit: BoxFit.contain,
+              ),
+            ],
+          ],
+        ),
+      ],
     );
   }
 
   // ===========================================================================
   // SECCIÓN 1: METAS DE ALIMENTO, HOSPITALIZACIÓN Y CIRUGÍA
   // ===========================================================================
-  Widget _buildVerifiedCausesSection(BuildContext context, bool isDesktop) {
-    final filteredCampaigns = _filterCampaigns(DonationCampaign.activeCampaigns);
+  Widget _buildVerifiedCausesSection(
+    BuildContext context,
+    bool isDesktop,
+    double screenWidth,
+  ) {
+    final filteredCampaigns =
+        _filterCampaigns(DonationCampaign.activeCampaigns);
 
     final filterOptions = [
       'Todas',
@@ -362,37 +458,28 @@ class _DonationsPageState extends State<DonationsPage> {
       '✂️ Esterilización',
     ];
 
+    final mobileCardWidth =
+        math.min(316.0, math.max(260.0, screenWidth - 40.0));
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Título de la sección
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Apoya Nuestras Causas Verificadas',
-                    style: GoogleFonts.fraunces(
-                      fontSize: 22,
-                      fontWeight: FontWeight.w700,
-                      color: PawCoColors.ink,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    'Campañas activas con metas claras, facturas auditadas y seguimiento público',
-                    style: GoogleFonts.plusJakartaSans(
-                      fontSize: 13,
-                      color: PawCoColors.muted,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
+        Text(
+          'Apoya Nuestras Causas Verificadas',
+          style: GoogleFonts.plusJakartaSans(
+            fontSize: 22,
+            fontWeight: FontWeight.w800,
+            color: PawCoColors.ink,
+            letterSpacing: -0.4,
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          'Campañas activas con metas claras, facturas auditadas y seguimiento público',
+          style: GoogleFonts.plusJakartaSans(
+            fontSize: 13,
+            color: PawCoColors.muted,
+          ),
         ),
         const SizedBox(height: 14),
 
@@ -408,19 +495,21 @@ class _DonationsPageState extends State<DonationsPage> {
                   label: Text(
                     opt,
                     style: GoogleFonts.plusJakartaSans(
-                      fontSize: 13,
-                      fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-                      color: isSelected ? PawCoColors.forest : PawCoColors.inkSecondary,
+                      fontSize: 12.5,
+                      fontWeight:
+                          isSelected ? FontWeight.w700 : FontWeight.w600,
+                      color:
+                          isSelected ? Colors.white : PawCoColors.inkSecondary,
                     ),
                   ),
                   selected: isSelected,
-                  selectedColor: PawCoColors.sageLight,
+                  selectedColor: PawCoColors.plum,
                   backgroundColor: PawCoColors.surface,
                   showCheckmark: false,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(20),
                     side: BorderSide(
-                      color: isSelected ? PawCoColors.sage : PawCoColors.border,
+                      color: isSelected ? PawCoColors.plum : PawCoColors.border,
                     ),
                   ),
                   onSelected: (_) {
@@ -435,17 +524,19 @@ class _DonationsPageState extends State<DonationsPage> {
         ),
         const SizedBox(height: 18),
 
-        // Lista de campañas: Carrusel horizontal en móvil / Grid en escritorio
         if (isDesktop)
           PawCoResponsiveGrid(
             maxWidth: 1200,
-            children: filteredCampaigns.map((camp) {
-              return _buildCampaignCard(context, camp);
-            }).toList(),
+            children: List.generate(filteredCampaigns.length, (i) {
+              return PawCoFadeSlide(
+                delay: Duration(milliseconds: i * 50),
+                child: _buildCampaignCard(context, filteredCampaigns[i]),
+              );
+            }),
           )
         else
           SizedBox(
-            height: 440,
+            height: 452,
             child: ListView.separated(
               scrollDirection: Axis.horizontal,
               physics: const BouncingScrollPhysics(),
@@ -453,7 +544,7 @@ class _DonationsPageState extends State<DonationsPage> {
               separatorBuilder: (_, __) => const SizedBox(width: 14),
               itemBuilder: (context, index) {
                 return SizedBox(
-                  width: 320,
+                  width: mobileCardWidth,
                   child: _buildCampaignCard(context, filteredCampaigns[index]),
                 );
               },
@@ -471,58 +562,75 @@ class _DonationsPageState extends State<DonationsPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Imagen superior con badges flotantes
           Stack(
             children: [
               ClipRRect(
-                borderRadius: const BorderRadius.vertical(top: Radius.circular(22)),
+                borderRadius: const BorderRadius.vertical(
+                  top: Radius.circular(22),
+                ),
                 child: SizedBox(
-                  height: 160,
+                  height: 158,
                   width: double.infinity,
                   child: Image.network(
                     campaign.photoUrl,
                     fit: BoxFit.cover,
                     errorBuilder: (_, __, ___) => Container(
-                      color: PawCoColors.sageLight,
+                      color: PawCoColors.cottonLilac,
                       child: const Center(
-                        child: Icon(Icons.pets, size: 48, color: PawCoColors.sage),
+                        child: Icon(
+                          Icons.pets_rounded,
+                          size: 48,
+                          color: PawCoColors.plum,
+                        ),
                       ),
                     ),
                   ),
                 ),
               ),
-              // Badge de categoría
               Positioned(
-                top: 12,
-                left: 12,
-                child: PawCoBadge(
-                  label: campaign.category,
-                  backgroundColor: Colors.white.withValues(alpha: 0.92),
-                  textColor: PawCoColors.ink,
-                  fontSize: 11,
+                top: 10,
+                left: 10,
+                right: 10,
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: PawCoBadge(
+                    label: campaign.category,
+                    backgroundColor: Colors.white.withValues(alpha: 0.94),
+                    textColor: PawCoColors.plum,
+                    fontSize: 10.5,
+                  ),
                 ),
               ),
-              // Badge de factura auditada
               if (campaign.verifiedInvoiceCode != null)
                 Positioned(
                   bottom: 10,
-                  right: 12,
+                  right: 10,
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 9,
+                      vertical: 4,
+                    ),
                     decoration: BoxDecoration(
-                      color: PawCoColors.forestDark.withValues(alpha: 0.85),
+                      color: PawCoColors.auroraStart.withValues(alpha: 0.88),
                       borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: PawCoColors.lilacGlow.withValues(alpha: 0.35),
+                      ),
                     ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        const Icon(Icons.check_circle, size: 12, color: Color(0xFF86EFAC)),
+                        const Icon(
+                          Icons.verified_rounded,
+                          size: 12,
+                          color: PawCoColors.amberGlow,
+                        ),
                         const SizedBox(width: 4),
                         Text(
                           'Factura #${campaign.verifiedInvoiceCode}',
                           style: GoogleFonts.plusJakartaSans(
                             color: Colors.white,
-                            fontSize: 10.5,
+                            fontSize: 10,
                             fontWeight: FontWeight.w700,
                           ),
                         ),
@@ -533,24 +641,26 @@ class _DonationsPageState extends State<DonationsPage> {
             ],
           ),
 
-          // Cuerpo de la tarjeta
           Padding(
             padding: const EdgeInsets.all(16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Municipio y fundación
                 Row(
                   children: [
-                    const Icon(Icons.location_on_outlined, size: 14, color: PawCoColors.forest),
+                    const Icon(
+                      Icons.location_on_outlined,
+                      size: 14,
+                      color: PawCoColors.malva,
+                    ),
                     const SizedBox(width: 4),
                     Expanded(
                       child: Text(
                         '${campaign.municipality} • ${campaign.foundationName}',
                         style: GoogleFonts.plusJakartaSans(
                           fontSize: 11.5,
-                          fontWeight: FontWeight.w600,
-                          color: PawCoColors.forest,
+                          fontWeight: FontWeight.w700,
+                          color: PawCoColors.plum,
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -559,22 +669,18 @@ class _DonationsPageState extends State<DonationsPage> {
                   ],
                 ),
                 const SizedBox(height: 6),
-
-                // Título
                 Text(
                   campaign.title,
-                  style: GoogleFonts.fraunces(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w700,
+                  style: GoogleFonts.plusJakartaSans(
+                    fontSize: 15.5,
+                    fontWeight: FontWeight.w800,
                     color: PawCoColors.ink,
                     height: 1.25,
                   ),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
-                const SizedBox(height: 8),
-
-                // Descripción
+                const SizedBox(height: 6),
                 Text(
                   campaign.description,
                   style: GoogleFonts.plusJakartaSans(
@@ -586,17 +692,13 @@ class _DonationsPageState extends State<DonationsPage> {
                   overflow: TextOverflow.ellipsis,
                 ),
                 const SizedBox(height: 14),
-
-                // Barra de progreso animada verde bosque
                 PawCoAnimatedProgressBar(
                   value: campaign.progressRatio,
                   height: 9,
-                  progressColor: PawCoColors.forest,
-                  backgroundColor: PawCoColors.sageLight,
+                  progressColor: PawCoColors.malva,
+                  backgroundColor: PawCoColors.cottonLilac,
                 ),
                 const SizedBox(height: 8),
-
-                // Métricas de recaudación
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -605,7 +707,7 @@ class _DonationsPageState extends State<DonationsPage> {
                         '${campaign.progressPercentage}% de ${campaign.formattedTargetShort}',
                         style: GoogleFonts.plusJakartaSans(
                           fontSize: 12,
-                          fontWeight: FontWeight.w700,
+                          fontWeight: FontWeight.w800,
                           color: PawCoColors.ink,
                         ),
                         maxLines: 1,
@@ -614,7 +716,7 @@ class _DonationsPageState extends State<DonationsPage> {
                     ),
                     const SizedBox(width: 6),
                     Text(
-                      '${campaign.daysLeft} días restantes',
+                      '${campaign.daysLeft} días',
                       style: GoogleFonts.plusJakartaSans(
                         fontSize: 11.5,
                         fontWeight: FontWeight.w600,
@@ -624,21 +726,19 @@ class _DonationsPageState extends State<DonationsPage> {
                   ],
                 ),
                 const SizedBox(height: 14),
-
-                // Botón Donar a esta meta (Terracota cálido)
                 SizedBox(
                   width: double.infinity,
                   height: 42,
                   child: ElevatedButton.icon(
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: PawCoColors.terracotta,
+                      backgroundColor: PawCoColors.malva,
                       foregroundColor: Colors.white,
                       elevation: 0,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(14),
                       ),
                     ),
-                    icon: const Icon(Icons.favorite, size: 16),
+                    icon: const Icon(Icons.favorite_rounded, size: 16),
                     label: Text(
                       'Donar a esta meta',
                       style: GoogleFonts.plusJakartaSans(
@@ -646,7 +746,8 @@ class _DonationsPageState extends State<DonationsPage> {
                         fontWeight: FontWeight.w700,
                       ),
                     ),
-                    onPressed: () => _showCampaignDonationModal(context, campaign),
+                    onPressed: () =>
+                        _showCampaignDonationModal(context, campaign),
                   ),
                 ),
               ],
@@ -658,59 +759,49 @@ class _DonationsPageState extends State<DonationsPage> {
   }
 
   // ===========================================================================
-  // SECCIÓN 2: DONACIÓN DIRECTA CON PROPÓSITO (MOCKUP 3)
+  // SECCIÓN 2: DONACIÓN DIRECTA CON PROPÓSITO
   // ===========================================================================
-  Widget _buildDirectDonationSection(BuildContext context) {
+  Widget _buildDirectDonationSection(BuildContext context, double screenWidth) {
+    final isCompact = screenWidth < 390;
+
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(24),
+      padding: EdgeInsets.all(isCompact ? 16 : 24),
       decoration: BoxDecoration(
         color: PawCoColors.surface,
         borderRadius: BorderRadius.circular(26),
-        border: Border.all(color: PawCoColors.borderLight),
+        border: Border.all(color: PawCoColors.border),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
-            blurRadius: 12,
-            offset: const Offset(0, 5),
+            color: PawCoColors.plum.withValues(alpha: 0.05),
+            blurRadius: 16,
+            offset: const Offset(0, 6),
           ),
         ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Título y selector Única vez vs Mensual (Padrino)
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Donación Directa con Propósito',
-                      style: GoogleFonts.fraunces(
-                        fontSize: 22,
-                        fontWeight: FontWeight.w700,
-                        color: PawCoColors.ink,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      'Elige el impacto directo que deseas generar en la salud y alimentación animal',
-                      style: GoogleFonts.plusJakartaSans(
-                        fontSize: 13.5,
-                        color: PawCoColors.muted,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
+          Text(
+            'Donación Directa con Propósito',
+            style: GoogleFonts.plusJakartaSans(
+              fontSize: 21,
+              fontWeight: FontWeight.w800,
+              color: PawCoColors.ink,
+              letterSpacing: -0.4,
+            ),
           ),
-          const SizedBox(height: 18),
+          const SizedBox(height: 4),
+          Text(
+            'Elige el impacto directo que deseas generar en la salud y alimentación animal',
+            style: GoogleFonts.plusJakartaSans(
+              fontSize: 13.5,
+              color: PawCoColors.muted,
+            ),
+          ),
+          const SizedBox(height: 16),
 
-          // Selector de Frecuencia (Píldoras Única vez / Mensual)
+          // Selector de Frecuencia adaptable incluso a 320px
           Center(
             child: Container(
               padding: const EdgeInsets.all(4),
@@ -719,18 +810,28 @@ class _DonationsPageState extends State<DonationsPage> {
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(color: PawCoColors.border),
               ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
+              child: Wrap(
+                spacing: 4,
+                runSpacing: 4,
+                alignment: WrapAlignment.center,
                 children: [
-                  _buildFrequencyTab(0, 'Única vez', Icons.card_giftcard),
-                  _buildFrequencyTab(1, 'Mensual (Padrino)', Icons.all_inclusive),
+                  _buildFrequencyTab(
+                    0,
+                    'Única vez',
+                    Icons.card_giftcard_rounded,
+                  ),
+                  _buildFrequencyTab(
+                    1,
+                    'Mensual (Padrino)',
+                    Icons.all_inclusive_rounded,
+                  ),
                 ],
               ),
             ),
           ),
           const SizedBox(height: 20),
 
-          // Grid de montos predefinidos y su impacto directo
+          // Grid de montos predefinidos
           LayoutBuilder(
             builder: (context, constraints) {
               final width = constraints.maxWidth;
@@ -741,9 +842,13 @@ class _DonationsPageState extends State<DonationsPage> {
                 spacing: 16,
                 runSpacing: 12,
                 children: [
-                  ..._presetDonationAmounts.map((item) {
+                  ..._presetDonationAmounts.asMap().entries.map((entry) {
+                    final idx = entry.key;
+                    final item = entry.value;
                     final int amount = item['amount'] as int;
-                    final bool isSelected = !_isCustomAmount && _selectedPresetAmount == amount;
+                    final bool isSelected =
+                        !_isCustomAmount && _selectedPresetAmount == amount;
+                    final useMalva = idx.isOdd;
 
                     return SizedBox(
                       width: cardWidth,
@@ -758,12 +863,16 @@ class _DonationsPageState extends State<DonationsPage> {
                         borderRadius: BorderRadius.circular(18),
                         child: AnimatedContainer(
                           duration: const Duration(milliseconds: 200),
-                          padding: const EdgeInsets.all(16),
+                          padding: const EdgeInsets.all(14),
                           decoration: BoxDecoration(
-                            color: isSelected ? PawCoColors.sageLight.withValues(alpha: 0.6) : PawCoColors.surface,
+                            color: isSelected
+                                ? PawCoColors.sageMuted
+                                : PawCoColors.surface,
                             borderRadius: BorderRadius.circular(18),
                             border: Border.all(
-                              color: isSelected ? PawCoColors.forest : PawCoColors.border,
+                              color: isSelected
+                                  ? PawCoColors.plum
+                                  : PawCoColors.border,
                               width: isSelected ? 2.0 : 1.0,
                             ),
                           ),
@@ -772,16 +881,24 @@ class _DonationsPageState extends State<DonationsPage> {
                               Container(
                                 padding: const EdgeInsets.all(10),
                                 decoration: BoxDecoration(
-                                  color: isSelected ? PawCoColors.forest : PawCoColors.background,
+                                  color: isSelected
+                                      ? PawCoColors.plum
+                                      : (useMalva
+                                          ? PawCoColors.softMalva
+                                          : PawCoColors.cottonLilac),
                                   shape: BoxShape.circle,
                                 ),
                                 child: Icon(
                                   item['icon'] as IconData,
                                   size: 20,
-                                  color: isSelected ? Colors.white : PawCoColors.forest,
+                                  color: isSelected
+                                      ? Colors.white
+                                      : (useMalva
+                                          ? PawCoColors.terracottaDark
+                                          : PawCoColors.plum),
                                 ),
                               ),
-                              const SizedBox(width: 14),
+                              const SizedBox(width: 12),
                               Expanded(
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -799,15 +916,23 @@ class _DonationsPageState extends State<DonationsPage> {
                                       item['impact'] as String,
                                       style: GoogleFonts.plusJakartaSans(
                                         fontSize: 12,
-                                        color: isSelected ? PawCoColors.forestDark : PawCoColors.muted,
-                                        fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+                                        color: isSelected
+                                            ? PawCoColors.plum
+                                            : PawCoColors.muted,
+                                        fontWeight: isSelected
+                                            ? FontWeight.w600
+                                            : FontWeight.normal,
                                       ),
                                     ),
                                   ],
                                 ),
                               ),
                               if (isSelected)
-                                const Icon(Icons.check_circle, color: PawCoColors.forest, size: 20),
+                                const Icon(
+                                  Icons.check_circle_rounded,
+                                  color: PawCoColors.malva,
+                                  size: 20,
+                                ),
                             ],
                           ),
                         ),
@@ -815,7 +940,7 @@ class _DonationsPageState extends State<DonationsPage> {
                     );
                   }),
 
-                  // Tarjeta personalizada: "$ Otro monto"
+                  // Tarjeta personalizada: "$ Otro monto libre"
                   SizedBox(
                     width: cardWidth,
                     child: InkWell(
@@ -828,12 +953,16 @@ class _DonationsPageState extends State<DonationsPage> {
                       borderRadius: BorderRadius.circular(18),
                       child: AnimatedContainer(
                         duration: const Duration(milliseconds: 200),
-                        padding: const EdgeInsets.all(16),
+                        padding: const EdgeInsets.all(14),
                         decoration: BoxDecoration(
-                          color: _isCustomAmount ? PawCoColors.sageLight.withValues(alpha: 0.6) : PawCoColors.surface,
+                          color: _isCustomAmount
+                              ? PawCoColors.sageMuted
+                              : PawCoColors.surface,
                           borderRadius: BorderRadius.circular(18),
                           border: Border.all(
-                            color: _isCustomAmount ? PawCoColors.forest : PawCoColors.border,
+                            color: _isCustomAmount
+                                ? PawCoColors.plum
+                                : PawCoColors.border,
                             width: _isCustomAmount ? 2.0 : 1.0,
                           ),
                         ),
@@ -842,16 +971,20 @@ class _DonationsPageState extends State<DonationsPage> {
                             Container(
                               padding: const EdgeInsets.all(10),
                               decoration: BoxDecoration(
-                                color: _isCustomAmount ? PawCoColors.forest : PawCoColors.background,
+                                color: _isCustomAmount
+                                    ? PawCoColors.plum
+                                    : PawCoColors.softMalva,
                                 shape: BoxShape.circle,
                               ),
                               child: Icon(
                                 Icons.edit_outlined,
                                 size: 20,
-                                color: _isCustomAmount ? Colors.white : PawCoColors.forest,
+                                color: _isCustomAmount
+                                    ? Colors.white
+                                    : PawCoColors.terracottaDark,
                               ),
                             ),
-                            const SizedBox(width: 14),
+                            const SizedBox(width: 12),
                             Expanded(
                               child: _isCustomAmount
                                   ? TextField(
@@ -860,8 +993,11 @@ class _DonationsPageState extends State<DonationsPage> {
                                       autofocus: true,
                                       decoration: const InputDecoration(
                                         isDense: true,
-                                        contentPadding: EdgeInsets.symmetric(vertical: 4),
+                                        contentPadding:
+                                            EdgeInsets.symmetric(vertical: 4),
                                         border: InputBorder.none,
+                                        enabledBorder: InputBorder.none,
+                                        focusedBorder: InputBorder.none,
                                         hintText: 'Ingresa valor en COP...',
                                         prefixText: '\$ ',
                                       ),
@@ -882,7 +1018,11 @@ class _DonationsPageState extends State<DonationsPage> {
                                     ),
                             ),
                             if (_isCustomAmount)
-                              const Icon(Icons.check_circle, color: PawCoColors.forest, size: 20),
+                              const Icon(
+                                Icons.check_circle_rounded,
+                                color: PawCoColors.malva,
+                                size: 20,
+                              ),
                           ],
                         ),
                       ),
@@ -894,12 +1034,11 @@ class _DonationsPageState extends State<DonationsPage> {
           ),
           const SizedBox(height: 20),
 
-          // Selector opcional: "¿A qué fundación o mascota deseas destinar tu aporte?"
           Text(
             '¿A qué fundación o causa deseas destinar tu aporte?',
             style: GoogleFonts.plusJakartaSans(
               fontSize: 13,
-              fontWeight: FontWeight.w600,
+              fontWeight: FontWeight.w700,
               color: PawCoColors.inkSecondary,
             ),
           ),
@@ -915,11 +1054,14 @@ class _DonationsPageState extends State<DonationsPage> {
               child: DropdownButton<String>(
                 value: _selectedFoundationBeneficiary,
                 isExpanded: true,
-                icon: const Icon(Icons.keyboard_arrow_down, color: PawCoColors.forest),
+                icon: const Icon(
+                  Icons.keyboard_arrow_down_rounded,
+                  color: PawCoColors.plum,
+                ),
                 style: GoogleFonts.plusJakartaSans(
                   fontSize: 13.5,
                   color: PawCoColors.ink,
-                  fontWeight: FontWeight.w500,
+                  fontWeight: FontWeight.w600,
                 ),
                 items: _foundationOptions.map((opt) {
                   return DropdownMenuItem(
@@ -935,75 +1077,100 @@ class _DonationsPageState extends State<DonationsPage> {
               ),
             ),
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 22),
 
-          // Botón ancho Verde Bosque: "Donar Ahora con Wompi" + Opción Ver Código QR
-          Row(
-            children: [
-              Expanded(
-                flex: 7,
-                child: SizedBox(
-                  height: 52,
-                  child: ElevatedButton.icon(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: PawCoColors.forest,
-                      foregroundColor: Colors.white,
-                      elevation: 2,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
-                      ),
+          // Botones Wompi + QR adaptables a 320px
+          LayoutBuilder(
+            builder: (context, constraints) {
+              final stackButtons = constraints.maxWidth < 440;
+
+              final wompiBtn = SizedBox(
+                height: 50,
+                width: double.infinity,
+                child: ElevatedButton.icon(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: PawCoColors.plum,
+                    foregroundColor: Colors.white,
+                    elevation: 2,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
                     ),
-                    icon: const Icon(Icons.open_in_new, size: 18),
-                    label: Text(
-                      'Donar Ahora con Wompi',
-                      style: GoogleFonts.plusJakartaSans(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                    onPressed: _openWompi,
                   ),
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                flex: 4,
-                child: SizedBox(
-                  height: 52,
-                  child: OutlinedButton.icon(
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: PawCoColors.forest,
-                      side: const BorderSide(color: PawCoColors.forest, width: 1.5),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
-                      ),
+                  icon: const Icon(Icons.open_in_new_rounded, size: 18),
+                  label: Text(
+                    'Donar Ahora con Wompi',
+                    style: GoogleFonts.plusJakartaSans(
+                      fontSize: 14.5,
+                      fontWeight: FontWeight.w800,
                     ),
-                    icon: const Icon(Icons.qr_code_2, size: 20),
-                    label: Text(
-                      'Ver QR',
-                      style: GoogleFonts.plusJakartaSans(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                    onPressed: () => _showDonationQrModal(context, null),
+                    overflow: TextOverflow.ellipsis,
                   ),
+                  onPressed: _openWompi,
                 ),
-              ),
-            ],
+              );
+
+              final qrBtn = SizedBox(
+                height: 50,
+                width: double.infinity,
+                child: OutlinedButton.icon(
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: PawCoColors.plum,
+                    side: const BorderSide(
+                      color: PawCoColors.plum,
+                      width: 1.4,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                  ),
+                  icon: const Icon(Icons.qr_code_2_rounded, size: 20),
+                  label: Text(
+                    'Ver QR',
+                    style: GoogleFonts.plusJakartaSans(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  onPressed: () => _showDonationQrModal(context, null),
+                ),
+              );
+
+              if (stackButtons) {
+                return Column(
+                  children: [
+                    wompiBtn,
+                    const SizedBox(height: 10),
+                    qrBtn,
+                  ],
+                );
+              }
+
+              return Row(
+                children: [
+                  Expanded(flex: 7, child: wompiBtn),
+                  const SizedBox(width: 12),
+                  Expanded(flex: 4, child: qrBtn),
+                ],
+              );
+            },
           ),
           const SizedBox(height: 10),
 
-          // Enlace directo con opción de copiar
           Center(
             child: TextButton.icon(
-              icon: const Icon(Icons.copy, size: 15, color: PawCoColors.muted),
+              icon: const Icon(
+                Icons.copy_rounded,
+                size: 15,
+                color: PawCoColors.muted,
+              ),
               label: Text(
                 'Copiar enlace directo de pasarela Wompi',
+                textAlign: TextAlign.center,
+                overflow: TextOverflow.ellipsis,
                 style: GoogleFonts.plusJakartaSans(
                   fontSize: 12,
                   color: PawCoColors.muted,
-                  fontWeight: FontWeight.w500,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
               onPressed: () => _copyToClipboard(
@@ -1024,9 +1191,9 @@ class _DonationsPageState extends State<DonationsPage> {
       borderRadius: BorderRadius.circular(12),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 9),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
         decoration: BoxDecoration(
-          color: isSelected ? PawCoColors.forest : Colors.transparent,
+          color: isSelected ? PawCoColors.plum : Colors.transparent,
           borderRadius: BorderRadius.circular(12),
         ),
         child: Row(
@@ -1034,16 +1201,19 @@ class _DonationsPageState extends State<DonationsPage> {
           children: [
             Icon(
               icon,
-              size: 16,
+              size: 15,
               color: isSelected ? Colors.white : PawCoColors.muted,
             ),
             const SizedBox(width: 6),
-            Text(
-              title,
-              style: GoogleFonts.plusJakartaSans(
-                fontSize: 13,
-                fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
-                color: isSelected ? Colors.white : PawCoColors.muted,
+            Flexible(
+              child: Text(
+                title,
+                overflow: TextOverflow.ellipsis,
+                style: GoogleFonts.plusJakartaSans(
+                  fontSize: 12.5,
+                  fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
+                  color: isSelected ? Colors.white : PawCoColors.muted,
+                ),
               ),
             ),
           ],
@@ -1053,9 +1223,12 @@ class _DonationsPageState extends State<DonationsPage> {
   }
 
   // ===========================================================================
-  // SECCIÓN 3: FUNDACIONES Y DIRECTORIO 24/7 (MOCKUP 4)
+  // SECCIÓN 3: FUNDACIONES Y DIRECTORIO 24/7
   // ===========================================================================
-  Widget _buildFoundationsDirectorySection(BuildContext context, bool isDesktop) {
+  Widget _buildFoundationsDirectorySection(
+    BuildContext context,
+    bool isDesktop,
+  ) {
     final filtered = _filterDirectory(DirectoryEntry.curatedEntries);
 
     final categories = [
@@ -1077,72 +1250,65 @@ class _DonationsPageState extends State<DonationsPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Cabecera de la sección
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Fundaciones Aliadas y Directorio 24/7',
-                    style: GoogleFonts.fraunces(
-                      fontSize: 22,
-                      fontWeight: FontWeight.w700,
-                      color: PawCoColors.ink,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    'Centros veterinarios, albergues de rescate y líneas oficiales en Bucaramanga y AMB',
-                    style: GoogleFonts.plusJakartaSans(
-                      fontSize: 13,
-                      color: PawCoColors.muted,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
+        Text(
+          'Fundaciones Aliadas y Directorio 24/7',
+          style: GoogleFonts.plusJakartaSans(
+            fontSize: 21,
+            fontWeight: FontWeight.w800,
+            color: PawCoColors.ink,
+            letterSpacing: -0.4,
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          'Centros veterinarios, albergues de rescate y líneas oficiales en Bucaramanga y AMB',
+          style: GoogleFonts.plusJakartaSans(
+            fontSize: 13,
+            color: PawCoColors.muted,
+          ),
         ),
         const SizedBox(height: 16),
 
-        // Buscador y Selector de Vista Lista vs Mapa
-        Row(
-          children: [
-            Expanded(
-              child: Container(
-                decoration: BoxDecoration(
-                  color: PawCoColors.surface,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: PawCoColors.border),
-                ),
-                child: TextField(
-                  controller: _searchController,
-                  decoration: InputDecoration(
-                    hintText: 'Buscar clínica, albergue, barrio...',
-                    hintStyle: GoogleFonts.plusJakartaSans(
-                      fontSize: 13.5,
-                      color: PawCoColors.mutedLight,
-                    ),
-                    prefixIcon: const Icon(Icons.search, color: PawCoColors.forest),
-                    suffixIcon: _searchQuery.isNotEmpty
-                        ? IconButton(
-                            icon: const Icon(Icons.clear, size: 18),
-                            onPressed: () => _searchController.clear(),
-                          )
-                        : null,
-                    border: InputBorder.none,
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        // Buscador + Selector Lista/Mapa adaptable desde 320px
+        LayoutBuilder(
+          builder: (context, constraints) {
+            final isNarrow = constraints.maxWidth < 430;
+            final searchBox = Container(
+              decoration: BoxDecoration(
+                color: PawCoColors.surface,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: PawCoColors.border),
+              ),
+              child: TextField(
+                controller: _searchController,
+                decoration: InputDecoration(
+                  hintText: 'Buscar clínica, albergue, barrio...',
+                  hintStyle: GoogleFonts.plusJakartaSans(
+                    fontSize: 13.5,
+                    color: PawCoColors.mutedLight,
+                  ),
+                  prefixIcon: const Icon(
+                    Icons.search_rounded,
+                    color: PawCoColors.plum,
+                  ),
+                  suffixIcon: _searchQuery.isNotEmpty
+                      ? IconButton(
+                          icon: const Icon(Icons.clear_rounded, size: 18),
+                          onPressed: () => _searchController.clear(),
+                        )
+                      : null,
+                  border: InputBorder.none,
+                  enabledBorder: InputBorder.none,
+                  focusedBorder: InputBorder.none,
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 14,
                   ),
                 ),
               ),
-            ),
-            const SizedBox(width: 12),
+            );
 
-            // Toggle Vista Lista vs Vista Mapa
-            Container(
+            final viewSwitcher = Container(
               padding: const EdgeInsets.all(4),
               decoration: BoxDecoration(
                 color: PawCoColors.surface,
@@ -1150,17 +1316,43 @@ class _DonationsPageState extends State<DonationsPage> {
                 border: Border.all(color: PawCoColors.border),
               ),
               child: Row(
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  _buildViewModeButton(0, Icons.format_list_bulleted, 'Lista'),
+                  _buildViewModeButton(
+                    0,
+                    Icons.format_list_bulleted_rounded,
+                    'Lista',
+                  ),
                   _buildViewModeButton(1, Icons.map_outlined, 'Mapa'),
                 ],
               ),
-            ),
-          ],
+            );
+
+            if (isNarrow) {
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  searchBox,
+                  const SizedBox(height: 10),
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: viewSwitcher,
+                  ),
+                ],
+              );
+            }
+
+            return Row(
+              children: [
+                Expanded(child: searchBox),
+                const SizedBox(width: 12),
+                viewSwitcher,
+              ],
+            );
+          },
         ),
         const SizedBox(height: 12),
 
-        // Filtro por Categorías
         SingleChildScrollView(
           scrollDirection: Axis.horizontal,
           child: Row(
@@ -1173,12 +1365,15 @@ class _DonationsPageState extends State<DonationsPage> {
                     cat,
                     style: GoogleFonts.plusJakartaSans(
                       fontSize: 12,
-                      fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-                      color: isSelected ? PawCoColors.forest : PawCoColors.inkSecondary,
+                      fontWeight:
+                          isSelected ? FontWeight.w700 : FontWeight.w600,
+                      color: isSelected
+                          ? PawCoColors.plum
+                          : PawCoColors.inkSecondary,
                     ),
                   ),
                   selected: isSelected,
-                  selectedColor: PawCoColors.sageLight,
+                  selectedColor: PawCoColors.cottonLilac,
                   backgroundColor: PawCoColors.surface,
                   showCheckmark: false,
                   shape: RoundedRectangleBorder(
@@ -1187,7 +1382,8 @@ class _DonationsPageState extends State<DonationsPage> {
                       color: isSelected ? PawCoColors.sage : PawCoColors.border,
                     ),
                   ),
-                  onSelected: (_) => setState(() => _selectedDirectoryCategory = cat),
+                  onSelected: (_) =>
+                      setState(() => _selectedDirectoryCategory = cat),
                 ),
               );
             }).toList(),
@@ -1195,7 +1391,6 @@ class _DonationsPageState extends State<DonationsPage> {
         ),
         const SizedBox(height: 8),
 
-        // Filtro por Municipio
         SingleChildScrollView(
           scrollDirection: Axis.horizontal,
           child: Row(
@@ -1208,21 +1403,24 @@ class _DonationsPageState extends State<DonationsPage> {
                     muni == 'Todo AMB' ? '📍 Todo AMB' : muni,
                     style: GoogleFonts.plusJakartaSans(
                       fontSize: 12,
-                      fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-                      color: isSelected ? Colors.white : PawCoColors.inkSecondary,
+                      fontWeight:
+                          isSelected ? FontWeight.w700 : FontWeight.w600,
+                      color:
+                          isSelected ? Colors.white : PawCoColors.inkSecondary,
                     ),
                   ),
                   selected: isSelected,
-                  selectedColor: PawCoColors.forest,
+                  selectedColor: PawCoColors.plum,
                   backgroundColor: PawCoColors.surface,
                   showCheckmark: false,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(20),
                     side: BorderSide(
-                      color: isSelected ? PawCoColors.forest : PawCoColors.border,
+                      color: isSelected ? PawCoColors.plum : PawCoColors.border,
                     ),
                   ),
-                  onSelected: (_) => setState(() => _selectedMunicipality = muni),
+                  onSelected: (_) =>
+                      setState(() => _selectedMunicipality = muni),
                 ),
               );
             }).toList(),
@@ -1230,7 +1428,6 @@ class _DonationsPageState extends State<DonationsPage> {
         ),
         const SizedBox(height: 18),
 
-        // Contenido conmutado: Vista Lista vs Vista Mapa
         _directoryViewMode == 0
             ? _buildDirectoryList(filtered, isDesktop)
             : _buildDirectoryMap(filtered),
@@ -1247,7 +1444,7 @@ class _DonationsPageState extends State<DonationsPage> {
         duration: const Duration(milliseconds: 180),
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
-          color: isSelected ? PawCoColors.forest : Colors.transparent,
+          color: isSelected ? PawCoColors.plum : Colors.transparent,
           borderRadius: BorderRadius.circular(12),
         ),
         child: Row(
@@ -1259,12 +1456,15 @@ class _DonationsPageState extends State<DonationsPage> {
               color: isSelected ? Colors.white : PawCoColors.muted,
             ),
             const SizedBox(width: 4),
-            Text(
-              label,
-              style: GoogleFonts.plusJakartaSans(
-                fontSize: 12,
-                fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-                color: isSelected ? Colors.white : PawCoColors.muted,
+            Flexible(
+              child: Text(
+                label,
+                overflow: TextOverflow.ellipsis,
+                style: GoogleFonts.plusJakartaSans(
+                  fontSize: 12,
+                  fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
+                  color: isSelected ? Colors.white : PawCoColors.muted,
+                ),
               ),
             ),
           ],
@@ -1273,7 +1473,6 @@ class _DonationsPageState extends State<DonationsPage> {
     );
   }
 
-  // Vista 3.A: Lista de Entidades
   Widget _buildDirectoryList(List<DirectoryEntry> entries, bool isDesktop) {
     if (entries.isEmpty) {
       return Container(
@@ -1286,20 +1485,29 @@ class _DonationsPageState extends State<DonationsPage> {
         ),
         child: Column(
           children: [
-            const Icon(Icons.search_off_rounded, size: 48, color: PawCoColors.mutedLight),
+            const Icon(
+              Icons.search_off_rounded,
+              size: 48,
+              color: PawCoColors.mutedLight,
+            ),
             const SizedBox(height: 12),
             Text(
               'No se encontraron entidades con estos filtros',
-              style: GoogleFonts.fraunces(
-                fontSize: 17,
-                fontWeight: FontWeight.w600,
+              textAlign: TextAlign.center,
+              style: GoogleFonts.plusJakartaSans(
+                fontSize: 16,
+                fontWeight: FontWeight.w800,
                 color: PawCoColors.ink,
               ),
             ),
             const SizedBox(height: 4),
             Text(
               'Prueba seleccionando otro municipio o término de búsqueda',
-              style: GoogleFonts.plusJakartaSans(fontSize: 13, color: PawCoColors.muted),
+              textAlign: TextAlign.center,
+              style: GoogleFonts.plusJakartaSans(
+                fontSize: 13,
+                color: PawCoColors.muted,
+              ),
             ),
           ],
         ),
@@ -1324,11 +1532,10 @@ class _DonationsPageState extends State<DonationsPage> {
     return PawCoHoverCard(
       borderRadius: 20,
       margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(18),
+      padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Fila superior: Ícono ilustrado + Nombre + Badges
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -1337,24 +1544,24 @@ class _DonationsPageState extends State<DonationsPage> {
                 height: 44,
                 decoration: BoxDecoration(
                   color: isFoundation
-                      ? PawCoColors.terracottaLight
+                      ? PawCoColors.softMalva
                       : entry.is24Hours
-                          ? PawCoColors.sageLight
+                          ? PawCoColors.cottonLilac
                           : PawCoColors.slateBlueLight,
-                  borderRadius: BorderRadius.circular(14),
+                  shape: BoxShape.circle,
                 ),
                 child: Icon(
                   isFoundation
-                      ? Icons.volunteer_activism
+                      ? Icons.volunteer_activism_rounded
                       : entry.is24Hours
-                          ? Icons.local_hospital
+                          ? Icons.local_hospital_rounded
                           : Icons.shield_outlined,
                   color: isFoundation
-                      ? PawCoColors.terracotta
+                      ? PawCoColors.terracottaDark
                       : entry.is24Hours
-                          ? PawCoColors.forest
+                          ? PawCoColors.plum
                           : PawCoColors.slateBlue,
-                  size: 22,
+                  size: 21,
                 ),
               ),
               const SizedBox(width: 12),
@@ -1364,62 +1571,53 @@ class _DonationsPageState extends State<DonationsPage> {
                   children: [
                     Text(
                       entry.name,
-                      style: GoogleFonts.fraunces(
-                        fontSize: 16.5,
-                        fontWeight: FontWeight.w700,
+                      style: GoogleFonts.plusJakartaSans(
+                        fontSize: 15.5,
+                        fontWeight: FontWeight.w800,
                         color: PawCoColors.ink,
                       ),
                     ),
                     const SizedBox(height: 3),
-                    Row(
-                      children: [
-                        Text(
-                          '📍 ${entry.municipality}',
-                          style: GoogleFonts.plusJakartaSans(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
-                            color: PawCoColors.forest,
-                          ),
-                        ),
-                        if (entry.neighborhood != null) ...[
-                          Text(
-                            ' • ${entry.neighborhood}',
-                            style: GoogleFonts.plusJakartaSans(
-                              fontSize: 12,
-                              color: PawCoColors.muted,
-                            ),
-                          ),
-                        ],
-                      ],
+                    Text(
+                      '📍 ${entry.municipality}${entry.neighborhood != null ? " • ${entry.neighborhood}" : ""}',
+                      style: GoogleFonts.plusJakartaSans(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: PawCoColors.plum,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ],
                 ),
               ),
-              // Badge 24 Horas o Voluntariado
-              if (entry.is24Hours)
-                const PawCoBadge(
-                  label: '24 HORAS',
-                  icon: Icons.access_time_filled,
-                  backgroundColor: Color(0xFFDCFCE7),
-                  textColor: Color(0xFF15803D),
-                  fontSize: 10,
-                )
-              else if (isFoundation)
-                const PawCoBadge(
-                  label: 'VOLUNTARIOS',
-                  icon: Icons.favorite,
-                  backgroundColor: PawCoColors.terracottaLight,
-                  textColor: PawCoColors.terracottaDark,
-                  fontSize: 10,
-                ),
             ],
           ),
-          const SizedBox(height: 10),
-
-          // Dirección
+          const SizedBox(height: 8),
+          if (entry.is24Hours)
+            const PawCoBadge(
+              label: '24 HORAS',
+              icon: Icons.access_time_filled,
+              backgroundColor: Color(0xFFDCFCE7),
+              textColor: Color(0xFF15803D),
+              fontSize: 10,
+            )
+          else if (isFoundation)
+            const PawCoBadge(
+              label: 'VOLUNTARIOS',
+              icon: Icons.favorite,
+              backgroundColor: PawCoColors.softMalva,
+              textColor: PawCoColors.terracottaDark,
+              fontSize: 10,
+            ),
+          const SizedBox(height: 8),
           Row(
             children: [
-              const Icon(Icons.place_outlined, size: 14, color: PawCoColors.muted),
+              const Icon(
+                Icons.place_outlined,
+                size: 14,
+                color: PawCoColors.muted,
+              ),
               const SizedBox(width: 4),
               Expanded(
                 child: Text(
@@ -1435,8 +1633,6 @@ class _DonationsPageState extends State<DonationsPage> {
             ],
           ),
           const SizedBox(height: 6),
-
-          // Descripción
           Text(
             entry.description,
             style: GoogleFonts.plusJakartaSans(
@@ -1449,66 +1645,85 @@ class _DonationsPageState extends State<DonationsPage> {
           ),
           const SizedBox(height: 14),
 
-          // Botones de acción: Contactar + Ser Voluntario
-          Row(
-            children: [
-              Expanded(
-                child: OutlinedButton.icon(
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: PawCoColors.forest,
-                    side: const BorderSide(color: PawCoColors.forest),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    padding: const EdgeInsets.symmetric(vertical: 8),
+          // Botones de acción adaptables a 320px
+          LayoutBuilder(
+            builder: (context, constraints) {
+              final stackActions = isFoundation && constraints.maxWidth < 310;
+              final contactBtn = OutlinedButton.icon(
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: PawCoColors.plum,
+                  side: const BorderSide(color: PawCoColors.plum),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
                   ),
-                  icon: const Icon(Icons.info_outline, size: 16),
-                  label: Text(
-                    'Ver / Contactar',
-                    style: GoogleFonts.plusJakartaSans(
-                      fontSize: 12.5,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  onPressed: () => _showEntryDetailsModal(context, entry),
+                  padding: const EdgeInsets.symmetric(vertical: 9),
                 ),
-              ),
-              if (isFoundation) ...[
-                const SizedBox(width: 8),
-                Expanded(
-                  child: ElevatedButton.icon(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: PawCoColors.forest,
-                      foregroundColor: Colors.white,
-                      elevation: 0,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      padding: const EdgeInsets.symmetric(vertical: 8),
-                    ),
-                    icon: const Icon(Icons.volunteer_activism, size: 16),
-                    label: Text(
-                      'Ser Voluntario',
-                      style: GoogleFonts.plusJakartaSans(
-                        fontSize: 12.5,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                    onPressed: () => _showVolunteerModal(context, entry),
+                icon: const Icon(Icons.info_outline_rounded, size: 16),
+                label: Text(
+                  'Ver / Contactar',
+                  style: GoogleFonts.plusJakartaSans(
+                    fontSize: 12.5,
+                    fontWeight: FontWeight.w700,
                   ),
+                  overflow: TextOverflow.ellipsis,
                 ),
-              ],
-            ],
+                onPressed: () => _showEntryDetailsModal(context, entry),
+              );
+
+              if (!isFoundation) {
+                return SizedBox(width: double.infinity, child: contactBtn);
+              }
+
+              final volunteerBtn = ElevatedButton.icon(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: PawCoColors.malva,
+                  foregroundColor: Colors.white,
+                  elevation: 0,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  padding: const EdgeInsets.symmetric(vertical: 9),
+                ),
+                icon: const Icon(Icons.volunteer_activism_rounded, size: 16),
+                label: Text(
+                  'Ser Voluntario',
+                  style: GoogleFonts.plusJakartaSans(
+                    fontSize: 12.5,
+                    fontWeight: FontWeight.w700,
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                ),
+                onPressed: () => _showVolunteerModal(context, entry),
+              );
+
+              if (stackActions) {
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    contactBtn,
+                    const SizedBox(height: 8),
+                    volunteerBtn,
+                  ],
+                );
+              }
+
+              return Row(
+                children: [
+                  Expanded(child: contactBtn),
+                  const SizedBox(width: 8),
+                  Expanded(child: volunteerBtn),
+                ],
+              );
+            },
           ),
         ],
       ),
     );
   }
 
-  // Vista 3.B: Mapa Interactivo con FlutterMap
   Widget _buildDirectoryMap(List<DirectoryEntry> entries) {
     return Container(
-      height: 480,
+      height: 460,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(22),
         border: Border.all(color: PawCoColors.border),
@@ -1536,11 +1751,12 @@ class _DonationsPageState extends State<DonationsPage> {
               MarkerLayer(
                 markers: entries.where((e) => e.hasCoordinates).map((entry) {
                   final isSelected = _selectedMapEntry?.id == entry.id;
-                  final isFoundation = entry.category == DirectoryCategory.foundation;
+                  final isFoundation =
+                      entry.category == DirectoryCategory.foundation;
                   final pinColor = isFoundation
-                      ? PawCoColors.terracotta
+                      ? PawCoColors.malva
                       : entry.is24Hours
-                          ? PawCoColors.forest
+                          ? PawCoColors.plum
                           : PawCoColors.slateBlue;
 
                   return Marker(
@@ -1550,7 +1766,10 @@ class _DonationsPageState extends State<DonationsPage> {
                     child: GestureDetector(
                       onTap: () {
                         setState(() => _selectedMapEntry = entry);
-                        _mapController.move(LatLng(entry.latitude!, entry.longitude!), 14.5);
+                        _mapController.move(
+                          LatLng(entry.latitude!, entry.longitude!),
+                          14.5,
+                        );
                       },
                       child: Container(
                         decoration: BoxDecoration(
@@ -1568,10 +1787,10 @@ class _DonationsPageState extends State<DonationsPage> {
                         child: Center(
                           child: Icon(
                             isFoundation
-                                ? Icons.volunteer_activism
+                                ? Icons.volunteer_activism_rounded
                                 : entry.is24Hours
-                                    ? Icons.local_hospital
-                                    : Icons.shield,
+                                    ? Icons.local_hospital_rounded
+                                    : Icons.shield_rounded,
                             color: Colors.white,
                             size: isSelected ? 24 : 18,
                           ),
@@ -1583,18 +1802,18 @@ class _DonationsPageState extends State<DonationsPage> {
               ),
             ],
           ),
-
-          // Tarjeta flotante inferior cuando hay una entidad seleccionada
           if (_selectedMapEntry != null)
             Positioned(
-              left: 16,
-              right: 16,
-              bottom: 16,
+              left: 12,
+              right: 12,
+              bottom: 12,
               child: Card(
                 elevation: 6,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(18),
+                ),
                 child: Padding(
-                  padding: const EdgeInsets.all(16),
+                  padding: const EdgeInsets.all(14),
                   child: Row(
                     children: [
                       Expanded(
@@ -1604,9 +1823,9 @@ class _DonationsPageState extends State<DonationsPage> {
                           children: [
                             Text(
                               _selectedMapEntry!.name,
-                              style: GoogleFonts.fraunces(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w700,
+                              style: GoogleFonts.plusJakartaSans(
+                                fontSize: 15,
+                                fontWeight: FontWeight.w800,
                                 color: PawCoColors.ink,
                               ),
                               maxLines: 1,
@@ -1616,7 +1835,7 @@ class _DonationsPageState extends State<DonationsPage> {
                             Text(
                               '${_selectedMapEntry!.municipality} • ${_selectedMapEntry!.address}',
                               style: GoogleFonts.plusJakartaSans(
-                                fontSize: 12,
+                                fontSize: 11.5,
                                 color: PawCoColors.muted,
                               ),
                               maxLines: 1,
@@ -1625,18 +1844,25 @@ class _DonationsPageState extends State<DonationsPage> {
                           ],
                         ),
                       ),
-                      const SizedBox(width: 10),
                       IconButton(
-                        icon: const Icon(Icons.phone, color: PawCoColors.forest),
+                        icon: const Icon(
+                          Icons.phone_rounded,
+                          color: PawCoColors.plum,
+                        ),
                         onPressed: () => _callPhone(_selectedMapEntry!.telUrl),
                       ),
                       IconButton(
-                        icon: const Icon(Icons.chat_rounded, color: Color(0xFF25D366)),
-                        onPressed: () => _openWhatsApp(_selectedMapEntry!.whatsappUrl),
+                        icon: const Icon(
+                          Icons.chat_rounded,
+                          color: Color(0xFF25D366),
+                        ),
+                        onPressed: () =>
+                            _openWhatsApp(_selectedMapEntry!.whatsappUrl),
                       ),
                       IconButton(
-                        icon: const Icon(Icons.close, size: 18),
-                        onPressed: () => setState(() => _selectedMapEntry = null),
+                        icon: const Icon(Icons.close_rounded, size: 18),
+                        onPressed: () =>
+                            setState(() => _selectedMapEntry = null),
                       ),
                     ],
                   ),
@@ -1660,7 +1886,7 @@ class _DonationsPageState extends State<DonationsPage> {
       ),
       builder: (context) {
         return SafeArea(
-          child: Padding(
+          child: SingleChildScrollView(
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -1675,10 +1901,13 @@ class _DonationsPageState extends State<DonationsPage> {
                 ),
                 const SizedBox(height: 18),
                 Text(
-                  campaign != null ? 'Aporte a Meta Auditada' : 'Donación Directa PawCol',
-                  style: GoogleFonts.fraunces(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w700,
+                  campaign != null
+                      ? 'Aporte a Meta Auditada'
+                      : 'Donación Directa PawCol',
+                  textAlign: TextAlign.center,
+                  style: GoogleFonts.plusJakartaSans(
+                    fontSize: 19,
+                    fontWeight: FontWeight.w800,
                     color: PawCoColors.ink,
                   ),
                 ),
@@ -1694,26 +1923,23 @@ class _DonationsPageState extends State<DonationsPage> {
                   ),
                 ],
                 const SizedBox(height: 18),
-
-                // Contenedor QR
                 Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: PawCoColors.borderLight, width: 2),
+                    border: Border.all(color: PawCoColors.border, width: 2),
                   ),
                   child: QrImageView(
                     data: DonationsPage.wompiLink,
-                    size: 210,
+                    size: 200,
                     version: QrVersions.auto,
                     backgroundColor: Colors.white,
                   ),
                 ),
                 const SizedBox(height: 14),
-
                 Text(
-                  'Escanea desde tu app bancaria (Bancolombia, Nequi, Daviplata o PSE) o usa el botón directo a continuación:',
+                  'Escanea desde tu app bancaria (Bancolombia, Nequi, Daviplata o PSE) o usa el botón directo:',
                   textAlign: TextAlign.center,
                   style: GoogleFonts.plusJakartaSans(
                     fontSize: 12,
@@ -1721,19 +1947,18 @@ class _DonationsPageState extends State<DonationsPage> {
                   ),
                 ),
                 const SizedBox(height: 18),
-
                 SizedBox(
                   width: double.infinity,
                   height: 48,
                   child: ElevatedButton.icon(
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: PawCoColors.forest,
+                      backgroundColor: PawCoColors.plum,
                       foregroundColor: Colors.white,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(14),
                       ),
                     ),
-                    icon: const Icon(Icons.open_in_new),
+                    icon: const Icon(Icons.open_in_new_rounded),
                     label: Text(
                       'Pagar en línea con Wompi',
                       style: GoogleFonts.plusJakartaSans(
@@ -1748,9 +1973,8 @@ class _DonationsPageState extends State<DonationsPage> {
                   ),
                 ),
                 const SizedBox(height: 8),
-
                 TextButton.icon(
-                  icon: const Icon(Icons.copy, size: 16),
+                  icon: const Icon(Icons.copy_rounded, size: 16),
                   label: const Text('Copiar enlace de Wompi'),
                   onPressed: () {
                     _copyToClipboard(
@@ -1768,7 +1992,10 @@ class _DonationsPageState extends State<DonationsPage> {
     );
   }
 
-  void _showCampaignDonationModal(BuildContext context, DonationCampaign campaign) {
+  void _showCampaignDonationModal(
+    BuildContext context,
+    DonationCampaign campaign,
+  ) {
     _showDonationQrModal(context, campaign);
   }
 
@@ -1781,7 +2008,7 @@ class _DonationsPageState extends State<DonationsPage> {
       ),
       builder: (context) {
         return SafeArea(
-          child: Padding(
+          child: SingleChildScrollView(
             padding: const EdgeInsets.all(24),
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -1800,23 +2027,29 @@ class _DonationsPageState extends State<DonationsPage> {
                 const SizedBox(height: 18),
                 Text(
                   entry.name,
-                  style: GoogleFonts.fraunces(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w700,
+                  style: GoogleFonts.plusJakartaSans(
+                    fontSize: 19,
+                    fontWeight: FontWeight.w800,
                     color: PawCoColors.ink,
                   ),
                 ),
                 const SizedBox(height: 6),
                 Row(
                   children: [
-                    const Icon(Icons.location_on, size: 16, color: PawCoColors.forest),
+                    const Icon(
+                      Icons.location_on_rounded,
+                      size: 16,
+                      color: PawCoColors.malva,
+                    ),
                     const SizedBox(width: 4),
-                    Text(
-                      '${entry.municipality} • ${entry.neighborhood ?? ""}',
-                      style: GoogleFonts.plusJakartaSans(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w600,
-                        color: PawCoColors.forest,
+                    Expanded(
+                      child: Text(
+                        '${entry.municipality} • ${entry.neighborhood ?? ""}',
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w700,
+                          color: PawCoColors.plum,
+                        ),
                       ),
                     ),
                   ],
@@ -1834,14 +2067,20 @@ class _DonationsPageState extends State<DonationsPage> {
                 if (entry.openHours != null) ...[
                   Row(
                     children: [
-                      const Icon(Icons.access_time, size: 16, color: PawCoColors.inkSecondary),
+                      const Icon(
+                        Icons.access_time_rounded,
+                        size: 16,
+                        color: PawCoColors.inkSecondary,
+                      ),
                       const SizedBox(width: 6),
-                      Text(
-                        entry.openHours!,
-                        style: GoogleFonts.plusJakartaSans(
-                          fontSize: 12.5,
-                          fontWeight: FontWeight.w500,
-                          color: PawCoColors.inkSecondary,
+                      Expanded(
+                        child: Text(
+                          entry.openHours!,
+                          style: GoogleFonts.plusJakartaSans(
+                            fontSize: 12.5,
+                            fontWeight: FontWeight.w600,
+                            color: PawCoColors.inkSecondary,
+                          ),
                         ),
                       ),
                     ],
@@ -1853,14 +2092,14 @@ class _DonationsPageState extends State<DonationsPage> {
                     Expanded(
                       child: ElevatedButton.icon(
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: PawCoColors.forest,
+                          backgroundColor: PawCoColors.plum,
                           foregroundColor: Colors.white,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(14),
                           ),
                           padding: const EdgeInsets.symmetric(vertical: 12),
                         ),
-                        icon: const Icon(Icons.call, size: 18),
+                        icon: const Icon(Icons.call_rounded, size: 18),
                         label: const Text('Llamar'),
                         onPressed: () => _callPhone(entry.telUrl),
                       ),
@@ -1876,7 +2115,7 @@ class _DonationsPageState extends State<DonationsPage> {
                           ),
                           padding: const EdgeInsets.symmetric(vertical: 12),
                         ),
-                        icon: const Icon(Icons.chat_bubble, size: 18),
+                        icon: const Icon(Icons.chat_bubble_rounded, size: 18),
                         label: const Text('WhatsApp'),
                         onPressed: () => _openWhatsApp(entry.whatsappUrl),
                       ),
@@ -1899,19 +2138,30 @@ class _DonationsPageState extends State<DonationsPage> {
       ),
       builder: (context) {
         return SafeArea(
-          child: Padding(
+          child: SingleChildScrollView(
             padding: const EdgeInsets.all(24),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Icon(Icons.volunteer_activism, size: 44, color: PawCoColors.forest),
+                Container(
+                  padding: const EdgeInsets.all(14),
+                  decoration: const BoxDecoration(
+                    color: PawCoColors.softMalva,
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.volunteer_activism_rounded,
+                    size: 36,
+                    color: PawCoColors.malva,
+                  ),
+                ),
                 const SizedBox(height: 12),
                 Text(
                   'Voluntariado en ${entry.name}',
                   textAlign: TextAlign.center,
-                  style: GoogleFonts.fraunces(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w700,
+                  style: GoogleFonts.plusJakartaSans(
+                    fontSize: 19,
+                    fontWeight: FontWeight.w800,
                     color: PawCoColors.ink,
                   ),
                 ),
@@ -1937,12 +2187,12 @@ class _DonationsPageState extends State<DonationsPage> {
                         borderRadius: BorderRadius.circular(14),
                       ),
                     ),
-                    icon: const Icon(Icons.chat),
+                    icon: const Icon(Icons.chat_rounded),
                     label: Text(
-                      'Contactar por WhatsApp para ser Voluntario',
+                      'Contactar por WhatsApp',
                       style: GoogleFonts.plusJakartaSans(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w700,
+                        fontSize: 13.5,
+                        fontWeight: FontWeight.w800,
                       ),
                     ),
                     onPressed: () {

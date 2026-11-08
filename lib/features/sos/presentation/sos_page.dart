@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:lottie/lottie.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../app/theme.dart';
@@ -28,78 +30,189 @@ class SosPage extends ConsumerWidget {
     final publicAlertsAsync = ref.watch(publicSosAlertsProvider);
     final screenWidth = MediaQuery.of(context).size.width;
     final isDesktop = screenWidth >= 860;
+    final isMobileShell = screenWidth < 860;
 
     return Scaffold(
       backgroundColor: Colors.transparent,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        title: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(7),
-              decoration: BoxDecoration(
-                color: PawCoColors.terracotta.withValues(alpha: 0.15),
-                shape: BoxShape.circle,
-              ),
-              child: const Icon(Icons.campaign, color: PawCoColors.terracotta, size: 20),
-            ),
-            const SizedBox(width: 10),
-            Text(
-              'SOS y Denuncias',
-              style: GoogleFonts.fraunces(
-                fontWeight: FontWeight.w700,
-                fontSize: 20,
-                color: PawCoColors.ink,
-              ),
-            ),
-          ],
-        ),
-      ),
       body: RefreshIndicator(
+        color: PawCoColors.plum,
         onRefresh: () async => ref.refresh(publicSosAlertsProvider.future),
         child: SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
-          padding: EdgeInsets.symmetric(
-            horizontal: isDesktop ? 32 : 16,
-            vertical: 12,
-          ),
-          child: Center(
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 860),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  // ==========================================
-                  // SECCIÓN 1: CABECERA & MARCO LEGAL EN COLOMBIA
-                  // ==========================================
-                  _buildLegalNoticeHeader(),
-                  const SizedBox(height: 18),
-
-                  // ==========================================
-                  // SECCIÓN 2: CANALES OFICIALES EN COLOMBIA
-                  // ==========================================
-                  _buildEmergencyCards(context),
-                  const SizedBox(height: 16),
-                  _buildChecklistExpansionTile(),
-                  const SizedBox(height: 24),
-
-                  // ==========================================
-                  // SECCIÓN 3: REPORTE CIUDADANO EN RED PAWCO
-                  // ==========================================
-                  _buildReportToPawCoBanner(context),
-                  const SizedBox(height: 28),
-
-                  // ==========================================
-                  // SECCIÓN 4: ALERTAS DE RESCATE VERIFICADAS
-                  // ==========================================
-                  _buildPublicAlertsHeader(context, ref),
-                  const SizedBox(height: 14),
-                  _buildPublicAlertsList(context, publicAlertsAsync),
-                  const SizedBox(height: 60),
-                ],
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // ==========================================
+              // CABECERA AURORA HÍBRIDA VIOLETA 2
+              // ==========================================
+              PawColAuroraWaveHeader(
+                contentPadding: EdgeInsets.fromLTRB(
+                  isDesktop ? 36 : 16,
+                  isDesktop ? 28 : 20,
+                  isDesktop ? 36 : 16,
+                  18,
+                ),
+                child: Center(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 1040),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                  vertical: 6,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withValues(alpha: 0.10),
+                                  borderRadius: BorderRadius.circular(999),
+                                  border: Border.all(
+                                    color: PawCoColors.malva.withValues(
+                                      alpha: 0.45,
+                                    ),
+                                  ),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    const Icon(
+                                      Icons.campaign_rounded,
+                                      size: 14,
+                                      color: PawCoColors.amberGlow,
+                                    ),
+                                    const SizedBox(width: 6),
+                                    Flexible(
+                                      child: Text(
+                                        'Protección Legal y Auxilio 24/7',
+                                        overflow: TextOverflow.ellipsis,
+                                        style: GoogleFonts.plusJakartaSans(
+                                          fontSize: 11.5,
+                                          fontWeight: FontWeight.w700,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(height: 12),
+                              PawColGradientText(
+                                'SOS y Denuncias',
+                                style: GoogleFonts.plusJakartaSans(
+                                  fontSize: isDesktop ? 34 : 26,
+                                  fontWeight: FontWeight.w800,
+                                  height: 1.12,
+                                  letterSpacing: -0.6,
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                'Líneas oficiales de atención inmediata y canal confidencial articulado con rescatistas del AMB.',
+                                style: GoogleFonts.plusJakartaSans(
+                                  fontSize: isDesktop ? 14.5 : 13,
+                                  color: Colors.white.withValues(alpha: 0.85),
+                                  height: 1.45,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        if (screenWidth >= 640) ...[
+                          const SizedBox(width: 20),
+                          Stack(
+                            alignment: Alignment.center,
+                            children: [
+                              SizedBox(
+                                width: 88,
+                                height: 88,
+                                child: SvgPicture.asset(
+                                  'assets/vectors/pawcol_shield.svg',
+                                  fit: BoxFit.contain,
+                                ),
+                              ),
+                              Positioned(
+                                right: 0,
+                                bottom: 0,
+                                child: SizedBox(
+                                  width: 34,
+                                  height: 34,
+                                  child: Lottie.asset(
+                                    'assets/animations/pawcol_heart_pulse.json',
+                                    animate: !isRunningInFlutterTest,
+                                    repeat: !isRunningInFlutterTest,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
+                ),
               ),
-            ),
+
+              Padding(
+                padding: EdgeInsets.fromLTRB(
+                  isDesktop ? 32 : 16,
+                  16,
+                  isDesktop ? 32 : 16,
+                  isMobileShell ? 120 : 60,
+                ),
+                child: Center(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 880),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        // ==========================================
+                        // SECCIÓN 1: CABECERA & MARCO LEGAL EN COLOMBIA
+                        // ==========================================
+                        PawCoFadeSlide(
+                          delay: const Duration(milliseconds: 40),
+                          child: _buildLegalNoticeHeader(),
+                        ),
+                        const SizedBox(height: 18),
+
+                        // ==========================================
+                        // SECCIÓN 2: CANALES OFICIALES EN COLOMBIA
+                        // ==========================================
+                        PawCoFadeSlide(
+                          delay: const Duration(milliseconds: 90),
+                          child: _buildEmergencyCards(context),
+                        ),
+                        const SizedBox(height: 16),
+                        PawCoFadeSlide(
+                          delay: const Duration(milliseconds: 130),
+                          child: _buildChecklistExpansionTile(),
+                        ),
+                        const SizedBox(height: 24),
+
+                        // ==========================================
+                        // SECCIÓN 3: REPORTE CIUDADANO EN RED PAWCOL
+                        // ==========================================
+                        PawCoFadeSlide(
+                          delay: const Duration(milliseconds: 170),
+                          child: _buildReportToPawCoBanner(context),
+                        ),
+                        const SizedBox(height: 28),
+
+                        // ==========================================
+                        // SECCIÓN 4: ALERTAS DE RESCATE VERIFICADAS
+                        // ==========================================
+                        _buildPublicAlertsHeader(context, ref),
+                        const SizedBox(height: 14),
+                        _buildPublicAlertsList(context, publicAlertsAsync),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
       ),
@@ -113,12 +226,12 @@ class SosPage extends ConsumerWidget {
       decoration: BoxDecoration(
         color: PawCoColors.surface,
         borderRadius: BorderRadius.circular(22),
-        border: Border.all(color: PawCoColors.borderLight),
+        border: Border.all(color: PawCoColors.border),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.02),
-            blurRadius: 8,
-            offset: const Offset(0, 3),
+            color: PawCoColors.plum.withValues(alpha: 0.04),
+            blurRadius: 14,
+            offset: const Offset(0, 4),
           ),
         ],
       ),
@@ -128,21 +241,26 @@ class SosPage extends ConsumerWidget {
           Row(
             children: [
               Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: PawCoColors.terracottaLight,
-                  borderRadius: BorderRadius.circular(10),
+                padding: const EdgeInsets.all(10),
+                decoration: const BoxDecoration(
+                  color: PawCoColors.softMalva,
+                  shape: BoxShape.circle,
                 ),
-                child: const Icon(Icons.gavel_rounded, color: PawCoColors.terracottaDark, size: 22),
+                child: const Icon(
+                  Icons.gavel_rounded,
+                  color: PawCoColors.terracottaDark,
+                  size: 22,
+                ),
               ),
               const SizedBox(width: 12),
               Expanded(
                 child: Text(
                   'Marco Legal de Protección Animal en Colombia',
-                  style: GoogleFonts.fraunces(
+                  style: GoogleFonts.plusJakartaSans(
                     fontSize: 17,
-                    fontWeight: FontWeight.w700,
+                    fontWeight: FontWeight.w800,
                     color: PawCoColors.ink,
+                    letterSpacing: -0.3,
                   ),
                 ),
               ),
@@ -155,7 +273,7 @@ class SosPage extends ConsumerWidget {
             style: GoogleFonts.plusJakartaSans(
               fontSize: 13,
               color: PawCoColors.muted,
-              height: 1.45,
+              height: 1.48,
             ),
           ),
           const SizedBox(height: 12),
@@ -166,20 +284,20 @@ class SosPage extends ConsumerWidget {
               PawCoBadge(
                 label: 'Ley 1774 de 2016',
                 icon: Icons.shield,
-                backgroundColor: PawCoColors.terracottaLight,
+                backgroundColor: PawCoColors.softMalva,
                 textColor: PawCoColors.terracottaDark,
               ),
               PawCoBadge(
                 label: 'Ley Ángel (Ley 2455)',
                 icon: Icons.balance,
-                backgroundColor: PawCoColors.terracottaLight,
+                backgroundColor: PawCoColors.softMalva,
                 textColor: PawCoColors.terracottaDark,
               ),
               PawCoBadge(
                 label: 'GELMA Fiscalía 122',
                 icon: Icons.account_balance,
-                backgroundColor: PawCoColors.sageLight,
-                textColor: PawCoColors.forest,
+                backgroundColor: PawCoColors.cottonLilac,
+                textColor: PawCoColors.plum,
               ),
             ],
           ),
@@ -203,12 +321,12 @@ class SosPage extends ConsumerWidget {
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: const BoxDecoration(
-                  color: PawCoColors.terracottaLight,
+                  color: PawCoColors.softMalva,
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(
-                  Icons.local_police,
-                  color: PawCoColors.terracotta,
+                  Icons.local_police_rounded,
+                  color: PawCoColors.malva,
                   size: 26,
                 ),
               ),
@@ -219,30 +337,42 @@ class SosPage extends ConsumerWidget {
                   children: [
                     Text(
                       'Policía Nacional — Línea 123',
-                      style: GoogleFonts.fraunces(
+                      style: GoogleFonts.plusJakartaSans(
                         fontSize: 16,
-                        fontWeight: FontWeight.w700,
+                        fontWeight: FontWeight.w800,
                         color: PawCoColors.ink,
                       ),
                     ),
                     const SizedBox(height: 4),
                     Text(
                       'Emergencias inmediatas, flagrancia de maltrato activo o animales en peligro inminente de muerte. Se articula con la Patrulla de Policía Ambiental y Ecológica Metropolitana de Bucaramanga.',
-                      style: GoogleFonts.plusJakartaSans(fontSize: 12.5, color: PawCoColors.muted),
+                      style: GoogleFonts.plusJakartaSans(
+                        fontSize: 12.5,
+                        color: PawCoColors.muted,
+                        height: 1.42,
+                      ),
                     ),
                     const SizedBox(height: 12),
                     ElevatedButton.icon(
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: PawCoColors.terracotta,
+                        backgroundColor: PawCoColors.malva,
                         foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 9),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 10,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
                         elevation: 0,
                       ),
                       icon: const Icon(Icons.phone_in_talk, size: 16),
                       label: Text(
                         'Llamar al 123',
-                        style: GoogleFonts.plusJakartaSans(fontSize: 13, fontWeight: FontWeight.w700),
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w700,
+                        ),
                       ),
                       onPressed: () => _makeCall('123'),
                     ),
@@ -264,12 +394,12 @@ class SosPage extends ConsumerWidget {
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: const BoxDecoration(
-                  color: PawCoColors.sageLight,
+                  color: PawCoColors.cottonLilac,
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(
-                  Icons.account_balance,
-                  color: PawCoColors.forest,
+                  Icons.account_balance_rounded,
+                  color: PawCoColors.plum,
                   size: 26,
                 ),
               ),
@@ -280,16 +410,20 @@ class SosPage extends ConsumerWidget {
                   children: [
                     Text(
                       'Fiscalía General — Grupo GELMA',
-                      style: GoogleFonts.fraunces(
+                      style: GoogleFonts.plusJakartaSans(
                         fontSize: 16,
-                        fontWeight: FontWeight.w700,
+                        fontWeight: FontWeight.w800,
                         color: PawCoColors.ink,
                       ),
                     ),
                     const SizedBox(height: 4),
                     Text(
                       'Grupo Especial para la Lucha Contra el Maltrato Animal. Atiende denuncias formales por lesiones, crueldad o muerte provocada.',
-                      style: GoogleFonts.plusJakartaSans(fontSize: 12.5, color: PawCoColors.muted),
+                      style: GoogleFonts.plusJakartaSans(
+                        fontSize: 12.5,
+                        color: PawCoColors.muted,
+                        height: 1.42,
+                      ),
                     ),
                     const SizedBox(height: 12),
                     Wrap(
@@ -298,16 +432,24 @@ class SosPage extends ConsumerWidget {
                       children: [
                         ElevatedButton.icon(
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: PawCoColors.forest,
+                            backgroundColor: PawCoColors.plum,
                             foregroundColor: Colors.white,
-                            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 14,
+                              vertical: 10,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
                             elevation: 0,
                           ),
                           icon: const Icon(Icons.open_in_new, size: 15),
                           label: Text(
                             'Denuncia Fácil (Web)',
-                            style: GoogleFonts.plusJakartaSans(fontSize: 12.5, fontWeight: FontWeight.w700),
+                            style: GoogleFonts.plusJakartaSans(
+                              fontSize: 12.5,
+                              fontWeight: FontWeight.w700,
+                            ),
                           ),
                           onPressed: () => _openUrl(
                             'https://sicecon.fiscalia.gov.co/denuncia/LlenarFormulario',
@@ -315,15 +457,23 @@ class SosPage extends ConsumerWidget {
                         ),
                         OutlinedButton.icon(
                           style: OutlinedButton.styleFrom(
-                            foregroundColor: PawCoColors.forest,
-                            side: const BorderSide(color: PawCoColors.forest),
-                            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                            foregroundColor: PawCoColors.plum,
+                            side: const BorderSide(color: PawCoColors.plum),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 14,
+                              vertical: 10,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
                           ),
                           icon: const Icon(Icons.call, size: 15),
                           label: Text(
                             'Llamar al 122',
-                            style: GoogleFonts.plusJakartaSans(fontSize: 12.5, fontWeight: FontWeight.w700),
+                            style: GoogleFonts.plusJakartaSans(
+                              fontSize: 12.5,
+                              fontWeight: FontWeight.w700,
+                            ),
                           ),
                           onPressed: () => _makeCall('122'),
                         ),
@@ -350,7 +500,7 @@ class SosPage extends ConsumerWidget {
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(
-                  Icons.location_city,
+                  Icons.location_city_rounded,
                   color: PawCoColors.slateBlue,
                   size: 26,
                 ),
@@ -362,16 +512,20 @@ class SosPage extends ConsumerWidget {
                   children: [
                     Text(
                       'Alcaldía de Bucaramanga y AMB',
-                      style: GoogleFonts.fraunces(
+                      style: GoogleFonts.plusJakartaSans(
                         fontSize: 16,
-                        fontWeight: FontWeight.w700,
+                        fontWeight: FontWeight.w800,
                         color: PawCoColors.ink,
                       ),
                     ),
                     const SizedBox(height: 4),
                     Text(
                       'Inspecciones de Policía de Protección a la Vida y Secretarías de Salud. Competentes para casos de tenencia irresponsable, animales en balcones sin techo y olores.',
-                      style: GoogleFonts.plusJakartaSans(fontSize: 12.5, color: PawCoColors.muted),
+                      style: GoogleFonts.plusJakartaSans(
+                        fontSize: 12.5,
+                        color: PawCoColors.muted,
+                        height: 1.42,
+                      ),
                     ),
                   ],
                 ),
@@ -389,31 +543,38 @@ class SosPage extends ConsumerWidget {
       decoration: BoxDecoration(
         color: PawCoColors.surface,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: PawCoColors.borderLight),
+        border: Border.all(color: PawCoColors.border),
       ),
       child: Material(
         color: Colors.transparent,
         child: ExpansionTile(
           tilePadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 4),
           leading: Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: PawCoColors.sageLight,
-              borderRadius: BorderRadius.circular(10),
+            padding: const EdgeInsets.all(9),
+            decoration: const BoxDecoration(
+              color: PawCoColors.cottonLilac,
+              shape: BoxShape.circle,
             ),
-            child: const Icon(Icons.checklist_rounded, color: PawCoColors.forest),
+            child: const Icon(
+              Icons.checklist_rounded,
+              color: PawCoColors.plum,
+              size: 20,
+            ),
           ),
           title: Text(
             '¿Qué pruebas debo reunir antes de denunciar?',
-            style: GoogleFonts.fraunces(
+            style: GoogleFonts.plusJakartaSans(
               fontSize: 15,
-              fontWeight: FontWeight.w700,
+              fontWeight: FontWeight.w800,
               color: PawCoColors.ink,
             ),
           ),
           subtitle: Text(
             'Recomendaciones para que tu denuncia prospere legalmente',
-            style: GoogleFonts.plusJakartaSans(fontSize: 12, color: PawCoColors.muted),
+            style: GoogleFonts.plusJakartaSans(
+              fontSize: 12,
+              color: PawCoColors.muted,
+            ),
           ),
           childrenPadding: const EdgeInsets.fromLTRB(18, 0, 18, 18),
           children: [
@@ -452,16 +613,20 @@ class SosPage extends ConsumerWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Icon(icon, size: 18, color: PawCoColors.forest),
+        Icon(icon, size: 18, color: PawCoColors.plum),
         const SizedBox(width: 10),
         Expanded(
           child: RichText(
             text: TextSpan(
-              style: GoogleFonts.plusJakartaSans(fontSize: 13, color: PawCoColors.ink),
+              style: GoogleFonts.plusJakartaSans(
+                fontSize: 13,
+                color: PawCoColors.ink,
+                height: 1.4,
+              ),
               children: [
                 TextSpan(
                   text: '$title ',
-                  style: const TextStyle(fontWeight: FontWeight.bold),
+                  style: const TextStyle(fontWeight: FontWeight.w700),
                 ),
                 TextSpan(text: desc),
               ],
@@ -472,19 +637,22 @@ class SosPage extends ConsumerWidget {
     );
   }
 
-  /// Banner para reportar directamente a la red PawCo
+  /// Banner para reportar directamente a la red PawCol
   Widget _buildReportToPawCoBanner(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(22),
       decoration: BoxDecoration(
         color: PawCoColors.surface,
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: PawCoColors.forest.withValues(alpha: 0.25), width: 1.5),
+        border: Border.all(
+          color: PawCoColors.plum.withValues(alpha: 0.28),
+          width: 1.5,
+        ),
         boxShadow: [
           BoxShadow(
-            color: PawCoColors.forest.withValues(alpha: 0.06),
-            blurRadius: 14,
-            offset: const Offset(0, 5),
+            color: PawCoColors.plum.withValues(alpha: 0.06),
+            blurRadius: 16,
+            offset: const Offset(0, 6),
           ),
         ],
       ),
@@ -496,7 +664,9 @@ class SosPage extends ConsumerWidget {
               Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: PawCoColors.forest,
+                  gradient: const LinearGradient(
+                    colors: [PawCoColors.plum, PawCoColors.malva],
+                  ),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: const Icon(
@@ -509,10 +679,11 @@ class SosPage extends ConsumerWidget {
               Expanded(
                 child: Text(
                   'Reportar Caso a la Red PawCol',
-                  style: GoogleFonts.fraunces(
+                  style: GoogleFonts.plusJakartaSans(
                     color: PawCoColors.ink,
-                    fontSize: 20,
-                    fontWeight: FontWeight.w700,
+                    fontSize: 19,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: -0.3,
                   ),
                 ),
               ),
@@ -526,31 +697,16 @@ class SosPage extends ConsumerWidget {
             style: GoogleFonts.plusJakartaSans(
               color: PawCoColors.muted,
               fontSize: 13,
-              height: 1.45,
+              height: 1.48,
             ),
           ),
           const SizedBox(height: 18),
           SizedBox(
             width: double.infinity,
-            height: 50,
-            child: ElevatedButton.icon(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: PawCoColors.forest,
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                elevation: 2,
-              ),
-              icon: const Icon(Icons.add_alert, size: 20),
-              label: Text(
-                'Radicar Reporte SOS Ahora',
-                style: GoogleFonts.plusJakartaSans(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-              onPressed: () => context.push('/sos/new'),
+            child: PawColPrimarySaaSButton(
+              label: 'Radicar Reporte SOS Ahora',
+              icon: Icons.add_alert_rounded,
+              onTap: () => context.push('/sos/new'),
             ),
           ),
         ],
@@ -569,22 +725,26 @@ class SosPage extends ConsumerWidget {
             children: [
               Text(
                 'Alertas de Rescate Comunitarias',
-                style: GoogleFonts.fraunces(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w700,
+                style: GoogleFonts.plusJakartaSans(
+                  fontSize: 19,
+                  fontWeight: FontWeight.w800,
                   color: PawCoColors.ink,
+                  letterSpacing: -0.3,
                 ),
               ),
               const SizedBox(height: 2),
               Text(
                 'Casos verificados en Bucaramanga y AMB que requieren apoyo urgente',
-                style: GoogleFonts.plusJakartaSans(fontSize: 12.5, color: PawCoColors.muted),
+                style: GoogleFonts.plusJakartaSans(
+                  fontSize: 12.5,
+                  color: PawCoColors.muted,
+                ),
               ),
             ],
           ),
         ),
         IconButton(
-          icon: const Icon(Icons.refresh, color: PawCoColors.forest),
+          icon: const Icon(Icons.refresh_rounded, color: PawCoColors.plum),
           tooltip: 'Actualizar alertas',
           onPressed: () => ref.invalidate(publicSosAlertsProvider),
         ),
@@ -601,7 +761,7 @@ class SosPage extends ConsumerWidget {
       loading: () => const Center(
         child: Padding(
           padding: EdgeInsets.all(32),
-          child: CircularProgressIndicator(color: PawCoColors.forest),
+          child: CircularProgressIndicator(color: PawCoColors.plum),
         ),
       ),
       error: (e, _) => Container(
@@ -611,7 +771,10 @@ class SosPage extends ConsumerWidget {
           borderRadius: BorderRadius.circular(16),
           border: Border.all(color: PawCoColors.border),
         ),
-        child: Text('Error cargando alertas: $e', style: GoogleFonts.plusJakartaSans(color: PawCoColors.ink)),
+        child: Text(
+          'Error cargando alertas: $e',
+          style: GoogleFonts.plusJakartaSans(color: PawCoColors.ink),
+        ),
       ),
       data: (alerts) {
         if (alerts.isEmpty) {
@@ -625,13 +788,24 @@ class SosPage extends ConsumerWidget {
             ),
             child: Column(
               children: [
-                const Icon(Icons.check_circle_outline, color: PawCoColors.forest, size: 48),
+                Container(
+                  padding: const EdgeInsets.all(14),
+                  decoration: const BoxDecoration(
+                    color: PawCoColors.cottonLilac,
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.check_circle_outline_rounded,
+                    color: PawCoColors.plum,
+                    size: 38,
+                  ),
+                ),
                 const SizedBox(height: 12),
                 Text(
                   'No hay alertas públicas activas en este momento',
-                  style: GoogleFonts.fraunces(
+                  style: GoogleFonts.plusJakartaSans(
                     fontSize: 16,
-                    fontWeight: FontWeight.w700,
+                    fontWeight: FontWeight.w800,
                     color: PawCoColors.ink,
                   ),
                   textAlign: TextAlign.center,
@@ -639,7 +813,10 @@ class SosPage extends ConsumerWidget {
                 const SizedBox(height: 4),
                 Text(
                   'Todos los casos recientes han sido canalizados con éxito.',
-                  style: GoogleFonts.plusJakartaSans(fontSize: 13, color: PawCoColors.muted),
+                  style: GoogleFonts.plusJakartaSans(
+                    fontSize: 13,
+                    color: PawCoColors.muted,
+                  ),
                   textAlign: TextAlign.center,
                 ),
               ],
@@ -648,7 +825,9 @@ class SosPage extends ConsumerWidget {
         }
 
         return Column(
-          children: alerts.map((alert) => _buildAlertCard(context, alert)).toList(),
+          children: alerts
+              .map((alert) => _buildAlertCard(context, alert))
+              .toList(),
         );
       },
     );
@@ -664,21 +843,28 @@ class SosPage extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
+          Wrap(
+            spacing: 8,
+            runSpacing: 6,
+            alignment: WrapAlignment.spaceBetween,
+            crossAxisAlignment: WrapCrossAlignment.center,
             children: [
               PawCoBadge(
                 label: 'ALERTA: ${alert.urgencyLevel.toUpperCase()}',
                 icon: Icons.warning_amber_rounded,
-                backgroundColor: isCritical ? PawCoColors.terracottaLight : PawCoColors.sageLight,
-                textColor: isCritical ? PawCoColors.terracottaDark : PawCoColors.forest,
+                backgroundColor: isCritical
+                    ? PawCoColors.softMalva
+                    : PawCoColors.cottonLilac,
+                textColor: isCritical
+                    ? PawCoColors.terracottaDark
+                    : PawCoColors.plum,
               ),
-              const Spacer(),
               Text(
                 '📍 ${alert.municipality}',
                 style: GoogleFonts.plusJakartaSans(
                   fontSize: 12,
-                  fontWeight: FontWeight.w600,
-                  color: PawCoColors.forest,
+                  fontWeight: FontWeight.w700,
+                  color: PawCoColors.plum,
                 ),
               ),
             ],
@@ -686,9 +872,9 @@ class SosPage extends ConsumerWidget {
           const SizedBox(height: 10),
           Text(
             alert.abuseType,
-            style: GoogleFonts.fraunces(
+            style: GoogleFonts.plusJakartaSans(
               fontSize: 16.5,
-              fontWeight: FontWeight.w700,
+              fontWeight: FontWeight.w800,
               color: PawCoColors.ink,
             ),
           ),

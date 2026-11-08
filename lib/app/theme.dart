@@ -1,91 +1,108 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-/// 🎨 Paleta de colores neutra contemporánea de PawCol
-/// Diseñada con estética arquitectónica limpia, tonos piedra/lino cálidos y acentos orgánicos sobrios.
+/// 💜 Paleta de colores "Aurora Híbrida + Violeta 2" de PawCol
+/// Combina cabeceras oscuras profesionales estilo SaaS (Violeta Profundo Aurora)
+/// con superficies claras, tiernas y luminosas en Marfil-Lila Pastel y Rosa Malva.
 abstract class PawCoColors {
-  // Fondos y superficies neutras (Piedra / Lino / Alabastro)
-  static const Color background = Color(0xFFF8F7F4); // Alabastro cálido neutro
-  static const Color surface = Color(0xFFFFFFFF); // Blanco puro limpio
-  static const Color surfaceMuted = Color(0xFFF1EFEA); // Piedra suave
-  static const Color border = Color(0xFFE5E2DC); // Línea fina arquitectónica (1px)
-  static const Color borderLight = Color(0xFFEEECE7);
+  // --- Cabeceras y Hero Oscuro Pro (Violeta Profundo Aurora) ---
+  static const Color auroraStart = Color(0xFF1B0B2E); // Noche Violeta Profundo
+  static const Color auroraMid = Color(0xFF3B1763); // Amatista Real
+  static const Color auroraEnd = Color(0xFF431E61); // Morado Mora Profundo
+  static const Color auroraSurface = Color(0xFF271142); // Superficie oscura elevada
 
-  // Acentos primarios neutros-orgánicos (Oliva carbón / Salvia piedra)
-  static const Color forest = Color(0xFF2C3A2F); // Verde carbón profundo y sobrio
-  static const Color forestDark = Color(0xFF1E2820);
-  static const Color sage = Color(0xFF6E7F71); // Salvia grisácea neutra
-  static const Color sageLight = Color(0xFFE7ECE7); // Superficie activa sutil
-  static const Color sageMuted = Color(0xFFF2F4F2);
+  // --- Degradados Luminosos y Nodos Orbitales ---
+  static const Color lilacGlow = Color(0xFFD8B4FE); // Lila Neón Suave
+  static const Color malva = Color(0xFFE6759D); // Rosa Malva Principal
+  static const Color amberGlow = Color(0xFFFBBF24); // Ámbar Cálido Luminoso
+  static const Color orchid = Color(0xFFA855F7); // Orquídea Vibrante
 
-  // Acento cálido terroso (Arcilla / Terracota suave sin saturación excesiva)
-  static const Color terracotta = Color(0xFFC26D53); // Arcilla sobria
-  static const Color terracottaDark = Color(0xFF9E523B);
-  static const Color terracottaLight = Color(0xFFF6EBE7);
-  static const Color terracottaMuted = Color(0xFFFBF6F4);
+  // --- Cuerpo Claro Pastel Tierno (Paleta 2C-2) ---
+  static const Color background = Color(0xFFFAF6F9); // Marfil-Lila Pastel
+  static const Color surface = Color(0xFFFFFFFF); // Blanco Puro para tarjetas
+  static const Color surfaceMuted = Color(0xFFF3ECF8); // Lavanda Seda Suave
+  static const Color border = Color(0xFFE5DDF0); // Borde Sutil Lila (1px)
+  static const Color borderLight = Color(0xFFEFE9F6);
 
-  // Gris pizarra cálido (Voluntariado y elementos secundarios)
-  static const Color slateBlue = Color(0xFF5E6F78);
-  static const Color slateBlueLight = Color(0xFFE6ECEF);
-  static const Color slateBlueMuted = Color(0xFFF3F6F8);
+  // --- Iconografía Circular y Acentos Primarios ---
+  static const Color cottonLilac = Color(0xFFD2C2E5); // Lila Algodón
+  static const Color softMalva = Color(0xFFF9D8E6); // Rosa Malva Pastel
+  static const Color plum = Color(0xFF431E61); // Morado Mora (Botón primario)
+  static const Color plumVibrant = Color(0xFF6B21A8); // Morado Real Vibrante
 
-  // Arena y lino
-  static const Color sand = Color(0xFFE8E2D5);
-  static const Color sandLight = Color(0xFFF4F1EA);
+  // --- Tokens Semánticos Unificados (Compatibilidad total con módulos) ---
+  static const Color forest = Color(0xFF431E61); // Primario: Morado Mora (#431E61)
+  static const Color forestDark = Color(0xFF280E3E);
+  static const Color sage = Color(0xFF8C6BB1); // Lavanda Media
+  static const Color sageLight = Color(0xFFEAE0F5); // Lila Claro Suave
+  static const Color sageMuted = Color(0xFFF5EFFB);
 
-  // Siluetas de perros y gatos en tono lino/piedra armónico
-  static const Color silhouette = Color(0xFFE4DFD3);
+  static const Color terracotta = Color(0xFFE6759D); // Acento: Rosa Malva (#E6759D)
+  static const Color terracottaDark = Color(0xFFAD3663); // Rosa Malva Profundo legible
+  static const Color terracottaLight = Color(0xFFF9D8E6); // Rosa Malva Tierno (#F9D8E6)
+  static const Color terracottaMuted = Color(0xFFFDF2F7);
 
-  // Tipografía y contrastes neutros (Espresso / Taupe)
-  static const Color ink = Color(0xFF1C1B19); // Carbón espresso casi negro
-  static const Color inkSecondary = Color(0xFF3D3B37);
-  static const Color muted = Color(0xFF6E6A63); // Taupe neutro de alta legibilidad
-  static const Color mutedLight = Color(0xFF969188);
+  static const Color slateBlue = Color(0xFF6D28D9); // Violeta Iris (Voluntariado)
+  static const Color slateBlueLight = Color(0xFFEDE9FE);
+  static const Color slateBlueMuted = Color(0xFFF5F3FF);
 
-  // Estados semánticos sobrios
-  static const Color success = Color(0xFF2D6A4F);
-  static const Color warning = Color(0xFFB45309);
-  static const Color error = Color(0xFFB91C1C);
+  static const Color sand = Color(0xFFE5DDF0);
+  static const Color sandLight = Color(0xFFF5EFFA);
+
+  // Siluetas lineales y marcas de agua de perros, gatos y huellas en Lila Armónico
+  static const Color silhouette = Color(0xFFE2D4F0);
+
+  // --- Tipografía de Alto Contraste ---
+  static const Color ink = Color(0xFF231138); // Tinta Violeta Espresso Profundo
+  static const Color inkSecondary = Color(0xFF4A3663);
+  static const Color muted = Color(0xFF735F8C);
+  static const Color mutedLight = Color(0xFF9E8BB5);
+
+  // --- Estados Semánticos ---
+  static const Color success = Color(0xFF15803D);
+  static const Color warning = Color(0xFFD97706);
+  static const Color error = Color(0xFFBE123C);
 }
 
-/// ✍️ Tipografía moderna y editorial de PawCol
+/// ✍️ Tipografía moderna SaaS de PawCol
 class PawCoTypography {
   static TextTheme textTheme(BuildContext context) {
     return TextTheme(
-      displayLarge: GoogleFonts.fraunces(
-        fontSize: 34,
-        fontWeight: FontWeight.w600,
+      displayLarge: GoogleFonts.plusJakartaSans(
+        fontSize: 36,
+        fontWeight: FontWeight.w800,
         color: PawCoColors.ink,
-        letterSpacing: -0.6,
-        height: 1.15,
+        letterSpacing: -0.9,
+        height: 1.14,
       ),
-      displayMedium: GoogleFonts.fraunces(
-        fontSize: 28,
-        fontWeight: FontWeight.w600,
+      displayMedium: GoogleFonts.plusJakartaSans(
+        fontSize: 29,
+        fontWeight: FontWeight.w800,
         color: PawCoColors.ink,
-        letterSpacing: -0.4,
+        letterSpacing: -0.7,
         height: 1.18,
       ),
-      displaySmall: GoogleFonts.fraunces(
+      displaySmall: GoogleFonts.plusJakartaSans(
         fontSize: 24,
-        fontWeight: FontWeight.w600,
+        fontWeight: FontWeight.w700,
+        color: PawCoColors.ink,
+        letterSpacing: -0.5,
+      ),
+      headlineLarge: GoogleFonts.plusJakartaSans(
+        fontSize: 22,
+        fontWeight: FontWeight.w800,
+        color: PawCoColors.ink,
+        letterSpacing: -0.4,
+      ),
+      headlineMedium: GoogleFonts.plusJakartaSans(
+        fontSize: 20,
+        fontWeight: FontWeight.w700,
         color: PawCoColors.ink,
         letterSpacing: -0.3,
       ),
-      headlineLarge: GoogleFonts.fraunces(
-        fontSize: 22,
-        fontWeight: FontWeight.w600,
-        color: PawCoColors.ink,
-        letterSpacing: -0.2,
-      ),
-      headlineMedium: GoogleFonts.fraunces(
-        fontSize: 20,
-        fontWeight: FontWeight.w600,
-        color: PawCoColors.ink,
-      ),
-      headlineSmall: GoogleFonts.fraunces(
+      headlineSmall: GoogleFonts.plusJakartaSans(
         fontSize: 18,
-        fontWeight: FontWeight.w600,
+        fontWeight: FontWeight.w700,
         color: PawCoColors.ink,
       ),
       titleLarge: GoogleFonts.plusJakartaSans(
@@ -120,11 +137,11 @@ class PawCoTypography {
         fontSize: 12.5,
         fontWeight: FontWeight.normal,
         color: PawCoColors.muted,
-        height: 1.4,
+        height: 1.42,
       ),
       labelLarge: GoogleFonts.plusJakartaSans(
         fontSize: 14,
-        fontWeight: FontWeight.w600,
+        fontWeight: FontWeight.w700,
         letterSpacing: 0.1,
       ),
       labelMedium: GoogleFonts.plusJakartaSans(
@@ -134,25 +151,25 @@ class PawCoTypography {
       ),
       labelSmall: GoogleFonts.plusJakartaSans(
         fontSize: 11,
-        fontWeight: FontWeight.w500,
+        fontWeight: FontWeight.w600,
         letterSpacing: 0.1,
       ),
     );
   }
 }
 
-/// 🎨 Tema global de PawCol (Material 3 — Neutro, moderno, limpio y humano)
+/// 🎨 Tema global Material 3 de PawCol — Aurora Híbrida + Paleta Violeta 2
 final ThemeData lightTheme = ThemeData(
   useMaterial3: true,
   brightness: Brightness.light,
   fontFamily: GoogleFonts.plusJakartaSans().fontFamily,
 
   colorScheme: ColorScheme.fromSeed(
-    seedColor: PawCoColors.forest,
-    primary: PawCoColors.forest,
-    secondary: PawCoColors.terracotta,
-    tertiary: PawCoColors.sage,
-    error: PawCoColors.terracotta,
+    seedColor: PawCoColors.plum,
+    primary: PawCoColors.plum,
+    secondary: PawCoColors.malva,
+    tertiary: PawCoColors.orchid,
+    error: PawCoColors.error,
     surface: PawCoColors.surface,
     brightness: Brightness.light,
   ),
@@ -170,42 +187,42 @@ final ThemeData lightTheme = ThemeData(
   ),
 
   appBarTheme: AppBarTheme(
-    backgroundColor: PawCoColors.background,
-    foregroundColor: PawCoColors.ink,
+    backgroundColor: PawCoColors.auroraStart,
+    foregroundColor: Colors.white,
     elevation: 0,
     scrolledUnderElevation: 0,
     centerTitle: false,
-    titleTextStyle: GoogleFonts.fraunces(
-      color: PawCoColors.ink,
-      fontSize: 21,
-      fontWeight: FontWeight.w600,
+    titleTextStyle: GoogleFonts.plusJakartaSans(
+      color: Colors.white,
+      fontSize: 19,
+      fontWeight: FontWeight.w700,
       letterSpacing: -0.3,
     ),
-    iconTheme: const IconThemeData(color: PawCoColors.ink),
+    iconTheme: const IconThemeData(color: Colors.white),
   ),
 
   navigationBarTheme: NavigationBarThemeData(
     backgroundColor: Colors.white,
     elevation: 0,
-    indicatorColor: PawCoColors.surfaceMuted,
+    indicatorColor: PawCoColors.cottonLilac.withValues(alpha: 0.55),
     height: 64,
     iconTheme: WidgetStateProperty.resolveWith((states) {
       if (states.contains(WidgetState.selected)) {
-        return const IconThemeData(color: PawCoColors.forest, size: 23);
+        return const IconThemeData(color: PawCoColors.plum, size: 22);
       }
-      return const IconThemeData(color: PawCoColors.muted, size: 22);
+      return const IconThemeData(color: PawCoColors.muted, size: 21);
     }),
     labelTextStyle: WidgetStateProperty.resolveWith((states) {
       if (states.contains(WidgetState.selected)) {
         return GoogleFonts.plusJakartaSans(
-          color: PawCoColors.ink,
-          fontSize: 11,
+          color: PawCoColors.plum,
+          fontSize: 10.5,
           fontWeight: FontWeight.w700,
         );
       }
       return GoogleFonts.plusJakartaSans(
         color: PawCoColors.muted,
-        fontSize: 11,
+        fontSize: 10.5,
         fontWeight: FontWeight.w500,
       );
     }),
@@ -216,7 +233,7 @@ final ThemeData lightTheme = ThemeData(
     elevation: 0,
     shadowColor: Colors.transparent,
     shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(16),
+      borderRadius: BorderRadius.circular(20),
       side: const BorderSide(color: PawCoColors.border, width: 1),
     ),
     margin: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
@@ -224,14 +241,14 @@ final ThemeData lightTheme = ThemeData(
 
   elevatedButtonTheme: ElevatedButtonThemeData(
     style: ElevatedButton.styleFrom(
-      backgroundColor: PawCoColors.forest,
+      backgroundColor: PawCoColors.plum,
       foregroundColor: Colors.white,
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
       elevation: 0,
       textStyle: GoogleFonts.plusJakartaSans(
         fontSize: 14,
-        fontWeight: FontWeight.w600,
+        fontWeight: FontWeight.w700,
         letterSpacing: 0.1,
       ),
     ),
@@ -239,10 +256,10 @@ final ThemeData lightTheme = ThemeData(
 
   outlinedButtonTheme: OutlinedButtonThemeData(
     style: OutlinedButton.styleFrom(
-      foregroundColor: PawCoColors.ink,
-      side: const BorderSide(color: PawCoColors.border, width: 1.2),
+      foregroundColor: PawCoColors.plum,
+      side: const BorderSide(color: PawCoColors.border, width: 1.3),
       padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 13),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
       textStyle: GoogleFonts.plusJakartaSans(
         fontSize: 14,
         fontWeight: FontWeight.w600,
@@ -252,21 +269,21 @@ final ThemeData lightTheme = ThemeData(
 
   textButtonTheme: TextButtonThemeData(
     style: TextButton.styleFrom(
-      foregroundColor: PawCoColors.forest,
+      foregroundColor: PawCoColors.plum,
       textStyle: GoogleFonts.plusJakartaSans(
         fontSize: 14,
-        fontWeight: FontWeight.w600,
+        fontWeight: FontWeight.w700,
       ),
     ),
   ),
 
   chipTheme: ChipThemeData(
     backgroundColor: Colors.white,
-    selectedColor: PawCoColors.surfaceMuted,
-    secondarySelectedColor: PawCoColors.surfaceMuted,
+    selectedColor: PawCoColors.cottonLilac.withValues(alpha: 0.5),
+    secondarySelectedColor: PawCoColors.cottonLilac.withValues(alpha: 0.5),
     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
     shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(10),
+      borderRadius: BorderRadius.circular(20),
       side: const BorderSide(color: PawCoColors.border),
     ),
     labelStyle: GoogleFonts.plusJakartaSans(
@@ -275,9 +292,9 @@ final ThemeData lightTheme = ThemeData(
       fontWeight: FontWeight.w500,
     ),
     secondaryLabelStyle: GoogleFonts.plusJakartaSans(
-      color: PawCoColors.ink,
+      color: PawCoColors.plum,
       fontSize: 13,
-      fontWeight: FontWeight.w600,
+      fontWeight: FontWeight.w700,
     ),
   ),
 
@@ -289,27 +306,27 @@ final ThemeData lightTheme = ThemeData(
       fontSize: 14,
     ),
     border: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(12),
+      borderRadius: BorderRadius.circular(14),
       borderSide: const BorderSide(color: PawCoColors.border),
     ),
     enabledBorder: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(12),
+      borderRadius: BorderRadius.circular(14),
       borderSide: const BorderSide(color: PawCoColors.border),
     ),
     focusedBorder: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(12),
-      borderSide: const BorderSide(color: PawCoColors.forest, width: 1.5),
+      borderRadius: BorderRadius.circular(14),
+      borderSide: const BorderSide(color: PawCoColors.malva, width: 1.6),
     ),
     contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
   ),
 
   tabBarTheme: TabBarThemeData(
-    labelColor: PawCoColors.ink,
+    labelColor: PawCoColors.plum,
     unselectedLabelColor: PawCoColors.muted,
-    indicatorColor: PawCoColors.forest,
+    indicatorColor: PawCoColors.malva,
     labelStyle: GoogleFonts.plusJakartaSans(
       fontSize: 14,
-      fontWeight: FontWeight.w600,
+      fontWeight: FontWeight.w700,
     ),
     unselectedLabelStyle: GoogleFonts.plusJakartaSans(
       fontSize: 14,
@@ -319,13 +336,13 @@ final ThemeData lightTheme = ThemeData(
   ),
 
   snackBarTheme: SnackBarThemeData(
-    backgroundColor: PawCoColors.ink,
+    backgroundColor: PawCoColors.auroraStart,
     contentTextStyle: GoogleFonts.plusJakartaSans(
       color: Colors.white,
       fontSize: 13.5,
-      fontWeight: FontWeight.w500,
+      fontWeight: FontWeight.w600,
     ),
-    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
     behavior: SnackBarBehavior.floating,
   ),
 
