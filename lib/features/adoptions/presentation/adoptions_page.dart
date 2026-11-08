@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -27,11 +26,25 @@ class _AdoptionsPageState extends ConsumerState<AdoptionsPage> {
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
 
-  // Filtro activo por píldora / categoría circular
+  // Filtro activo por píldora
   String _selectedPill = '🐾 Todos';
 
   // Conjunto de mascotas favoritas en estado local interactivo
   final Set<String> _favoritePetIds = {'seed-luna-bga'};
+
+  static const List<String> _speciesPills = [
+    '🐾 Todos',
+    '🐕 Perros',
+    '🐈 Gatos',
+    '🐾 Cachorros (<1 año)',
+  ];
+
+  static const List<String> _cityPills = [
+    '📍 Bucaramanga',
+    'Floridablanca',
+    'Girón',
+    'Piedecuesta',
+  ];
 
   static const List<String> _filterPills = [
     '🐾 Todos',
@@ -140,7 +153,8 @@ class _AdoptionsPageState extends ConsumerState<AdoptionsPage> {
     final petsAsync = ref.watch(petsProvider);
     final user = _getCurrentUser();
     final screenWidth = MediaQuery.of(context).size.width;
-    final isDesktop = screenWidth >= 900;
+    final isDesktop = screenWidth >= 1050;
+    final isTablet = screenWidth >= 700 && screenWidth < 1050;
     final isMobileShell = screenWidth < 860;
 
     return Scaffold(
@@ -154,44 +168,37 @@ class _AdoptionsPageState extends ConsumerState<AdoptionsPage> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               // ===============================================================
-              // CABECERA VIOLETA PROFUNDO AURORA + ONDA CON SILUETAS LINEALES
+              // 1. CABECERA COMPACTA "LIENZO CONTINUO" (SIN CORTE OSCURO)
               // ===============================================================
               PawColAuroraWaveHeader(
+                isContinuous: true,
                 contentPadding: EdgeInsets.fromLTRB(
-                  isDesktop ? 32 : 16,
-                  MediaQuery.of(context).padding.top + (isDesktop ? 24 : 16),
-                  isDesktop ? 32 : 16,
-                  18,
+                  screenWidth >= 900 ? 36 : 16,
+                  MediaQuery.of(context).padding.top + (screenWidth >= 900 ? 20 : 12),
+                  screenWidth >= 900 ? 36 : 16,
+                  14,
                 ),
-                waveHeight: 54,
-                child: _buildAuroraHeaderContent(context, user, isDesktop),
+                maxWidth: 1440,
+                child: _buildContinuousHeaderContent(context, user, screenWidth),
               ),
 
               // ===============================================================
-              // ZONA MARFIL-LILA PASTEL (#FAF6F9): FILTROS CIRCULARES + GRILLA
+              // 2. CUERPO CONTINUO: TOOLBAR UNIFICADO + GRILLA + SIDEBAR
               // ===============================================================
               Padding(
                 padding: EdgeInsets.symmetric(
-                  horizontal: isDesktop ? 32 : 16,
-                  vertical: 8,
+                  horizontal: screenWidth >= 900 ? 36 : 16,
+                  vertical: 14,
                 ),
                 child: Center(
                   child: ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 1200),
+                    constraints: const BoxConstraints(maxWidth: 1440),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // Selector rápido con iconos circulares tiernos (Lila Algodón y Rosa Malva)
-                        _buildCircularQuickCategories(),
-                        const SizedBox(height: 16),
-
-                        // Buscador integrado en Blanco Puro con borde Lila
-                        _buildSearchBar(),
-                        const SizedBox(height: 12),
-
-                        // Píldoras horizontales por especie, edad y municipio AMB
-                        _buildPillFilters(),
-                        const SizedBox(height: 20),
+                        // Toolbar Unificado (Buscador + Píldoras en un solo bloque limpio)
+                        _buildUnifiedFilterToolbar(screenWidth),
+                        const SizedBox(height: 14),
 
                         // Contenido reactivo de mascotas
                         petsAsync.when(
@@ -213,13 +220,35 @@ class _AdoptionsPageState extends ConsumerState<AdoptionsPage> {
                                 const SizedBox(height: 14),
                                 if (filteredPets.isEmpty)
                                   _buildEmptyState()
+                                else if (isDesktop)
+                                  // Layout de escritorio amplio (4 cols + sidebar)
+                                  Row(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Expanded(
+                                        child: _buildResponsiveGrid(
+                                          filteredPets,
+                                          columnsCount: 3,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 26),
+                                      SizedBox(
+                                        width: 310,
+                                        child: _buildDesktopSidebar(context, user),
+                                      ),
+                                    ],
+                                  )
                                 else
-                                  _buildResponsiveGrid(filteredPets),
+                                  // Layout móvil y tablet fluido
+                                  _buildResponsiveGrid(
+                                    filteredPets,
+                                    columnsCount: isTablet ? 3 : 2,
+                                  ),
                               ],
                             );
                           },
                         ),
-                        SizedBox(height: isMobileShell ? 148 : 90),
+                        SizedBox(height: isMobileShell ? 148 : 80),
                       ],
                     ),
                   ),
@@ -242,24 +271,7 @@ class _AdoptionsPageState extends ConsumerState<AdoptionsPage> {
               width: 1.2,
             ),
           ),
-          onPressed: () async {
-            final currentUser = _getCurrentUser();
-            if (currentUser == null) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text(
-                    'Inicia sesión para dar en adopción una mascota 🐾',
-                  ),
-                ),
-              );
-              context.push('/login');
-              return;
-            }
-
-            await context.push('/pets/new');
-            ref.invalidate(petsProvider);
-            ref.invalidate(myPetsProvider);
-          },
+          onPressed: () => _handleCreatePet(context),
           icon: const Icon(Icons.add_rounded, size: 20),
           label: Text(
             'Dar en adopción',
@@ -273,18 +285,37 @@ class _AdoptionsPageState extends ConsumerState<AdoptionsPage> {
     );
   }
 
+  Future<void> _handleCreatePet(BuildContext context) async {
+    final currentUser = _getCurrentUser();
+    if (currentUser == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Inicia sesión para dar en adopción una mascota 🐾'),
+        ),
+      );
+      context.push('/login');
+      return;
+    }
+
+    await context.push('/pets/new');
+    ref.invalidate(petsProvider);
+    ref.invalidate(myPetsProvider);
+  }
+
   // ===========================================================================
-  // CONTENIDO DEL HERO AURORA DE ADOPCIONES
+  // 1. CABECERA COMPACTA LIENZO CONTINUO
   // ===========================================================================
-  Widget _buildAuroraHeaderContent(
+  Widget _buildContinuousHeaderContent(
     BuildContext context,
     User? user,
-    bool isDesktop,
+    double screenWidth,
   ) {
+    final isWide = screenWidth >= 768;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Barra superior interna adaptable desde 320px
+        // Fila superior: Logo del módulo + Badge + Botón Mis publicaciones
         Wrap(
           spacing: 10,
           runSpacing: 10,
@@ -295,36 +326,62 @@ class _AdoptionsPageState extends ConsumerState<AdoptionsPage> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Container(
-                  padding: const EdgeInsets.all(8),
+                  padding: const EdgeInsets.all(7),
                   decoration: BoxDecoration(
                     gradient: const LinearGradient(
                       colors: [PawCoColors.orchid, PawCoColors.malva],
                     ),
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(10),
                   ),
                   child: const Icon(
                     Icons.pets_rounded,
                     color: Colors.white,
-                    size: 18,
+                    size: 16,
                   ),
                 ),
-                const SizedBox(width: 10),
-                Flexible(
+                const SizedBox(width: 8),
+                ConstrainedBox(
+                  constraints: BoxConstraints(
+                    maxWidth: screenWidth < 360 ? 190 : 280,
+                  ),
                   child: Text(
                     'PawCol Adopciones',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                     style: GoogleFonts.plusJakartaSans(
                       fontWeight: FontWeight.w800,
-                      fontSize: 18,
-                      color: Colors.white,
+                      fontSize: screenWidth < 360 ? 14.5 : 16,
+                      color: PawCoColors.ink,
                       letterSpacing: -0.3,
                     ),
-                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
               ],
             ),
+            Container(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 10,
+                vertical: 4,
+              ),
+              decoration: BoxDecoration(
+                color: PawCoColors.softMalva,
+                borderRadius: BorderRadius.circular(999),
+                border: Border.all(
+                  color: PawCoColors.malva.withValues(alpha: 0.35),
+                ),
+              ),
+              child: Text(
+                '💜 ADOPCIÓN RESPONSABLE AMB',
+                style: GoogleFonts.plusJakartaSans(
+                  fontSize: 10,
+                  fontWeight: FontWeight.w800,
+                  color: PawCoColors.terracottaDark,
+                  letterSpacing: 0.4,
+                ),
+              ),
+            ),
             Material(
-              color: Colors.white.withValues(alpha: 0.12),
+              color: Colors.white,
               borderRadius: BorderRadius.circular(999),
               child: InkWell(
                 borderRadius: BorderRadius.circular(999),
@@ -345,28 +402,33 @@ class _AdoptionsPageState extends ConsumerState<AdoptionsPage> {
                 child: Container(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 14,
-                    vertical: 8,
+                    vertical: 7,
                   ),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(999),
-                    border: Border.all(
-                      color: PawCoColors.lilacGlow.withValues(alpha: 0.35),
-                    ),
+                    border: Border.all(color: PawCoColors.border),
+                    boxShadow: [
+                      BoxShadow(
+                        color: PawCoColors.plum.withValues(alpha: 0.04),
+                        blurRadius: 8,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       const Icon(
                         Icons.inventory_2_outlined,
-                        size: 16,
-                        color: PawCoColors.lilacGlow,
+                        size: 15,
+                        color: PawCoColors.plum,
                       ),
                       const SizedBox(width: 6),
                       Text(
                         'Mis publicaciones',
                         style: GoogleFonts.plusJakartaSans(
                           fontWeight: FontWeight.w700,
-                          color: Colors.white,
+                          color: PawCoColors.plum,
                           fontSize: 12.5,
                         ),
                       ),
@@ -377,227 +439,280 @@ class _AdoptionsPageState extends ConsumerState<AdoptionsPage> {
             ),
           ],
         ),
-        const SizedBox(height: 18),
+        const SizedBox(height: 12),
 
-        // Cuerpo editorial + ilustración vectorial en Desktop
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 11,
-                      vertical: 5,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.10),
-                      borderRadius: BorderRadius.circular(999),
-                      border: Border.all(
-                        color: PawCoColors.malva.withValues(alpha: 0.45),
-                      ),
-                    ),
-                    child: Text(
-                      '💜 ADOPCIÓN RESPONSABLE AMB',
-                      style: GoogleFonts.plusJakartaSans(
-                        fontSize: 10.5,
-                        fontWeight: FontWeight.w800,
-                        color: PawCoColors.lilacGlow,
-                        letterSpacing: 0.5,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  PawColGradientText(
-                    'Encuentra un compañero',
-                    style: GoogleFonts.plusJakartaSans(
-                      fontSize: isDesktop ? 34 : 26,
-                      fontWeight: FontWeight.w800,
-                      letterSpacing: -0.7,
-                      height: 1.15,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Conoce a los perros, gatos y peluditos rescatados en Bucaramanga, Floridablanca, Girón y Piedecuesta que esperan un hogar amoroso y verificado.',
-                    style: GoogleFonts.plusJakartaSans(
-                      fontSize: 13.5,
-                      color: Colors.white.withValues(alpha: 0.84),
-                      height: 1.48,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            if (isDesktop) ...[
-              const SizedBox(width: 24),
-              SvgPicture.asset(
-                'assets/vectors/pawcol_rescuer_pets.svg',
-                width: 175,
-                height: 135,
-                fit: BoxFit.contain,
-              ),
-            ],
+        // Título + Subtítulo limpio
+        PawColGradientText(
+          'Encuentra un compañero',
+          colors: const [
+            PawCoColors.plum,
+            PawCoColors.plumVibrant,
+            PawCoColors.malva,
           ],
+          style: GoogleFonts.plusJakartaSans(
+            fontSize: isWide ? 30 : 23,
+            fontWeight: FontWeight.w800,
+            letterSpacing: -0.6,
+            height: 1.16,
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          'Conoce a los perros, gatos y peluditos rescatados en Bucaramanga, Floridablanca, Girón y Piedecuesta que esperan un hogar amoroso y verificado.',
+          style: GoogleFonts.plusJakartaSans(
+            fontSize: 13.5,
+            color: PawCoColors.inkSecondary,
+            height: 1.42,
+          ),
         ),
       ],
     );
   }
 
   // ===========================================================================
-  // CATEGORÍAS CIRCULARES INTERACTIVAS (PALETA VIOLETA 2)
+  // 2. TOOLBAR UNIFICADO (Buscador + Selector de Especie + Filtro Municipio)
   // ===========================================================================
-  Widget _buildCircularQuickCategories() {
-    final quickItems = [
-      (
-        label: 'Todos',
-        pill: '🐾 Todos',
-        icon: Icons.grid_view_rounded,
-        malva: false,
-      ),
-      (
-        label: 'Caninos',
-        pill: '🐕 Perros',
-        icon: Icons.pets_rounded,
-        malva: true,
-      ),
-      (
-        label: 'Felinos',
-        pill: '🐈 Gatos',
-        icon: Icons.cruelty_free_rounded,
-        malva: false,
-      ),
-      (
-        label: 'Cachorros',
-        pill: '🐾 Cachorros (<1 año)',
-        icon: Icons.auto_awesome_rounded,
-        malva: true,
-      ),
-      (
-        label: 'Capital',
-        pill: '📍 Bucaramanga',
-        icon: Icons.location_city_rounded,
-        malva: false,
-      ),
-    ];
+  Widget _buildUnifiedFilterToolbar(double screenWidth) {
+    final isDesktop = screenWidth >= 1050;
 
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      physics: const BouncingScrollPhysics(),
-      child: Row(
-        children: quickItems.map((item) {
-          return Padding(
-            padding: const EdgeInsets.only(right: 6),
-            child: PawColCircularCategoryChip(
-              label: item.label,
-              icon: item.icon,
-              isSelected: _selectedPill == item.pill,
-              useMalvaTint: item.malva,
-              onTap: () {
-                setState(() {
-                  _selectedPill = item.pill;
-                });
-              },
+    if (isDesktop) {
+      // Formato unificado en una sola barra horizontal estilo SaaS moderno
+      return Container(
+        padding: const EdgeInsets.all(7),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(18),
+          border: Border.all(color: PawCoColors.border, width: 1.1),
+          boxShadow: [
+            BoxShadow(
+              color: PawCoColors.plum.withValues(alpha: 0.05),
+              blurRadius: 20,
+              offset: const Offset(0, 6),
             ),
-          );
-        }).toList(),
-      ),
-    );
-  }
+          ],
+        ),
+        child: Row(
+          children: [
+            // Campo de búsqueda integrado
+            Expanded(
+              child: Row(
+                children: [
+                  const SizedBox(width: 10),
+                  const Icon(Icons.search_rounded, color: PawCoColors.plum, size: 20),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: TextField(
+                      controller: _searchController,
+                      style: GoogleFonts.plusJakartaSans(
+                        fontSize: 13.5,
+                        color: PawCoColors.ink,
+                      ),
+                      decoration: InputDecoration(
+                        hintText: 'Buscar por nombre, barrio, raza o especie...',
+                        hintStyle: GoogleFonts.plusJakartaSans(
+                          fontSize: 13.5,
+                          color: PawCoColors.mutedLight,
+                        ),
+                        border: InputBorder.none,
+                        isDense: true,
+                        contentPadding: const EdgeInsets.symmetric(vertical: 10),
+                      ),
+                    ),
+                  ),
+                  if (_searchQuery.isNotEmpty)
+                    IconButton(
+                      icon: const Icon(Icons.clear_rounded, size: 16),
+                      onPressed: () => _searchController.clear(),
+                    ),
+                ],
+              ),
+            ),
 
-  // ===========================================================================
-  // BUSCADOR LIMPIO
-  // ===========================================================================
-  Widget _buildSearchBar() {
-    return Container(
-      decoration: BoxDecoration(
-        color: PawCoColors.surface,
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: PawCoColors.border, width: 1.2),
-        boxShadow: [
-          BoxShadow(
-            color: PawCoColors.plum.withValues(alpha: 0.04),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
+            Container(
+              height: 28,
+              width: 1,
+              color: PawCoColors.border,
+              margin: const EdgeInsets.symmetric(horizontal: 10),
+            ),
+
+            // Contenedor scrollable horizontal para los filtros de pastillas
+            Flexible(
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                physics: const BouncingScrollPhysics(),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // Segmented selector de especies en pastilla
+                    Container(
+                      padding: const EdgeInsets.all(3),
+                      decoration: BoxDecoration(
+                        color: PawCoColors.background,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: _speciesPills.map((pill) {
+                          final isSelected = _selectedPill == pill;
+                          return InkWell(
+                            borderRadius: BorderRadius.circular(9),
+                            onTap: () => setState(() => _selectedPill = pill),
+                            child: AnimatedContainer(
+                              duration: const Duration(milliseconds: 180),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 7,
+                              ),
+                              decoration: BoxDecoration(
+                                color: isSelected ? Colors.white : Colors.transparent,
+                                borderRadius: BorderRadius.circular(9),
+                                boxShadow: isSelected
+                                    ? [
+                                        BoxShadow(
+                                          color: PawCoColors.plum.withValues(alpha: 0.08),
+                                          blurRadius: 6,
+                                          offset: const Offset(0, 2),
+                                        ),
+                                      ]
+                                    : null,
+                              ),
+                              child: Text(
+                                pill,
+                                style: GoogleFonts.plusJakartaSans(
+                                  fontSize: 12.5,
+                                  fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
+                                  color: isSelected ? PawCoColors.plum : PawCoColors.muted,
+                                ),
+                              ),
+                            ),
+                          );
+                        }).toList(),
+                      ),
+                    ),
+
+                    const SizedBox(width: 8),
+
+                    // Filtros de municipios AMB
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: _cityPills.map((city) {
+                        final isSelected = _selectedPill == city;
+                        return Padding(
+                          padding: const EdgeInsets.only(left: 4),
+                          child: ChoiceChip(
+                            label: Text(city),
+                            selected: isSelected,
+                            selectedColor: PawCoColors.plum,
+                            backgroundColor: Colors.white,
+                            side: BorderSide(
+                              color: isSelected ? PawCoColors.plum : PawCoColors.border,
+                            ),
+                            labelStyle: GoogleFonts.plusJakartaSans(
+                              fontSize: 11.5,
+                              fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                              color: isSelected ? Colors.white : PawCoColors.inkSecondary,
+                            ),
+                            onSelected: (_) {
+                              setState(() {
+                                _selectedPill = isSelected ? '🐾 Todos' : city;
+                              });
+                            },
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    // Formato móvil / tablet: Buscador limpio + scroll horizontal de píldoras
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Buscador
+        Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: PawCoColors.border, width: 1.1),
+            boxShadow: [
+              BoxShadow(
+                color: PawCoColors.plum.withValues(alpha: 0.04),
+                blurRadius: 12,
+                offset: const Offset(0, 3),
+              ),
+            ],
           ),
-        ],
-      ),
-      child: TextField(
-        controller: _searchController,
-        decoration: InputDecoration(
-          hintText: 'Buscar por nombre, barrio, raza o especie...',
-          hintStyle: GoogleFonts.plusJakartaSans(
-            fontSize: 13.5,
-            color: PawCoColors.mutedLight,
-          ),
-          prefixIcon: const Icon(Icons.search_rounded, color: PawCoColors.plum),
-          suffixIcon: _searchQuery.isNotEmpty
-              ? IconButton(
-                  icon: const Icon(Icons.clear_rounded, size: 18),
-                  onPressed: () => _searchController.clear(),
-                )
-              : null,
-          border: InputBorder.none,
-          enabledBorder: InputBorder.none,
-          focusedBorder: InputBorder.none,
-          contentPadding: const EdgeInsets.symmetric(
-            horizontal: 16,
-            vertical: 14,
+          child: TextField(
+            controller: _searchController,
+            style: GoogleFonts.plusJakartaSans(fontSize: 13.5),
+            decoration: InputDecoration(
+              hintText: 'Buscar por nombre, barrio, raza o especie...',
+              hintStyle: GoogleFonts.plusJakartaSans(
+                fontSize: 13,
+                color: PawCoColors.mutedLight,
+              ),
+              prefixIcon: const Icon(Icons.search_rounded, color: PawCoColors.plum, size: 20),
+              suffixIcon: _searchQuery.isNotEmpty
+                  ? IconButton(
+                      icon: const Icon(Icons.clear_rounded, size: 16),
+                      onPressed: () => _searchController.clear(),
+                    )
+                  : null,
+              border: InputBorder.none,
+              contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+            ),
           ),
         ),
-      ),
+        const SizedBox(height: 10),
+
+        // Píldoras horizontales únicas (sin duplicar categorías circulares)
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          physics: const BouncingScrollPhysics(),
+          child: Row(
+            children: _filterPills.map((pill) {
+              final isSelected = _selectedPill == pill;
+              return Padding(
+                padding: const EdgeInsets.only(right: 6),
+                child: FilterChip(
+                  label: Text(
+                    pill,
+                    style: GoogleFonts.plusJakartaSans(
+                      fontSize: 12,
+                      fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
+                      color: isSelected ? Colors.white : PawCoColors.inkSecondary,
+                    ),
+                  ),
+                  selected: isSelected,
+                  selectedColor: PawCoColors.plum,
+                  backgroundColor: Colors.white,
+                  showCheckmark: false,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(14),
+                    side: BorderSide(
+                      color: isSelected ? PawCoColors.plum : PawCoColors.border,
+                    ),
+                  ),
+                  onSelected: (_) {
+                    setState(() => _selectedPill = pill);
+                  },
+                ),
+              );
+            }).toList(),
+          ),
+        ),
+      ],
     );
   }
 
   // ===========================================================================
-  // CHIPS REDONDEADOS ESTILO PÍLDORA
-  // ===========================================================================
-  Widget _buildPillFilters() {
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      physics: const BouncingScrollPhysics(),
-      child: Row(
-        children: _filterPills.map((pill) {
-          final isSelected = _selectedPill == pill;
-
-          return Padding(
-            padding: const EdgeInsets.only(right: 8),
-            child: FilterChip(
-              label: Text(
-                pill,
-                style: GoogleFonts.plusJakartaSans(
-                  fontSize: 12.5,
-                  fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
-                  color: isSelected ? Colors.white : PawCoColors.inkSecondary,
-                ),
-              ),
-              selected: isSelected,
-              selectedColor: PawCoColors.plum,
-              backgroundColor: PawCoColors.surface,
-              showCheckmark: false,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20),
-                side: BorderSide(
-                  color: isSelected ? PawCoColors.plum : PawCoColors.border,
-                  width: 1.2,
-                ),
-              ),
-              onSelected: (_) {
-                setState(() {
-                  _selectedPill = pill;
-                });
-              },
-            ),
-          );
-        }).toList(),
-      ),
-    );
-  }
-
-  // ===========================================================================
-  // CONTADOR DE RESULTADOS
+  // 3. BARRA DE RESULTADOS
   // ===========================================================================
   Widget _buildResultsCount(int count) {
     return Wrap(
@@ -626,7 +741,7 @@ class _AdoptionsPageState extends ConsumerState<AdoptionsPage> {
               'Limpiar filtros',
               style: GoogleFonts.plusJakartaSans(
                 fontSize: 12.5,
-                fontWeight: FontWeight.w700,
+                fontWeight: FontWeight.w800,
                 color: PawCoColors.malva,
               ),
             ),
@@ -636,22 +751,24 @@ class _AdoptionsPageState extends ConsumerState<AdoptionsPage> {
   }
 
   // ===========================================================================
-  // GRID RESPONSIVE DE MASCOTAS (1 col <340px, 2 móvil, 3 tablet, 4 desktop)
+  // 4. GRILLA RESPONSIVA DE MASCOTAS
   // ===========================================================================
-  Widget _buildResponsiveGrid(List<Pet> pets) {
+  Widget _buildResponsiveGrid(List<Pet> pets, {int? columnsCount}) {
     return LayoutBuilder(
       builder: (context, constraints) {
         final width = constraints.maxWidth;
-        int columns = 2;
-        if (width < 340) {
-          columns = 1;
-        } else if (width >= 1050) {
-          columns = 4;
-        } else if (width >= 650) {
-          columns = 3;
+        int columns = columnsCount ?? 2;
+        if (columnsCount == null) {
+          if (width < 340) {
+            columns = 1;
+          } else if (width >= 1100) {
+            columns = 4;
+          } else if (width >= 700) {
+            columns = 3;
+          }
         }
 
-        const double spacing = 14.0;
+        const double spacing = 16.0;
         final itemWidth = (width - (spacing * (columns - 1))) / columns;
 
         return Wrap(
@@ -662,8 +779,8 @@ class _AdoptionsPageState extends ConsumerState<AdoptionsPage> {
             return SizedBox(
               width: itemWidth,
               child: PawCoFadeSlide(
-                delay: Duration(milliseconds: (index % 6) * 45),
-                child: _buildVioleta2PetCard(pet),
+                delay: Duration(milliseconds: (index % 6) * 40),
+                child: _buildCleanPetCard(pet),
               ),
             );
           }),
@@ -673,13 +790,13 @@ class _AdoptionsPageState extends ConsumerState<AdoptionsPage> {
   }
 
   // ===========================================================================
-  // TARJETA DE MASCOTA PALETA VIOLETA 2
+  // 5. TARJETA DE MASCOTA MODERNA (Estilo SaaS tierno y profesional)
   // ===========================================================================
-  Widget _buildVioleta2PetCard(Pet pet) {
+  Widget _buildCleanPetCard(Pet pet) {
     final isFavorite = _favoritePetIds.contains(pet.id);
 
     return PawCoHoverCard(
-      borderRadius: 22,
+      borderRadius: 20,
       padding: EdgeInsets.zero,
       margin: EdgeInsets.zero,
       onTap: () => context.push('/pet/${pet.id}'),
@@ -687,14 +804,15 @@ class _AdoptionsPageState extends ConsumerState<AdoptionsPage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
+          // Imagen con badges superpuestos
           Stack(
             children: [
               ClipRRect(
                 borderRadius: const BorderRadius.vertical(
-                  top: Radius.circular(22),
+                  top: Radius.circular(20),
                 ),
                 child: AspectRatio(
-                  aspectRatio: 1.08,
+                  aspectRatio: 1.05,
                   child: pet.photoUrl.isNotEmpty
                       ? Image.network(
                           pet.photoUrl,
@@ -703,7 +821,7 @@ class _AdoptionsPageState extends ConsumerState<AdoptionsPage> {
                           loadingBuilder: (context, child, loadingProgress) {
                             if (loadingProgress == null) return child;
                             return Container(
-                              color: PawCoColors.sageMuted,
+                              color: PawCoColors.surfaceMuted,
                               child: const Center(
                                 child: SizedBox(
                                   width: 22,
@@ -721,14 +839,14 @@ class _AdoptionsPageState extends ConsumerState<AdoptionsPage> {
                 ),
               ),
 
-              // Botón de Corazón (Rosa Malva activo)
+              // Botón de favoritos
               Positioned(
-                top: 8,
-                right: 8,
+                top: 9,
+                right: 9,
                 child: Material(
-                  color: Colors.white.withValues(alpha: 0.90),
+                  color: Colors.white.withValues(alpha: 0.92),
                   shape: const CircleBorder(),
-                  elevation: 1,
+                  elevation: 2,
                   child: InkWell(
                     customBorder: const CircleBorder(),
                     onTap: () => _toggleFavorite(pet.id, pet.name),
@@ -738,28 +856,26 @@ class _AdoptionsPageState extends ConsumerState<AdoptionsPage> {
                         isFavorite
                             ? Icons.favorite_rounded
                             : Icons.favorite_border_rounded,
-                        size: 18,
-                        color: isFavorite
-                            ? PawCoColors.malva
-                            : PawCoColors.plum,
+                        size: 17,
+                        color: isFavorite ? PawCoColors.malva : PawCoColors.plum,
                       ),
                     ),
                   ),
                 ),
               ),
 
-              // Píldora de especie en Lila Algodón
+              // Píldora de especie
               Positioned(
-                bottom: 8,
-                left: 8,
+                bottom: 9,
+                left: 9,
                 child: Container(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 9,
                     vertical: 4,
                   ),
                   decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.94),
-                    borderRadius: BorderRadius.circular(12),
+                    color: Colors.white.withValues(alpha: 0.95),
+                    borderRadius: BorderRadius.circular(10),
                     border: Border.all(color: PawCoColors.border),
                   ),
                   child: Text(
@@ -775,8 +891,9 @@ class _AdoptionsPageState extends ConsumerState<AdoptionsPage> {
             ],
           ),
 
+          // Información textual de la mascota
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 12),
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
@@ -805,7 +922,7 @@ class _AdoptionsPageState extends ConsumerState<AdoptionsPage> {
                       child: Text(
                         '${pet.city}${pet.neighborhood != null && pet.neighborhood!.isNotEmpty ? " • ${pet.neighborhood}" : ""}',
                         style: GoogleFonts.plusJakartaSans(
-                          fontSize: 11.5,
+                          fontSize: 12,
                           color: PawCoColors.muted,
                           fontWeight: FontWeight.w600,
                         ),
@@ -815,11 +932,265 @@ class _AdoptionsPageState extends ConsumerState<AdoptionsPage> {
                     ),
                   ],
                 ),
+                const SizedBox(height: 10),
+                // Etiquetas de estado
+                Wrap(
+                  spacing: 6,
+                  runSpacing: 4,
+                  children: [
+                    _buildMiniBadge('Tamaño: ${pet.size}', isGreen: false),
+                    _buildMiniBadge(
+                      pet.status == 'approved' ? 'Verificado AMB' : pet.status,
+                      isGreen: true,
+                    ),
+                  ],
+                ),
               ],
             ),
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildMiniBadge(String text, {required bool isGreen}) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2.5),
+      decoration: BoxDecoration(
+        color: isGreen
+            ? const Color(0xFFDCFCE7)
+            : PawCoColors.softMalva,
+        borderRadius: BorderRadius.circular(6),
+      ),
+      child: Text(
+        text,
+        style: GoogleFonts.plusJakartaSans(
+          fontSize: 10,
+          fontWeight: FontWeight.w700,
+          color: isGreen
+              ? const Color(0xFF15803D)
+              : PawCoColors.terracottaDark,
+        ),
+      ),
+    );
+  }
+
+  // ===========================================================================
+  // 6. PANEL LATERAL DE ESCRITORIO (Estilo Brace Card + Guía de 3 pasos)
+  // ===========================================================================
+  Widget _buildDesktopSidebar(BuildContext context, User? user) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        // Tarjeta de Acento Oscura estilo Brace Developers (CTA)
+        Container(
+          padding: const EdgeInsets.all(22),
+          decoration: BoxDecoration(
+            gradient: const LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                Color(0xFF220D38),
+                Color(0xFF381459),
+                Color(0xFF4C1D6E),
+              ],
+            ),
+            borderRadius: BorderRadius.circular(22),
+            border: Border.all(
+              color: PawCoColors.lilacGlow.withValues(alpha: 0.30),
+              width: 1.2,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: const Color(0xFF220D38).withValues(alpha: 0.35),
+                blurRadius: 24,
+                offset: const Offset(0, 8),
+              ),
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                    colors: [PawCoColors.orchid, PawCoColors.malva],
+                  ),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Icon(
+                  Icons.pets_rounded,
+                  color: Colors.white,
+                  size: 20,
+                ),
+              ),
+              const SizedBox(height: 14),
+              Text(
+                '¿Rescataste un peludito?',
+                style: GoogleFonts.plusJakartaSans(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w800,
+                  color: Colors.white,
+                  letterSpacing: -0.3,
+                ),
+              ),
+              const SizedBox(height: 6),
+              Text(
+                'Publícalo gratis en PawCol y encuentra una familia responsable con seguimiento verificado en el AMB.',
+                style: GoogleFonts.plusJakartaSans(
+                  fontSize: 12.5,
+                  color: Colors.white.withValues(alpha: 0.82),
+                  height: 1.45,
+                ),
+              ),
+              const SizedBox(height: 18),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton.icon(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.white,
+                    foregroundColor: PawCoColors.plum,
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    elevation: 0,
+                  ),
+                  onPressed: () => _handleCreatePet(context),
+                  icon: const Icon(Icons.add_rounded, size: 18),
+                  label: Text(
+                    'Dar en adopción',
+                    style: GoogleFonts.plusJakartaSans(
+                      fontWeight: FontWeight.w800,
+                      fontSize: 13,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+
+        const SizedBox(height: 18),
+
+        // Tarjeta "Cómo adoptar en PawCol" (Guía de 3 pasos)
+        Container(
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(22),
+            border: Border.all(color: PawCoColors.border),
+            boxShadow: [
+              BoxShadow(
+                color: PawCoColors.plum.withValues(alpha: 0.04),
+                blurRadius: 16,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  const Icon(
+                    Icons.verified_user_outlined,
+                    color: PawCoColors.plum,
+                    size: 18,
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      'Proceso de Adopción',
+                      style: GoogleFonts.plusJakartaSans(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w800,
+                        color: PawCoColors.ink,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 14),
+              _buildStepItem(
+                number: '1',
+                title: 'Elige tu compañero',
+                desc: 'Revisa fotos, historia médica, edad y temperamento.',
+              ),
+              const SizedBox(height: 12),
+              _buildStepItem(
+                number: '2',
+                title: 'Postúlate y conoce',
+                desc: 'Conversa con el rescatista o fundación para coordinar visita.',
+              ),
+              const SizedBox(height: 12),
+              _buildStepItem(
+                number: '3',
+                title: 'Adopción verificada',
+                desc: 'Firma de acta responsable y acompañamiento continuo.',
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildStepItem({
+    required String number,
+    required String title,
+    required String desc,
+  }) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          width: 24,
+          height: 24,
+          decoration: const BoxDecoration(
+            color: PawCoColors.sageLight,
+            shape: BoxShape.circle,
+          ),
+          child: Center(
+            child: Text(
+              number,
+              style: GoogleFonts.plusJakartaSans(
+                fontSize: 12,
+                fontWeight: FontWeight.w800,
+                color: PawCoColors.plum,
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(width: 10),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: GoogleFonts.plusJakartaSans(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
+                  color: PawCoColors.ink,
+                ),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                desc,
+                style: GoogleFonts.plusJakartaSans(
+                  fontSize: 11.5,
+                  color: PawCoColors.muted,
+                  height: 1.35,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 

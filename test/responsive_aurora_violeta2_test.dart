@@ -123,7 +123,15 @@ void main() {
         ),
       );
       await tester.pumpAndSettle();
-      expect(tester.takeException(), isNull);
+      final ex = tester.takeException();
+  if (ex != null) {
+    if (ex is FlutterError) {
+      debugPrint('EXCEPTION DETAILS:\n${ex.diagnostics.map((d) => d.toString()).join('\n')}');
+    } else {
+      debugPrint('EXCEPTION: $ex');
+    }
+  }
+  expect(ex, isNull);
 
       for (var tabIndex = 0; tabIndex < 6; tabIndex++) {
         container.read(mainNavIndexProvider.notifier).state = tabIndex;

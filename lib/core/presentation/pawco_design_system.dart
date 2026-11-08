@@ -115,27 +115,100 @@ class PawColGlassCard extends StatelessWidget {
   }
 }
 
-/// Cabecera Hero / Módulo en Violeta Profundo Aurora (`#1B0B2E` -> `#3B1763` -> `#431E61`)
-/// con halos radiales difuminados (Ambient Glow Orbs) y divisor inferior en onda curva
-/// acompañado de siluetas lineales continuas de perros, gatos y huellas hacia `#FAF6F9`.
+/// Cabecera Hero / Módulo de PawCol con soporte para la propuesta v3 "Lienzo Continuo"
+/// (sin cortes bruscos de color, halos suaves difuminados y diseño compacto)
+/// o modo Aurora Oscuro para héroes destacados.
 class PawColAuroraWaveHeader extends StatelessWidget {
   final Widget child;
   final EdgeInsetsGeometry contentPadding;
   final double waveHeight;
   final Color bottomColor;
   final bool showLineArtPets;
+  final bool isContinuous;
+  final double maxWidth;
 
   const PawColAuroraWaveHeader({
     super.key,
     required this.child,
-    this.contentPadding = const EdgeInsets.fromLTRB(20, 28, 20, 24),
-    this.waveHeight = 62,
+    this.contentPadding = const EdgeInsets.fromLTRB(20, 20, 20, 18),
+    this.waveHeight = 0,
     this.bottomColor = PawCoColors.background,
-    this.showLineArtPets = true,
+    this.showLineArtPets = false,
+    this.isContinuous = true,
+    this.maxWidth = 1440,
   });
 
   @override
   Widget build(BuildContext context) {
+    if (isContinuous) {
+      return Container(
+        width: double.infinity,
+        decoration: BoxDecoration(
+          color: Colors.transparent,
+          border: Border(
+            bottom: BorderSide(
+              color: PawCoColors.border.withValues(alpha: 0.5),
+              width: 1.0,
+            ),
+          ),
+        ),
+        child: Stack(
+          children: [
+            // Halos de luz radiales suaves y difuminados para el Lienzo Continuo
+            Positioned(
+              top: -60,
+              right: -40,
+              child: IgnorePointer(
+                child: Container(
+                  width: 320,
+                  height: 320,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    gradient: RadialGradient(
+                      colors: [
+                        PawCoColors.cottonLilac.withValues(alpha: 0.28),
+                        PawCoColors.softMalva.withValues(alpha: 0.14),
+                        Colors.transparent,
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            Positioned(
+              bottom: -40,
+              left: -50,
+              child: IgnorePointer(
+                child: Container(
+                  width: 280,
+                  height: 280,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    gradient: RadialGradient(
+                      colors: [
+                        PawCoColors.lilacGlow.withValues(alpha: 0.20),
+                        Colors.transparent,
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            Padding(
+              padding: contentPadding,
+              child: Center(
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(maxWidth: maxWidth),
+                  child: child,
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    // Modo Aurora Oscuro Clásico (usado en el Hero de Overview con Órbitas)
     return Container(
       width: double.infinity,
       decoration: const BoxDecoration(
@@ -201,23 +274,24 @@ class PawColAuroraWaveHeader extends StatelessWidget {
                 padding: contentPadding,
                 child: Center(
                   child: ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 1200),
+                    constraints: BoxConstraints(maxWidth: maxWidth),
                     child: child,
                   ),
                 ),
               ),
-              SizedBox(
-                width: double.infinity,
-                height: waveHeight,
-                child: CustomPaint(
-                  painter: PawColWaveLineArtPainter(
-                    fillColor: bottomColor,
-                    lineColor: PawCoColors.lilacGlow,
-                    accentLineColor: PawCoColors.malva,
-                    showPets: showLineArtPets,
+              if (waveHeight > 0)
+                SizedBox(
+                  width: double.infinity,
+                  height: waveHeight,
+                  child: CustomPaint(
+                    painter: PawColWaveLineArtPainter(
+                      fillColor: bottomColor,
+                      lineColor: PawCoColors.lilacGlow,
+                      accentLineColor: PawCoColors.malva,
+                      showPets: showLineArtPets,
+                    ),
                   ),
                 ),
-              ),
             ],
           ),
         ],

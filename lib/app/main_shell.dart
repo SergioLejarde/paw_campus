@@ -268,6 +268,8 @@ class _CapsuleNavSpec {
 }
 
 /// 💻 Barra de Navegación Superior Estilo SaaS Moderno (Web / Escritorio `>= 860px`)
+/// Propuesta v3 "Lienzo Continuo": Cristal esmerilado claro (`BackdropFilter`),
+/// marca `{PawCol}` en Morado Mora y acentos Malva sin cortes oscuros artificiales.
 class _WebSaaSTopNavBar extends StatelessWidget {
   final int currentIndex;
   final WidgetRef ref;
@@ -282,261 +284,106 @@ class _WebSaaSTopNavBar extends StatelessWidget {
     final width = MediaQuery.of(context).size.width;
     final isCompactDesktop = width < 1140;
 
-    return Container(
-      height: 70,
-      padding: EdgeInsets.symmetric(horizontal: isCompactDesktop ? 16 : 32),
-      decoration: BoxDecoration(
-        color: PawCoColors.auroraStart,
-        border: Border(
-          bottom: BorderSide(
-            color: Colors.white.withValues(alpha: 0.10),
-            width: 1,
+    return ClipRect(
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
+        child: Container(
+          height: 68,
+          padding: EdgeInsets.symmetric(horizontal: isCompactDesktop ? 16 : 32),
+          decoration: BoxDecoration(
+            color: Colors.white.withValues(alpha: 0.88),
+            border: const Border(
+              bottom: BorderSide(
+                color: PawCoColors.border,
+                width: 1,
+              ),
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: PawCoColors.plum.withValues(alpha: 0.04),
+                blurRadius: 16,
+                offset: const Offset(0, 4),
+              ),
+            ],
           ),
-        ),
-      ),
-      child: Center(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 1280),
-          child: Row(
-            children: [
-              // --- LOGO SAAS `{PawCol}` ---
-              Material(
-                color: Colors.transparent,
-                child: InkWell(
-                  onTap: () => ref.read(mainNavIndexProvider.notifier).state = 0,
-                  borderRadius: BorderRadius.circular(14),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 6),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            gradient: const LinearGradient(
-                              colors: [PawCoColors.orchid, PawCoColors.malva],
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                            ),
-                            borderRadius: BorderRadius.circular(11),
-                          ),
-                          child: const Icon(
-                            Icons.pets_rounded,
-                            color: Colors.white,
-                            size: 18,
-                          ),
-                        ),
-                        const SizedBox(width: 10),
-                        RichText(
-                          text: TextSpan(
-                            style: GoogleFonts.plusJakartaSans(
-                              fontSize: 20,
-                              fontWeight: FontWeight.w800,
-                              letterSpacing: -0.5,
-                            ),
-                            children: const [
-                              TextSpan(
-                                text: '{',
-                                style: TextStyle(color: PawCoColors.lilacGlow),
-                              ),
-                              TextSpan(
-                                text: 'PawCol',
-                                style: TextStyle(color: Colors.white),
-                              ),
-                              TextSpan(
-                                text: '}',
-                                style: TextStyle(color: PawCoColors.malva),
-                              ),
-                            ],
-                          ),
-                        ),
-                        if (!isCompactDesktop) ...[
-                          const SizedBox(width: 10),
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 9,
-                              vertical: 3.5,
-                            ),
-                            decoration: BoxDecoration(
-                              color: Colors.white.withValues(alpha: 0.08),
-                              borderRadius: BorderRadius.circular(999),
-                              border: Border.all(
-                                color: Colors.white.withValues(alpha: 0.14),
-                              ),
-                            ),
-                            child: Text(
-                              'COL • AMB',
-                              style: GoogleFonts.plusJakartaSans(
-                                fontSize: 10.5,
-                                fontWeight: FontWeight.w700,
-                                color: PawCoColors.lilacGlow,
-                                letterSpacing: 0.3,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-
-              const SizedBox(width: 16),
-
-              // --- PESTAÑAS HORIZONTALES CON INDICADOR EN DEGRADADO ---
-              Expanded(
-                child: Center(
-                  child: SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    physics: const BouncingScrollPhysics(),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        _buildSaaSNavItem(
-                          index: 0,
-                          label: isCompactDesktop ? 'Inicio' : 'Inicio & Nosotros',
-                          icon: Icons.home_outlined,
-                          activeIcon: Icons.home_rounded,
-                        ),
-                        const SizedBox(width: 6),
-                        _buildSaaSNavItem(
-                          index: 1,
-                          label: 'Adopciones',
-                          icon: Icons.pets_outlined,
-                          activeIcon: Icons.pets_rounded,
-                        ),
-                        const SizedBox(width: 6),
-                        _buildSaaSNavItem(
-                          index: 2,
-                          label: isCompactDesktop ? 'Perdidos' : 'Perdidos & Mapa',
-                          icon: Icons.location_on_outlined,
-                          activeIcon: Icons.location_on_rounded,
-                        ),
-                        const SizedBox(width: 6),
-                        _buildSaaSNavItem(
-                          index: 3,
-                          label: isCompactDesktop ? 'Donar' : 'Fundaciones & Donar',
-                          icon: Icons.volunteer_activism_outlined,
-                          activeIcon: Icons.volunteer_activism_rounded,
-                        ),
-                        const SizedBox(width: 6),
-                        _buildSaaSNavItem(
-                          index: 4,
-                          label: isCompactDesktop ? 'SOS' : 'Denunciar SOS',
-                          icon: Icons.campaign_outlined,
-                          activeIcon: Icons.campaign_rounded,
-                          isSos: true,
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-
-              const SizedBox(width: 12),
-
-              // --- ACCIONES RÁPIDAS DERECHA ESTILO BRACE / SAAS ---
-              Row(
-                mainAxisSize: MainAxisSize.min,
+          child: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 1440),
+              child: Row(
                 children: [
-                  // Botón píldora con borde luminoso Malva
-                  Container(
-                    decoration: BoxDecoration(
-                      gradient: const LinearGradient(
-                        colors: [PawCoColors.plumVibrant, PawCoColors.malva],
-                      ),
-                      borderRadius: BorderRadius.circular(999),
-                      boxShadow: [
-                        BoxShadow(
-                          color: PawCoColors.malva.withValues(alpha: 0.30),
-                          blurRadius: 14,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
-                    ),
-                    child: Material(
-                      color: Colors.transparent,
-                      child: InkWell(
-                        onTap: () => ref.read(mainNavIndexProvider.notifier).state = 3,
-                        borderRadius: BorderRadius.circular(999),
-                        child: Padding(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: isCompactDesktop ? 13 : 17,
-                            vertical: 9,
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              const Icon(
-                                Icons.favorite_rounded,
-                                size: 15,
-                                color: Colors.white,
-                              ),
-                              const SizedBox(width: 6),
-                              Text(
-                                isCompactDesktop ? 'Donar' : 'Donar Ahora',
-                                style: GoogleFonts.plusJakartaSans(
-                                  fontWeight: FontWeight.w700,
-                                  fontSize: 13,
-                                  color: Colors.white,
-                                ),
-                              ),
-                              const SizedBox(width: 3),
-                              const Icon(
-                                Icons.chevron_right_rounded,
-                                size: 16,
-                                color: Colors.white,
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 10),
+                  // --- LOGO SAAS `{PawCol}` ---
                   Material(
                     color: Colors.transparent,
                     child: InkWell(
-                      onTap: () => ref.read(mainNavIndexProvider.notifier).state = 5,
-                      borderRadius: BorderRadius.circular(999),
-                      child: AnimatedContainer(
-                        duration: const Duration(milliseconds: 200),
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 13,
-                          vertical: 8.5,
-                        ),
-                        decoration: BoxDecoration(
-                          color: currentIndex == 5
-                              ? Colors.white.withValues(alpha: 0.16)
-                              : Colors.white.withValues(alpha: 0.06),
-                          borderRadius: BorderRadius.circular(999),
-                          border: Border.all(
-                            color: currentIndex == 5
-                                ? PawCoColors.lilacGlow
-                                : Colors.white.withValues(alpha: 0.18),
-                            width: 1.1,
-                          ),
-                        ),
+                      onTap: () => ref.read(mainNavIndexProvider.notifier).state = 0,
+                      borderRadius: BorderRadius.circular(14),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 6),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Icon(
-                              Icons.person_outline_rounded,
-                              size: 17,
-                              color: currentIndex == 5
-                                  ? Colors.white
-                                  : PawCoColors.lilacGlow,
+                            Container(
+                              padding: const EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                gradient: const LinearGradient(
+                                  colors: [PawCoColors.orchid, PawCoColors.malva],
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
+                                ),
+                                borderRadius: BorderRadius.circular(11),
+                              ),
+                              child: const Icon(
+                                Icons.pets_rounded,
+                                color: Colors.white,
+                                size: 18,
+                              ),
+                            ),
+                            const SizedBox(width: 10),
+                            RichText(
+                              text: TextSpan(
+                                style: GoogleFonts.plusJakartaSans(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.w800,
+                                  letterSpacing: -0.5,
+                                ),
+                                children: const [
+                                  TextSpan(
+                                    text: '{',
+                                    style: TextStyle(color: PawCoColors.orchid),
+                                  ),
+                                  TextSpan(
+                                    text: 'PawCol',
+                                    style: TextStyle(color: PawCoColors.ink),
+                                  ),
+                                  TextSpan(
+                                    text: '}',
+                                    style: TextStyle(color: PawCoColors.malva),
+                                  ),
+                                ],
+                              ),
                             ),
                             if (!isCompactDesktop) ...[
-                              const SizedBox(width: 6),
-                              Text(
-                                'Mi Perfil',
-                                style: GoogleFonts.plusJakartaSans(
-                                  fontSize: 13,
-                                  fontWeight: currentIndex == 5
-                                      ? FontWeight.w700
-                                      : FontWeight.w600,
-                                  color: Colors.white,
+                              const SizedBox(width: 10),
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 9,
+                                  vertical: 3.5,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: PawCoColors.surfaceMuted,
+                                  borderRadius: BorderRadius.circular(999),
+                                  border: Border.all(
+                                    color: PawCoColors.border,
+                                  ),
+                                ),
+                                child: Text(
+                                  'COL • AMB',
+                                  style: GoogleFonts.plusJakartaSans(
+                                    fontSize: 10.5,
+                                    fontWeight: FontWeight.w700,
+                                    color: PawCoColors.plum,
+                                    letterSpacing: 0.3,
+                                  ),
                                 ),
                               ),
                             ],
@@ -545,9 +392,178 @@ class _WebSaaSTopNavBar extends StatelessWidget {
                       ),
                     ),
                   ),
+
+                  const SizedBox(width: 16),
+
+                  // --- PESTAÑAS HORIZONTALES CON INDICADOR EN DEGRADADO ---
+                  Expanded(
+                    child: Center(
+                      child: SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        physics: const BouncingScrollPhysics(),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            _buildSaaSNavItem(
+                              index: 0,
+                              label: isCompactDesktop ? 'Inicio' : 'Inicio & Nosotros',
+                              icon: Icons.home_outlined,
+                              activeIcon: Icons.home_rounded,
+                            ),
+                            const SizedBox(width: 6),
+                            _buildSaaSNavItem(
+                              index: 1,
+                              label: 'Adopciones',
+                              icon: Icons.pets_outlined,
+                              activeIcon: Icons.pets_rounded,
+                            ),
+                            const SizedBox(width: 6),
+                            _buildSaaSNavItem(
+                              index: 2,
+                              label: isCompactDesktop ? 'Perdidos' : 'Perdidos & Mapa',
+                              icon: Icons.location_on_outlined,
+                              activeIcon: Icons.location_on_rounded,
+                            ),
+                            const SizedBox(width: 6),
+                            _buildSaaSNavItem(
+                              index: 3,
+                              label: isCompactDesktop ? 'Donar' : 'Fundaciones & Donar',
+                              icon: Icons.volunteer_activism_outlined,
+                              activeIcon: Icons.volunteer_activism_rounded,
+                            ),
+                            const SizedBox(width: 6),
+                            _buildSaaSNavItem(
+                              index: 4,
+                              label: isCompactDesktop ? 'SOS' : 'Denunciar SOS',
+                              icon: Icons.campaign_outlined,
+                              activeIcon: Icons.campaign_rounded,
+                              isSos: true,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(width: 12),
+
+                  // --- ACCIONES RÁPIDAS DERECHA ESTILO BRACE / SAAS ---
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      // Botón píldora Donar con degradado Malva
+                      Container(
+                        decoration: BoxDecoration(
+                          gradient: const LinearGradient(
+                            colors: [PawCoColors.plumVibrant, PawCoColors.malva],
+                          ),
+                          borderRadius: BorderRadius.circular(999),
+                          boxShadow: [
+                            BoxShadow(
+                              color: PawCoColors.malva.withValues(alpha: 0.30),
+                              blurRadius: 14,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
+                        ),
+                        child: Material(
+                          color: Colors.transparent,
+                          child: InkWell(
+                            onTap: () => ref.read(mainNavIndexProvider.notifier).state = 3,
+                            borderRadius: BorderRadius.circular(999),
+                            child: Padding(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: isCompactDesktop ? 13 : 17,
+                                vertical: 9,
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  const Icon(
+                                    Icons.favorite_rounded,
+                                    size: 15,
+                                    color: Colors.white,
+                                  ),
+                                  const SizedBox(width: 6),
+                                  Text(
+                                    isCompactDesktop ? 'Donar' : 'Donar Ahora',
+                                    style: GoogleFonts.plusJakartaSans(
+                                      fontWeight: FontWeight.w700,
+                                      fontSize: 13,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 3),
+                                  const Icon(
+                                    Icons.chevron_right_rounded,
+                                    size: 16,
+                                    color: Colors.white,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Material(
+                        color: Colors.transparent,
+                        child: InkWell(
+                          onTap: () => ref.read(mainNavIndexProvider.notifier).state = 5,
+                          borderRadius: BorderRadius.circular(999),
+                          child: AnimatedContainer(
+                            duration: const Duration(milliseconds: 200),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 13,
+                              vertical: 8.5,
+                            ),
+                            decoration: BoxDecoration(
+                              color: currentIndex == 5
+                                  ? PawCoColors.surfaceMuted
+                                  : PawCoColors.surface,
+                              borderRadius: BorderRadius.circular(999),
+                              border: Border.all(
+                                color: currentIndex == 5
+                                    ? PawCoColors.plum
+                                    : PawCoColors.border,
+                                width: 1.1,
+                              ),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  Icons.person_outline_rounded,
+                                  size: 17,
+                                  color: currentIndex == 5
+                                      ? PawCoColors.plum
+                                      : PawCoColors.inkSecondary,
+                                ),
+                                if (!isCompactDesktop) ...[
+                                  const SizedBox(width: 6),
+                                  Text(
+                                    'Mi Perfil',
+                                    style: GoogleFonts.plusJakartaSans(
+                                      fontSize: 13,
+                                      fontWeight: currentIndex == 5
+                                          ? FontWeight.w700
+                                          : FontWeight.w600,
+                                      color: currentIndex == 5
+                                          ? PawCoColors.plum
+                                          : PawCoColors.ink,
+                                    ),
+                                  ),
+                                ],
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ],
               ),
-            ],
+            ),
           ),
         ),
       ),
@@ -563,17 +579,17 @@ class _WebSaaSTopNavBar extends StatelessWidget {
   }) {
     final isSelected = currentIndex == index;
     final textColor = isSelected
-        ? Colors.white
+        ? PawCoColors.plum
         : (isSos
-            ? const Color(0xFFFDA4AF)
-            : Colors.white.withValues(alpha: 0.72));
+            ? PawCoColors.terracottaDark
+            : PawCoColors.inkSecondary);
 
     return Material(
       color: Colors.transparent,
       child: InkWell(
         onTap: () => ref.read(mainNavIndexProvider.notifier).state = index,
         borderRadius: BorderRadius.circular(12),
-        hoverColor: Colors.white.withValues(alpha: 0.06),
+        hoverColor: PawCoColors.surfaceMuted.withValues(alpha: 0.6),
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
           child: Column(
@@ -586,7 +602,7 @@ class _WebSaaSTopNavBar extends StatelessWidget {
                     isSelected ? activeIcon : icon,
                     size: 16,
                     color: isSelected
-                        ? (isSos ? PawCoColors.malva : PawCoColors.lilacGlow)
+                        ? (isSos ? PawCoColors.malva : PawCoColors.plum)
                         : textColor,
                   ),
                   const SizedBox(width: 6),
@@ -595,7 +611,7 @@ class _WebSaaSTopNavBar extends StatelessWidget {
                     style: GoogleFonts.plusJakartaSans(
                       color: textColor,
                       fontSize: 13,
-                      fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                      fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
                     ),
                   ),
                 ],
@@ -608,7 +624,7 @@ class _WebSaaSTopNavBar extends StatelessWidget {
                 width: isSelected ? 28 : 0,
                 decoration: BoxDecoration(
                   gradient: const LinearGradient(
-                    colors: [PawCoColors.lilacGlow, PawCoColors.malva],
+                    colors: [PawCoColors.plum, PawCoColors.malva],
                   ),
                   borderRadius: BorderRadius.circular(2),
                 ),
