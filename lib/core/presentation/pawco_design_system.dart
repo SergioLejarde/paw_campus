@@ -91,20 +91,25 @@ class PawColGlassCard extends StatelessWidget {
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
               colors: [
-                (tintColor ?? Colors.white).withValues(alpha: 0.14),
-                (tintColor ?? PawCoColors.lilacGlow).withValues(alpha: 0.06),
+                (tintColor ?? PawCoColors.surface).withValues(alpha: 0.76),
+                (tintColor ?? PawCoColors.surfaceMuted).withValues(alpha: 0.58),
               ],
             ),
             borderRadius: BorderRadius.circular(borderRadius),
             border: Border.all(
-              color: borderColor ?? Colors.white.withValues(alpha: 0.22),
+              color: borderColor ?? Colors.white.withValues(alpha: 0.14),
               width: 1.2,
             ),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: 0.22),
+                color: Colors.black.withValues(alpha: 0.45),
                 blurRadius: 28,
                 offset: const Offset(0, 12),
+              ),
+              BoxShadow(
+                color: PawCoColors.orchid.withValues(alpha: 0.10),
+                blurRadius: 24,
+                spreadRadius: -4,
               ),
             ],
           ),

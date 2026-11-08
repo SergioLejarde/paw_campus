@@ -41,9 +41,10 @@ class _OverviewPageState extends ConsumerState<OverviewPage> {
       backgroundColor: Colors.transparent,
       builder: (ctx) => Container(
         padding: const EdgeInsets.all(24),
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+        decoration: BoxDecoration(
+          color: PawCoColors.surface,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
+          border: Border.all(color: PawCoColors.border),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -583,12 +584,12 @@ class _OverviewPageState extends ConsumerState<OverviewPage> {
         vertical: 16,
       ),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: PawCoColors.surface,
         borderRadius: BorderRadius.circular(24),
         border: Border.all(color: PawCoColors.border),
         boxShadow: [
           BoxShadow(
-            color: PawCoColors.plum.withValues(alpha: 0.04),
+            color: Colors.black.withValues(alpha: 0.35),
             blurRadius: 20,
             offset: const Offset(0, 6),
           ),
@@ -1080,12 +1081,12 @@ class _OverviewPageState extends ConsumerState<OverviewPage> {
       width: double.infinity,
       padding: EdgeInsets.all(isDesktop ? 28 : 20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: PawCoColors.surface,
         borderRadius: BorderRadius.circular(26),
         border: Border.all(color: PawCoColors.border, width: 1.2),
         boxShadow: [
           BoxShadow(
-            color: PawCoColors.plum.withValues(alpha: 0.05),
+            color: Colors.black.withValues(alpha: 0.35),
             blurRadius: 24,
             offset: const Offset(0, 8),
           ),
@@ -1727,9 +1728,10 @@ class _VolunteerApplicationModalState extends State<_VolunteerApplicationModal> 
         right: 20,
         top: 20,
       ),
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+      decoration: BoxDecoration(
+        color: PawCoColors.surface,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
+        border: Border.all(color: PawCoColors.border),
       ),
       child: Form(
         key: _formKey,

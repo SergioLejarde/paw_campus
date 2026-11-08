@@ -381,7 +381,7 @@ class _AdoptionsPageState extends ConsumerState<AdoptionsPage> {
               ),
             ),
             Material(
-              color: Colors.white,
+              color: Colors.transparent,
               borderRadius: BorderRadius.circular(999),
               child: InkWell(
                 borderRadius: BorderRadius.circular(999),
@@ -405,11 +405,12 @@ class _AdoptionsPageState extends ConsumerState<AdoptionsPage> {
                     vertical: 7,
                   ),
                   decoration: BoxDecoration(
+                    color: PawCoColors.surface,
                     borderRadius: BorderRadius.circular(999),
                     border: Border.all(color: PawCoColors.border),
                     boxShadow: [
                       BoxShadow(
-                        color: PawCoColors.plum.withValues(alpha: 0.04),
+                        color: Colors.black.withValues(alpha: 0.20),
                         blurRadius: 8,
                         offset: const Offset(0, 2),
                       ),
@@ -421,14 +422,14 @@ class _AdoptionsPageState extends ConsumerState<AdoptionsPage> {
                       const Icon(
                         Icons.inventory_2_outlined,
                         size: 15,
-                        color: PawCoColors.plum,
+                        color: PawCoColors.lilacGlow,
                       ),
                       const SizedBox(width: 6),
                       Text(
                         'Mis publicaciones',
                         style: GoogleFonts.plusJakartaSans(
                           fontWeight: FontWeight.w700,
-                          color: PawCoColors.plum,
+                          color: Colors.white,
                           fontSize: 12.5,
                         ),
                       ),
@@ -445,8 +446,8 @@ class _AdoptionsPageState extends ConsumerState<AdoptionsPage> {
         PawColGradientText(
           'Encuentra un compañero',
           colors: const [
-            PawCoColors.plum,
-            PawCoColors.plumVibrant,
+            Colors.white,
+            PawCoColors.lilacGlow,
             PawCoColors.malva,
           ],
           style: GoogleFonts.plusJakartaSans(
@@ -480,12 +481,12 @@ class _AdoptionsPageState extends ConsumerState<AdoptionsPage> {
       return Container(
         padding: const EdgeInsets.all(7),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: PawCoColors.surface.withValues(alpha: 0.85),
           borderRadius: BorderRadius.circular(18),
           border: Border.all(color: PawCoColors.border, width: 1.1),
           boxShadow: [
             BoxShadow(
-              color: PawCoColors.plum.withValues(alpha: 0.05),
+              color: Colors.black.withValues(alpha: 0.35),
               blurRadius: 20,
               offset: const Offset(0, 6),
             ),
@@ -498,20 +499,20 @@ class _AdoptionsPageState extends ConsumerState<AdoptionsPage> {
               child: Row(
                 children: [
                   const SizedBox(width: 10),
-                  const Icon(Icons.search_rounded, color: PawCoColors.plum, size: 20),
+                  const Icon(Icons.search_rounded, color: PawCoColors.lilacGlow, size: 20),
                   const SizedBox(width: 8),
                   Expanded(
                     child: TextField(
                       controller: _searchController,
                       style: GoogleFonts.plusJakartaSans(
                         fontSize: 13.5,
-                        color: PawCoColors.ink,
+                        color: Colors.white,
                       ),
                       decoration: InputDecoration(
                         hintText: 'Buscar por nombre, barrio, raza o especie...',
                         hintStyle: GoogleFonts.plusJakartaSans(
                           fontSize: 13.5,
-                          color: PawCoColors.mutedLight,
+                          color: PawCoColors.muted,
                         ),
                         border: InputBorder.none,
                         isDense: true,
@@ -521,7 +522,7 @@ class _AdoptionsPageState extends ConsumerState<AdoptionsPage> {
                   ),
                   if (_searchQuery.isNotEmpty)
                     IconButton(
-                      icon: const Icon(Icons.clear_rounded, size: 16),
+                      icon: const Icon(Icons.clear_rounded, size: 16, color: Colors.white70),
                       onPressed: () => _searchController.clear(),
                     ),
                 ],
@@ -547,8 +548,9 @@ class _AdoptionsPageState extends ConsumerState<AdoptionsPage> {
                     Container(
                       padding: const EdgeInsets.all(3),
                       decoration: BoxDecoration(
-                        color: PawCoColors.background,
+                        color: PawCoColors.auroraStart,
                         borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: PawCoColors.borderLight),
                       ),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
@@ -564,13 +566,13 @@ class _AdoptionsPageState extends ConsumerState<AdoptionsPage> {
                                 vertical: 7,
                               ),
                               decoration: BoxDecoration(
-                                color: isSelected ? Colors.white : Colors.transparent,
+                                color: isSelected ? PawCoColors.plum : Colors.transparent,
                                 borderRadius: BorderRadius.circular(9),
                                 boxShadow: isSelected
                                     ? [
                                         BoxShadow(
-                                          color: PawCoColors.plum.withValues(alpha: 0.08),
-                                          blurRadius: 6,
+                                          color: PawCoColors.plum.withValues(alpha: 0.35),
+                                          blurRadius: 8,
                                           offset: const Offset(0, 2),
                                         ),
                                       ]
@@ -581,7 +583,7 @@ class _AdoptionsPageState extends ConsumerState<AdoptionsPage> {
                                 style: GoogleFonts.plusJakartaSans(
                                   fontSize: 12.5,
                                   fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
-                                  color: isSelected ? PawCoColors.plum : PawCoColors.muted,
+                                  color: isSelected ? Colors.white : PawCoColors.inkSecondary,
                                 ),
                               ),
                             ),
@@ -603,9 +605,9 @@ class _AdoptionsPageState extends ConsumerState<AdoptionsPage> {
                             label: Text(city),
                             selected: isSelected,
                             selectedColor: PawCoColors.plum,
-                            backgroundColor: Colors.white,
+                            backgroundColor: PawCoColors.surfaceMuted,
                             side: BorderSide(
-                              color: isSelected ? PawCoColors.plum : PawCoColors.border,
+                              color: isSelected ? PawCoColors.lilacGlow : PawCoColors.border,
                             ),
                             labelStyle: GoogleFonts.plusJakartaSans(
                               fontSize: 11.5,
@@ -637,12 +639,12 @@ class _AdoptionsPageState extends ConsumerState<AdoptionsPage> {
         // Buscador
         Container(
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: PawCoColors.surface.withValues(alpha: 0.90),
             borderRadius: BorderRadius.circular(16),
             border: Border.all(color: PawCoColors.border, width: 1.1),
             boxShadow: [
               BoxShadow(
-                color: PawCoColors.plum.withValues(alpha: 0.04),
+                color: Colors.black.withValues(alpha: 0.25),
                 blurRadius: 12,
                 offset: const Offset(0, 3),
               ),
@@ -650,17 +652,17 @@ class _AdoptionsPageState extends ConsumerState<AdoptionsPage> {
           ),
           child: TextField(
             controller: _searchController,
-            style: GoogleFonts.plusJakartaSans(fontSize: 13.5),
+            style: GoogleFonts.plusJakartaSans(fontSize: 13.5, color: Colors.white),
             decoration: InputDecoration(
               hintText: 'Buscar por nombre, barrio, raza o especie...',
               hintStyle: GoogleFonts.plusJakartaSans(
                 fontSize: 13,
-                color: PawCoColors.mutedLight,
+                color: PawCoColors.muted,
               ),
-              prefixIcon: const Icon(Icons.search_rounded, color: PawCoColors.plum, size: 20),
+              prefixIcon: const Icon(Icons.search_rounded, color: PawCoColors.lilacGlow, size: 20),
               suffixIcon: _searchQuery.isNotEmpty
                   ? IconButton(
-                      icon: const Icon(Icons.clear_rounded, size: 16),
+                      icon: const Icon(Icons.clear_rounded, size: 16, color: Colors.white70),
                       onPressed: () => _searchController.clear(),
                     )
                   : null,
@@ -691,12 +693,12 @@ class _AdoptionsPageState extends ConsumerState<AdoptionsPage> {
                   ),
                   selected: isSelected,
                   selectedColor: PawCoColors.plum,
-                  backgroundColor: Colors.white,
+                  backgroundColor: PawCoColors.surfaceMuted,
                   showCheckmark: false,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(14),
                     side: BorderSide(
-                      color: isSelected ? PawCoColors.plum : PawCoColors.border,
+                      color: isSelected ? PawCoColors.lilacGlow : PawCoColors.border,
                     ),
                   ),
                   onSelected: (_) {
@@ -844,7 +846,7 @@ class _AdoptionsPageState extends ConsumerState<AdoptionsPage> {
                 top: 9,
                 right: 9,
                 child: Material(
-                  color: Colors.white.withValues(alpha: 0.92),
+                  color: PawCoColors.surface.withValues(alpha: 0.82),
                   shape: const CircleBorder(),
                   elevation: 2,
                   child: InkWell(
@@ -857,7 +859,7 @@ class _AdoptionsPageState extends ConsumerState<AdoptionsPage> {
                             ? Icons.favorite_rounded
                             : Icons.favorite_border_rounded,
                         size: 17,
-                        color: isFavorite ? PawCoColors.malva : PawCoColors.plum,
+                        color: isFavorite ? PawCoColors.malva : Colors.white,
                       ),
                     ),
                   ),
@@ -874,16 +876,16 @@ class _AdoptionsPageState extends ConsumerState<AdoptionsPage> {
                     vertical: 4,
                   ),
                   decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.95),
+                    color: PawCoColors.surface.withValues(alpha: 0.88),
                     borderRadius: BorderRadius.circular(10),
-                    border: Border.all(color: PawCoColors.border),
+                    border: Border.all(color: Colors.white.withValues(alpha: 0.18)),
                   ),
                   child: Text(
                     pet.species,
                     style: GoogleFonts.plusJakartaSans(
                       fontSize: 10.5,
                       fontWeight: FontWeight.w800,
-                      color: PawCoColors.plum,
+                      color: PawCoColors.lilacGlow,
                     ),
                   ),
                 ),
@@ -903,7 +905,7 @@ class _AdoptionsPageState extends ConsumerState<AdoptionsPage> {
                   style: GoogleFonts.plusJakartaSans(
                     fontSize: 15,
                     fontWeight: FontWeight.w800,
-                    color: PawCoColors.ink,
+                    color: Colors.white,
                     letterSpacing: -0.2,
                   ),
                   maxLines: 1,
@@ -923,7 +925,7 @@ class _AdoptionsPageState extends ConsumerState<AdoptionsPage> {
                         '${pet.city}${pet.neighborhood != null && pet.neighborhood!.isNotEmpty ? " • ${pet.neighborhood}" : ""}',
                         style: GoogleFonts.plusJakartaSans(
                           fontSize: 12,
-                          color: PawCoColors.muted,
+                          color: PawCoColors.inkSecondary,
                           fontWeight: FontWeight.w600,
                         ),
                         maxLines: 1,
@@ -958,9 +960,15 @@ class _AdoptionsPageState extends ConsumerState<AdoptionsPage> {
       padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2.5),
       decoration: BoxDecoration(
         color: isGreen
-            ? const Color(0xFFDCFCE7)
-            : PawCoColors.softMalva,
+            ? const Color(0x2E10B981)
+            : const Color(0x2EEC4899),
         borderRadius: BorderRadius.circular(6),
+        border: Border.all(
+          color: isGreen
+              ? const Color(0x5510B981)
+              : const Color(0x55EC4899),
+          width: 0.8,
+        ),
       ),
       child: Text(
         text,
@@ -968,7 +976,7 @@ class _AdoptionsPageState extends ConsumerState<AdoptionsPage> {
           fontSize: 10,
           fontWeight: FontWeight.w700,
           color: isGreen
-              ? const Color(0xFF15803D)
+              ? const Color(0xFF34D399)
               : PawCoColors.terracottaDark,
         ),
       ),

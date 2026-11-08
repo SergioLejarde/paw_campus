@@ -155,17 +155,22 @@ class _MobileFloatingCapsuleNavBar extends StatelessWidget {
               height: 66,
               padding: EdgeInsets.symmetric(horizontal: isUltraCompact ? 4 : 8),
               decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.92),
+                color: PawCoColors.surface.withValues(alpha: 0.88),
                 borderRadius: BorderRadius.circular(28),
                 border: Border.all(
-                  color: PawCoColors.border,
+                  color: Colors.white.withValues(alpha: 0.14),
                   width: 1.2,
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: PawCoColors.plum.withValues(alpha: 0.12),
+                    color: Colors.black.withValues(alpha: 0.45),
                     blurRadius: 24,
                     offset: const Offset(0, 8),
+                  ),
+                  BoxShadow(
+                    color: PawCoColors.plum.withValues(alpha: 0.12),
+                    blurRadius: 18,
+                    offset: const Offset(0, 2),
                   ),
                 ],
               ),
@@ -291,16 +296,16 @@ class _WebSaaSTopNavBar extends StatelessWidget {
           height: 68,
           padding: EdgeInsets.symmetric(horizontal: isCompactDesktop ? 16 : 32),
           decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.88),
+            color: PawCoColors.auroraStart.withValues(alpha: 0.85),
             border: const Border(
               bottom: BorderSide(
-                color: PawCoColors.border,
+                color: Color(0x1FFFFFFF),
                 width: 1,
               ),
             ),
             boxShadow: [
               BoxShadow(
-                color: PawCoColors.plum.withValues(alpha: 0.04),
+                color: Colors.black.withValues(alpha: 0.35),
                 blurRadius: 16,
                 offset: const Offset(0, 4),
               ),
@@ -579,9 +584,9 @@ class _WebSaaSTopNavBar extends StatelessWidget {
   }) {
     final isSelected = currentIndex == index;
     final textColor = isSelected
-        ? PawCoColors.plum
+        ? Colors.white
         : (isSos
-            ? PawCoColors.terracottaDark
+            ? PawCoColors.malva
             : PawCoColors.inkSecondary);
 
     return Material(
@@ -602,7 +607,7 @@ class _WebSaaSTopNavBar extends StatelessWidget {
                     isSelected ? activeIcon : icon,
                     size: 16,
                     color: isSelected
-                        ? (isSos ? PawCoColors.malva : PawCoColors.plum)
+                        ? (isSos ? PawCoColors.malva : PawCoColors.lilacGlow)
                         : textColor,
                   ),
                   const SizedBox(width: 6),
@@ -624,9 +629,17 @@ class _WebSaaSTopNavBar extends StatelessWidget {
                 width: isSelected ? 28 : 0,
                 decoration: BoxDecoration(
                   gradient: const LinearGradient(
-                    colors: [PawCoColors.plum, PawCoColors.malva],
+                    colors: [PawCoColors.lilacGlow, PawCoColors.malva],
                   ),
                   borderRadius: BorderRadius.circular(2),
+                  boxShadow: isSelected
+                      ? [
+                          BoxShadow(
+                            color: PawCoColors.lilacGlow.withValues(alpha: 0.6),
+                            blurRadius: 6,
+                          ),
+                        ]
+                      : null,
                 ),
               ),
             ],
